@@ -24,13 +24,13 @@ export default function UnloggedPage() {
                 flexDirection: "row",
                 justifyContent: "center",
                 alignItems: "center",
-                width: "1300px",
+                width: "100%",
               }}
             >
               <img
                 src="/3d_daylence_logo.png"
                 alt="Daylence Logo"
-                style={{ width: "1000px", height: "auto" }}
+                style={{ width: "900px", height: "auto" }}
               />
             </div>
             <div
@@ -41,7 +41,7 @@ export default function UnloggedPage() {
                 alignItems: "center",
               }}
             >
-              <h2 style={{ fontSize: "2rem", color: "#333" }}>
+              <h2 style={{ textAlign: "right", fontWeight: "bold", fontStyle: "italic", fontSize: "2rem", color: "#333" }}>
                 Welcome to Daylence, your ultimate time management solution!{" "}
                 <br />
                 Our app is designed to help you take control of your schedule
