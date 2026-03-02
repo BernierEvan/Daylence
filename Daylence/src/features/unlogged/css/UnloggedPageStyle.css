@@ -1,0 +1,43 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/unlogged_background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  opacity: 0.55;
+  z-index: -1;
+}
+
+#root {
+  max-width: none;
+  background-color: transparent;
+}
+
+.wall-container {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.wall-element {
+  width: 100%;
+  min-height: 100vh;
+}
