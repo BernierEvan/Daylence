@@ -6,11 +6,23 @@ import SupportPage from "./resources/support/SupportPage";
 import CguPage from "./policies/cgu/pages/CguPage";
 import ConfidentialityPage from "./policies/confidentiality/pages/ConfidentialityPage";
 import TransportPage from "./features/transport/pages/TransportPage";
-import Preferences from "./components/Preferences/Preferences";
-import BudgetPage from "./features/budget/pages/BudgetPage";
 import SettingsPage from "./features/settings/pages/SettingsPage";
 import ProfilePage from "./features/settings/pages/ProfilePage";
-//imports
+import BudgetPage from "./features/budget/pages/BudgetPage";
+
+
+function App() {
+  return (
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "./features/landing/pages/LandingPage";
+import DiscoverPage from "./resources/discover/pages/DiscoverPage";
+import SupportPage from "./resources/support/SupportPage";
+import CguPage from "./policies/cgu/pages/CguPage";
+import ConfidentialityPage from "./policies/confidentiality/pages/ConfidentialityPage";
+import TransportPage from "./features/transport/pages/TransportPage";
+import SettingsPage from "./features/settings/pages/SettingsPage";
+import ProfilePage from "./features/settings/pages/ProfilePage";
+import BudgetPage from "./features/budget/pages/BudgetPage";
 
 function App() {
   return (

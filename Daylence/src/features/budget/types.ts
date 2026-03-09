@@ -56,16 +56,10 @@ export const CATEGORY_META: Record<
 };
 
 export const EXPENSE_CATEGORIES: Category[] = [
-  "alimentation",
-  "transport",
-  "logement",
-  "loisirs",
-  "sante",
-  "shopping",
-  "education",
-  "abonnements",
-  "epargne",
-  "autre",
+  "alimentation", "transport", "logement", "loisirs", "sante",
+  "shopping", "education", "abonnements", "epargne", "autre",
 ];
 
-export const INCOME_CATEGORIES: Category[] = ["salaire", "freelance", "autre"];
+export const INCOME_CATEGORIES: Category[] = [
+  "salaire", "freelance", "autre",
+];

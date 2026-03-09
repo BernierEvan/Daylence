@@ -3,120 +3,20 @@ import type { Transaction, BudgetGoal, Category, MonthSummary } from "../types";
 
 // ── Sample seed data ──
 const SEED_TRANSACTIONS: Transaction[] = [
-  {
-    id: "1",
-    type: "income",
-    amount: 2800,
-    category: "salaire",
-    label: "Salaire Mars",
-    date: "2026-03-01",
-    note: "Virement employeur",
-  },
-  {
-    id: "2",
-    type: "income",
-    amount: 450,
-    category: "freelance",
-    label: "Mission design",
-    date: "2026-03-03",
-    note: "Client Acme Corp",
-  },
-  {
-    id: "3",
-    type: "expense",
-    amount: 850,
-    category: "logement",
-    label: "Loyer",
-    date: "2026-03-01",
-  },
-  {
-    id: "4",
-    type: "expense",
-    amount: 62.3,
-    category: "alimentation",
-    label: "Courses Carrefour",
-    date: "2026-03-02",
-  },
-  {
-    id: "5",
-    type: "expense",
-    amount: 45,
-    category: "transport",
-    label: "Navigo mensuel",
-    date: "2026-03-01",
-  },
-  {
-    id: "6",
-    type: "expense",
-    amount: 9.99,
-    category: "abonnements",
-    label: "Spotify",
-    date: "2026-03-01",
-  },
-  {
-    id: "7",
-    type: "expense",
-    amount: 13.99,
-    category: "abonnements",
-    label: "Netflix",
-    date: "2026-03-01",
-  },
-  {
-    id: "8",
-    type: "expense",
-    amount: 35,
-    category: "loisirs",
-    label: "Cinéma + resto",
-    date: "2026-03-04",
-  },
-  {
-    id: "9",
-    type: "expense",
-    amount: 89.9,
-    category: "shopping",
-    label: "Chaussures Nike",
-    date: "2026-03-03",
-  },
-  {
-    id: "10",
-    type: "expense",
-    amount: 22,
-    category: "sante",
-    label: "Pharmacie",
-    date: "2026-03-02",
-  },
-  {
-    id: "11",
-    type: "expense",
-    amount: 200,
-    category: "epargne",
-    label: "Virement Livret A",
-    date: "2026-03-01",
-  },
-  {
-    id: "12",
-    type: "expense",
-    amount: 47.5,
-    category: "alimentation",
-    label: "Courses Franprix",
-    date: "2026-03-05",
-  },
-  {
-    id: "13",
-    type: "expense",
-    amount: 29.99,
-    category: "education",
-    label: "Livre TypeScript",
-    date: "2026-03-04",
-  },
-  {
-    id: "14",
-    type: "income",
-    amount: 120,
-    category: "autre",
-    label: "Remboursement ami",
-    date: "2026-03-05",
-  },
+  { id: "1", type: "income", amount: 2800, category: "salaire", label: "Salaire Mars", date: "2026-03-01", note: "Virement employeur" },
+  { id: "2", type: "income", amount: 450, category: "freelance", label: "Mission design", date: "2026-03-03", note: "Client Acme Corp" },
+  { id: "3", type: "expense", amount: 850, category: "logement", label: "Loyer", date: "2026-03-01" },
+  { id: "4", type: "expense", amount: 62.30, category: "alimentation", label: "Courses Carrefour", date: "2026-03-02" },
+  { id: "5", type: "expense", amount: 45, category: "transport", label: "Navigo mensuel", date: "2026-03-01" },
+  { id: "6", type: "expense", amount: 9.99, category: "abonnements", label: "Spotify", date: "2026-03-01" },
+  { id: "7", type: "expense", amount: 13.99, category: "abonnements", label: "Netflix", date: "2026-03-01" },
+  { id: "8", type: "expense", amount: 35, category: "loisirs", label: "Cinéma + resto", date: "2026-03-04" },
+  { id: "9", type: "expense", amount: 89.90, category: "shopping", label: "Chaussures Nike", date: "2026-03-03" },
+  { id: "10", type: "expense", amount: 22, category: "sante", label: "Pharmacie", date: "2026-03-02" },
+  { id: "11", type: "expense", amount: 200, category: "epargne", label: "Virement Livret A", date: "2026-03-01" },
+  { id: "12", type: "expense", amount: 47.50, category: "alimentation", label: "Courses Franprix", date: "2026-03-05" },
+  { id: "13", type: "expense", amount: 29.99, category: "education", label: "Livre TypeScript", date: "2026-03-04" },
+  { id: "14", type: "income", amount: 120, category: "autre", label: "Remboursement ami", date: "2026-03-05" },
 ];
 
 const SEED_GOALS: BudgetGoal[] = [
@@ -169,9 +69,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
 
   updateTransaction: (id, data) => {
     set((s) => ({
-      transactions: s.transactions.map((t) =>
-        t.id === id ? { ...t, ...data } : t,
-      ),
+      transactions: s.transactions.map((t) => (t.id === id ? { ...t, ...data } : t)),
     }));
   },
 
@@ -179,11 +77,7 @@ export const useBudgetStore = create<BudgetState>((set, get) => ({
     set((s) => {
       const exists = s.goals.find((g) => g.category === category);
       if (exists) {
-        return {
-          goals: s.goals.map((g) =>
-            g.category === category ? { ...g, limit } : g,
-          ),
-        };
+        return { goals: s.goals.map((g) => (g.category === category ? { ...g, limit } : g)) };
       }
       return { goals: [...s.goals, { category, limit }] };
     });

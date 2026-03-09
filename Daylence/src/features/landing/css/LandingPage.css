@@ -1,0 +1,904 @@
+/* ──────────────────────────────── 
+Header
+──────────────────────────────── */
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 48px;
+  background: transparent;
+  position: relative;
+  z-index: 50;
+  flex-shrink: 0;
+}
+
+.landing-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-header__logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.landing-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  letter-spacing: -0.02em;
+}
+
+.landing-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.landing-header__link {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.landing-header__link:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.landing-header__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 24px;
+  background: #fff;
+  color: #111;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.landing-header__cta:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+
+.setting-btn {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: rgb(129, 110, 216);
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0px 0px 0px 2px rgb(212, 209, 255);
+}
+.setting-bar {
+  width: 75%;
+  height: 2px;
+  background-color: rgb(229, 229, 229);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 2px;
+}
+.setting-bar::before {
+  content: "";
+  width: 2px;
+  height: 2px;
+  background-color: rgb(126, 117, 255);
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid white;
+  transition: all 0.3s;
+  box-shadow: 0px 0px 5px white;
+}
+.setting-bar1::before {
+  transform: translateX(-4px);
+}
+.setting-bar2::before {
+  transform: translateX(4px);
+}
+.setting-btn:hover .setting-bar1::before {
+  transform: translateX(4px);
+}
+.setting-btn:hover .setting-bar2::before {
+  transform: translateX(-4px);
+}
+.setting-btn:hover .setting-bar3::before {
+  transform: translateX(4px);
+}
+
+
+
+
+/* ──────────────────────────────── 
+Hero
+──────────────────────────────── */
+
+.landing-hero-div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 48px;
+  justify-content: space-between;
+}
+
+.landing-hero-div-buttons {
+  gap: 16px;
+  margin-top: 32px;
+  justify-content: right;
+  justify-items: end;
+}
+
+/* ──────  Recipe  ─────── */
+.btn-recipe-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #e2c73d; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle JAUNE (le span.absolute w-0 h-0) */
+.btn-recipe-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #e3d070; /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-recipe-custom:hover .btn-recipe-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-recipe-svg-left,
+.btn-recipe-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-recipe-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-recipe-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-recipe-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-recipe-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Sleep  ─────── */
+
+.btn-sleep-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #338db6; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle BLLEUE (le span.absolute w-0 h-0) */
+.btn-sleep-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #5eafd4; /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-sleep-custom:hover .btn-sleep-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-sleep-svg-left,
+.btn-sleep-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-sleep-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-sleep-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-sleep-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-sleep-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Transport  ─────── */
+
+.btn-transport-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #e07f38; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle orange (le span.absolute w-0 h-0) */
+.btn-transport-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: rgb(230, 154, 113); /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-transport-custom:hover .btn-transport-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-transport-svg-left,
+.btn-transport-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-transport-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-transport-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-transport-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-transport-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Budget  ─────── */
+
+.btn-budget-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #744092; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle VIOLETTE (le span.absolute w-0 h-0) */
+.btn-budget-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #815d95; /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-budget-custom:hover .btn-budget-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-budget-svg-left,
+.btn-budget-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-budget-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-budget-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-budget-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-budget-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Work  ─────── */
+
+.btn-work-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #489141; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle VERTE (le span.absolute w-0 h-0) */
+.btn-work-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #6db567; /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-work-custom:hover .btn-work-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-work-svg-left,
+.btn-work-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-work-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-work-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-work-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-work-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Todolist  ─────── */
+
+.btn-todolist-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #af2033; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle ROUGE (le span.absolute w-0 h-0) */
+.btn-todolist-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #b14453; /* bg-orange-600 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-todolist-custom:hover .btn-todolist-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-todolist-svg-left,
+.btn-todolist-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-todolist-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-todolist-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-todolist-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-todolist-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────  Appblock  ─────── */
+.btn-appblock-custom {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 32px; /* px-8 py-2.5 */
+  overflow: hidden;
+  letter-spacing: -0.05em; /* tracking-tighter */
+  color: white;
+  background-color: #1f2937; /* bg-gray-800 */
+  border-radius: 50px 0px 0px 50px; /* rounded-md */
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 0px;
+  margin-bottom: 10px;
+}
+
+/* La bulle NOIRE (le span.absolute w-0 h-0) */
+.btn-appblock-bg-hover {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background-color: #3a3a3b; /* bg-gray-800 */
+  border-radius: 9999px;
+  transition: all 500s ease-out; /* transition-all duration-500 */
+  transition-duration: 0.5s;
+  z-index: 0;
+}
+
+.btn-appblock-custom:hover .btn-appblock-bg-hover {
+  width: 224px; /* group-hover:w-56 (56 * 4px) */
+  height: 224px; /* group-hover:h-56 */
+}
+
+/* Les SVGs décoratifs */
+.btn-appblock-svg-left,
+.btn-appblock-svg-right {
+  position: absolute;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1; /* Basé sur le fill-opacity=".1" du SVG */
+  color: #fff;
+  z-index: 1;
+}
+
+.btn-appblock-svg-left {
+  bottom: 0;
+  left: 0;
+  margin-left: -8px; /* -ml-2 */
+}
+
+.btn-appblock-svg-right {
+  top: 0;
+  right: 0;
+  width: 48px; /* w-12 */
+  margin-right: -12px; /* -mr-3 */
+}
+
+svg {
+  width: auto;
+  height: 100%;
+}
+
+/* L'overlay dégradé (le reflet subtil) */
+.btn-appblock-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: -4px;
+  border-radius: 8px;
+  opacity: 0.3;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent,
+    #e5e7eb
+  ); /* bg-gradient-to-b */
+  pointer-events: none;
+}
+
+/* Le texte */
+.btn-appblock-text {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 600;
+  z-index: 10;
+}
+
+/* ──────────────────────────────── 
+Footer
+──────────────────────────────── */
+
+.landing-footer {
+  background: #23272a;
+  border-top: none;
+  padding: 56px 48px 36px;
+}
+
+.landing-footer__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.landing-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 300px;
+}
+
+.landing-footer__brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing-footer__brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.landing-footer__brand-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #7289da;
+}
+
+.landing-footer__brand-desc {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.landing-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.landing-footer__col-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7289da;
+  margin: 0;
+}
+
+.landing-footer__link {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.landing-footer__link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.landing-footer__bottom {
+  max-width: 1280px;
+  margin: 36px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.landing-footer__copy {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
+  margin: 0;
+}
+
+.landing-footer__socials {
+  display: flex;
+  gap: 16px;
+}
+
+.landing-footer__social-link {
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s;
+}
+
+.landing-footer__social-link:hover {
+  color: #fff;
+}

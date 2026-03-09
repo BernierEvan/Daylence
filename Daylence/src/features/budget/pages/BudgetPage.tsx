@@ -9,18 +9,8 @@ import { useBudgetStore } from "../store/budgetStore";
 import "../css/BudgetPage.css";
 
 const MONTH_LABELS = [
-  "Janvier",
-  "Février",
-  "Mars",
-  "Avril",
-  "Mai",
-  "Juin",
-  "Juillet",
-  "Août",
-  "Septembre",
-  "Octobre",
-  "Novembre",
-  "Décembre",
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
 ];
 
 export default function BudgetPage() {
@@ -44,23 +34,13 @@ export default function BudgetPage() {
       {/* ── Header ── */}
       <header className="bp-header">
         <a href="/" className="bp-header__brand">
-          <img
-            src="/daylence_logo_without_title.png"
-            alt="Daylence"
-            className="bp-header__logo"
-          />
+          <img src="/daylence_logo_without_title.png" alt="Daylence" className="bp-header__logo" />
           <span className="bp-header__title">Daylence</span>
         </a>
         <nav className="bp-header__nav">
-          <a href="/" className="bp-header__link">
-            Accueil
-          </a>
-          <a href="/discover" className="bp-header__link">
-            Découvrir
-          </a>
-          <a href="/support" className="bp-header__link">
-            Support
-          </a>
+          <a href="/" className="bp-header__link">Accueil</a>
+          <a href="/discover" className="bp-header__link">Découvrir</a>
+          <a href="/support" className="bp-header__link">Support</a>
         </nav>
       </header>
 
@@ -70,17 +50,11 @@ export default function BudgetPage() {
           <ArrowLeft size={18} /> Retour
         </a>
         <div className="bp-month-picker">
-          <button
-            onClick={() => shiftMonth(-1)}
-            className="bp-month-picker__btn"
-          >
+          <button onClick={() => shiftMonth(-1)} className="bp-month-picker__btn">
             <ChevronLeft size={18} />
           </button>
           <span className="bp-month-picker__label">{monthLabel}</span>
-          <button
-            onClick={() => shiftMonth(1)}
-            className="bp-month-picker__btn"
-          >
+          <button onClick={() => shiftMonth(1)} className="bp-month-picker__btn">
             <ChevronRight size={18} />
           </button>
         </div>
@@ -127,9 +101,7 @@ export default function BudgetPage() {
       {/* ── Footer ── */}
       <footer className="bp-footer">
         <div className="bp-footer__inner">
-          <span className="bp-footer__copy">
-            &copy; {new Date().getFullYear()} Daylence
-          </span>
+          <span className="bp-footer__copy">&copy; {new Date().getFullYear()} Daylence</span>
           <div className="bp-footer__links">
             <a href="/privacy-policy">Confidentialité</a>
             <a href="/support">Aide</a>

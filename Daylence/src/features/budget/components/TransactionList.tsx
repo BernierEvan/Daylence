@@ -43,14 +43,9 @@ export default function TransactionList({ transactions, showAll }: Props) {
                 {meta.label} · {formatDate(tx.date)}
               </span>
             </div>
-            <span
-              className={`tl-item__amount ${isIncome ? "tl-item__amount--income" : "tl-item__amount--expense"}`}
-            >
+            <span className={`tl-item__amount ${isIncome ? "tl-item__amount--income" : "tl-item__amount--expense"}`}>
               {isIncome ? "+" : "−"}
-              {tx.amount.toLocaleString("fr-FR", {
-                style: "currency",
-                currency: "EUR",
-              })}
+              {tx.amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
             </span>
             {showAll && (
               <button
