@@ -88,88 +88,76 @@
 
 /* ── Sidebar ── */
 .sp-sidebar {
-  flex: 0 0 220px;
-  position: sticky;
-  top: 80px;
-  align-self: flex-start;
+  width: 220px;
+  flex-shrink: 0;
 }
-
 .sp-sidebar__title {
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #23272a;
-  margin: 0 0 20px;
-  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
 }
-
 .sp-sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
 }
-
-.sp-sidebar__link {
+.sp-sidebar__btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-decoration: none;
-  border-radius: 12px;
-  transition: background 0.2s, color 0.2s;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
 }
-
-.sp-sidebar__link:hover {
-  background: rgba(108, 92, 231, 0.06);
+.sp-sidebar__btn:hover {
+  background: #ede9fe;
   color: #6c5ce7;
 }
-
-.sp-sidebar__link--active {
-  background: rgba(108, 92, 231, 0.1);
-  color: #6c5ce7;
+.sp-sidebar__btn--active {
+  background: #6c5ce7;
+  color: #fff;
+}
+.sp-sidebar__btn--active:hover {
+  background: #5a4bd1;
+  color: #fff;
 }
 
-/* ── Content area ── */
-.sp-content {
+/* ── Main content ── */
+.sp-main {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
 }
 
 /* ── Section ── */
 .sp-section {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  animation: sp-fadeIn 0.25s ease;
 }
-
-.sp-section__header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+@keyframes sp-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 .sp-section__title {
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #23272a;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.sp-section__title--danger {
-  color: #ef4444;
-}
-
-.sp-section__sub {
-  font-size: 0.88rem;
-  color: #9ca3af;
-  margin: 0;
-  line-height: 1.4;
+  margin: 0 0 1rem;
 }
 
 /* ── Card ── */
@@ -288,6 +276,36 @@
 
 .sp-select:focus {
   border-color: #6c5ce7;
+}
+
+/* ── Storage ── */
+.sp-storage-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+}
+.sp-storage-bar__seg {
+  border-radius: 999px;
+  min-width: 4px;
+}
+.sp-storage-total {
+  font-size: 0.82rem;
+  color: #888;
+  margin: 0 0 0.5rem;
+}
+.sp-storage-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.sp-storage-size {
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 600;
 }
 
 /* ── Buttons ── */

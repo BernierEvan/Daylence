@@ -25,15 +25,24 @@ export default function CategoryBreakdown() {
           const over = spent > goal.limit;
 
           return (
-            <div className={`cb-item ${over ? "cb-item--over" : ""}`} key={goal.category}>
+            <div
+              className={`cb-item ${over ? "cb-item--over" : ""}`}
+              key={goal.category}
+            >
               <div className="cb-item__header">
                 <span className="cb-item__cat">
                   {meta.emoji} {meta.label}
                 </span>
                 <span className="cb-item__values">
-                  {spent.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                  {spent.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
                   {" / "}
-                  {goal.limit.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                  {goal.limit.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  })}
                 </span>
               </div>
               <div className="cb-item__track">

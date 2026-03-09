@@ -35,7 +35,8 @@ function App() {
         <Route path="/support" element={<SupportPage />} />
         <Route path="/privacy-policy" element={<CguPage />} />
         <Route path="/confidentiality" element={<ConfidentialityPage />} />
-        <Route path="/parameters" element={<SettingsPage />} />
+        <Route path="/parameters" element={<Preferences />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>

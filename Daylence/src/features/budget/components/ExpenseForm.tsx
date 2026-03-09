@@ -42,7 +42,11 @@ export default function ExpenseForm() {
 
   return (
     <>
-      <button className="ef-fab" onClick={() => setOpen(true)} title="Ajouter une transaction">
+      <button
+        className="ef-fab"
+        onClick={() => setOpen(true)}
+        title="Ajouter une transaction"
+      >
         <Plus size={22} />
       </button>
 
@@ -51,7 +55,10 @@ export default function ExpenseForm() {
           <div className="ef-modal" onClick={(e) => e.stopPropagation()}>
             <div className="ef-modal__header">
               <h3>Nouvelle transaction</h3>
-              <button className="ef-modal__close" onClick={() => setOpen(false)}>
+              <button
+                className="ef-modal__close"
+                onClick={() => setOpen(false)}
+              >
                 <X size={18} />
               </button>
             </div>
@@ -62,14 +69,20 @@ export default function ExpenseForm() {
                 <button
                   type="button"
                   className={`ef-toggle__btn ${type === "expense" ? "ef-toggle__btn--active ef-toggle__btn--expense" : ""}`}
-                  onClick={() => { setType("expense"); setCategory("alimentation"); }}
+                  onClick={() => {
+                    setType("expense");
+                    setCategory("alimentation");
+                  }}
                 >
                   Dépense
                 </button>
                 <button
                   type="button"
                   className={`ef-toggle__btn ${type === "income" ? "ef-toggle__btn--active ef-toggle__btn--income" : ""}`}
-                  onClick={() => { setType("income"); setCategory("salaire"); }}
+                  onClick={() => {
+                    setType("income");
+                    setCategory("salaire");
+                  }}
                 >
                   Revenu
                 </button>
@@ -120,7 +133,11 @@ export default function ExpenseForm() {
                         type="button"
                         key={c}
                         className={`ef-cat ${category === c ? "ef-cat--active" : ""}`}
-                        style={category === c ? { backgroundColor: meta.color, color: "#fff" } : {}}
+                        style={
+                          category === c
+                            ? { backgroundColor: meta.color, color: "#fff" }
+                            : {}
+                        }
                         onClick={() => setCategory(c)}
                       >
                         {meta.emoji} {meta.label}
@@ -141,7 +158,9 @@ export default function ExpenseForm() {
               </div>
 
               <button type="submit" className="ef-submit">
-                {type === "expense" ? "Ajouter la dépense" : "Ajouter le revenu"}
+                {type === "expense"
+                  ? "Ajouter la dépense"
+                  : "Ajouter le revenu"}
               </button>
             </form>
           </div>

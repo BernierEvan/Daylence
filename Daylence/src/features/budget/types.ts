@@ -37,7 +37,10 @@ export interface MonthSummary {
   byCategory: Record<Category, number>;
 }
 
-export const CATEGORY_META: Record<Category, { label: string; emoji: string; color: string }> = {
+export const CATEGORY_META: Record<
+  Category,
+  { label: string; emoji: string; color: string }
+> = {
   alimentation: { label: "Alimentation", emoji: "🛒", color: "#f59e0b" },
   transport: { label: "Transport", emoji: "🚗", color: "#3b82f6" },
   logement: { label: "Logement", emoji: "🏠", color: "#8b5cf6" },

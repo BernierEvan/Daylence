@@ -41,7 +41,10 @@ export default function BudgetChart() {
                 />
               </div>
               <span className="bc-bar-row__amount">
-                {amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                {amount.toLocaleString("fr-FR", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
               </span>
             </div>
           );
