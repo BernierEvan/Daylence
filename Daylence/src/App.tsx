@@ -51,9 +51,6 @@ import BudgetPage from "./features/budget/pages/BudgetPage";
 
 function App() {
   return (
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -67,13 +64,6 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   );
 }
 
