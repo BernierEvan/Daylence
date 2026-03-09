@@ -1,7 +1,12 @@
-import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Plus, X, Sparkles } from "lucide-react";
 import { useBudgetStore } from "../store/budgetStore";
-import { CATEGORY_META, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "../types";
+import {
+  CATEGORY_META,
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+  smartCategorize,
+} from "../types";
 import type { TransactionType, Category } from "../types";
 
 export default function ExpenseForm() {
@@ -14,6 +19,7 @@ export default function ExpenseForm() {
   const [category, setCategory] = useState<Category>("alimentation");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState("");
+  const [autoDetected, setAutoDetected] = useState(false);
 
   const cats = type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
@@ -23,6 +29,32 @@ export default function ExpenseForm() {
     setCategory(type === "expense" ? "alimentation" : "salaire");
     setDate(new Date().toISOString().slice(0, 10));
     setNote("");
+    setAutoDetected(false);
+  };
+
+  // Smart auto-categorize on label change
+  const handleLabelChange = useCallback((value: string) => {
+    setLabel(value);
+    if (value.length >= 3) {
+      const detected = smartCategorize(value);
+      if (detected) {
+        setCategory(detected);
+        setAutoDetected(true);
+        // Auto-detect type from category
+        if (detected === "salaire" || detected === "freelance") {
+          setType("income");
+        }
+        return;
+      }
+    }
+    setAutoDetected(false);
+  }, []);
+
+  const handleTypeSwitch = (newType: TransactionType) => {
+    setType(newType);
+    if (!autoDetected) {
+      setCategory(newType === "expense" ? "alimentation" : "salaire");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,20 +101,14 @@ export default function ExpenseForm() {
                 <button
                   type="button"
                   className={`ef-toggle__btn ${type === "expense" ? "ef-toggle__btn--active ef-toggle__btn--expense" : ""}`}
-                  onClick={() => {
-                    setType("expense");
-                    setCategory("alimentation");
-                  }}
+                  onClick={() => handleTypeSwitch("expense")}
                 >
                   Dépense
                 </button>
                 <button
                   type="button"
                   className={`ef-toggle__btn ${type === "income" ? "ef-toggle__btn--active ef-toggle__btn--income" : ""}`}
-                  onClick={() => {
-                    setType("income");
-                    setCategory("salaire");
-                  }}
+                  onClick={() => handleTypeSwitch("income")}
                 >
                   Revenu
                 </button>
@@ -93,10 +119,17 @@ export default function ExpenseForm() {
                 <input
                   type="text"
                   value={label}
-                  onChange={(e) => setLabel(e.target.value)}
+                  onChange={(e) => handleLabelChange(e.target.value)}
                   placeholder="Ex: Courses Carrefour"
                   required
                 />
+                {autoDetected && (
+                  <span className="ef-auto-badge">
+                    <Sparkles size={12} /> Auto-détecté :{" "}
+                    {CATEGORY_META[category].emoji}{" "}
+                    {CATEGORY_META[category].label}
+                  </span>
+                )}
               </div>
 
               <div className="ef-row">
@@ -138,7 +171,10 @@ export default function ExpenseForm() {
                             ? { backgroundColor: meta.color, color: "#fff" }
                             : {}
                         }
-                        onClick={() => setCategory(c)}
+                        onClick={() => {
+                          setCategory(c);
+                          setAutoDetected(false);
+                        }}
                       >
                         {meta.emoji} {meta.label}
                       </button>

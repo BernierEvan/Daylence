@@ -1,14 +1,12 @@
-import { useEffect, useRef } from "react";
+import "../css/LandingPage.css";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 
 export default function LandingPage() {
   return (
-    <div className="landing-page">
+    <div className="lp">
       <Header />
-        <Hero />
-      <Footer />
+      <Hero />
     </div>
   );
 }

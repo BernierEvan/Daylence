@@ -740,6 +740,210 @@
 }
 
 /* ────────────────────────────────
+   Compact mode
+   ──────────────────────────────── */
+.compact .unlogged-header {
+  padding: 10px 28px;
+}
+
+.compact .unlogged-header__logo {
+  width: 34px;
+  height: 34px;
+}
+
+.compact .unlogged-header__title {
+  font-size: 1.3rem;
+}
+
+.compact .unlogged-header__nav {
+  gap: 16px;
+}
+
+.compact .unlogged-header__link {
+  font-size: 0.88rem;
+}
+
+.compact .unlogged-header__cta {
+  padding: 8px 20px;
+  font-size: 0.88rem;
+}
+
+/* Compact — Hero */
+.compact .unlogged-hero {
+  padding: 0 28px;
+}
+
+.compact .unlogged-hero__inner {
+  gap: 40px;
+}
+
+.compact .unlogged-hero__headline {
+  font-size: 2.6rem;
+}
+
+.compact .unlogged-hero__sub {
+  font-size: 1.05rem;
+  gap: 18px;
+}
+
+.compact .unlogged-hero__actions {
+  gap: 12px;
+}
+
+.compact .unlogged-hero__btn-primary,
+.compact .unlogged-hero__btn-secondary {
+  padding: 12px 28px;
+  font-size: 0.95rem;
+}
+
+.compact .unlogged-hero__image {
+  max-width: 400px;
+}
+
+.compact .scroll-indicator {
+  padding-bottom: 22px;
+  gap: 6px;
+}
+
+.compact .scroll-indicator__text {
+  font-size: 0.72rem;
+}
+
+/* Compact — Feature sections */
+.compact .feat-section {
+  padding: 0 28px;
+}
+
+.compact .feat-section__inner {
+  gap: 48px;
+}
+
+.compact .feat-section__visual {
+  flex: 0 0 280px;
+}
+
+.compact .feat-section__logo-img {
+  width: 230px;
+  height: 230px;
+}
+
+.compact .feat-section__label {
+  font-size: 0.78rem;
+}
+
+.compact .feat-section__headline {
+  font-size: 2.2rem;
+}
+
+.compact .feat-section__desc {
+  font-size: 0.98rem;
+}
+
+.compact .feat-section__bullets {
+  gap: 8px;
+}
+
+.compact .feat-section__bullets li {
+  font-size: 0.88rem;
+  gap: 8px;
+}
+
+/* Compact — CTA */
+.compact .unlogged-cta {
+  padding: 0 28px;
+}
+
+.compact .unlogged-cta__headline {
+  font-size: 2.1rem;
+}
+
+.compact .unlogged-cta__sub {
+  font-size: 1.02rem;
+  margin-bottom: 28px;
+}
+
+.compact .unlogged-cta__btn {
+  padding: 14px 36px;
+  font-size: 1rem;
+}
+
+/* Compact — Footer */
+.compact .unlogged-footer {
+  padding: 40px 28px 28px;
+}
+
+.compact .unlogged-footer__inner {
+  gap: 28px;
+}
+
+.compact .unlogged-footer__brand-logo {
+  width: 30px;
+  height: 30px;
+}
+
+.compact .unlogged-footer__brand-name {
+  font-size: 1.15rem;
+}
+
+.compact .unlogged-footer__brand-desc {
+  font-size: 0.84rem;
+}
+
+.compact .unlogged-footer__col {
+  gap: 9px;
+}
+
+.compact .unlogged-footer__col-title {
+  font-size: 0.74rem;
+}
+
+.compact .unlogged-footer__link {
+  font-size: 0.84rem;
+}
+
+.compact .unlogged-footer__bottom {
+  margin-top: 28px;
+  padding-top: 18px;
+}
+
+.compact .unlogged-footer__copy {
+  font-size: 0.78rem;
+}
+
+/* ────────────────────────────────
+   Dark mode
+   ──────────────────────────────── */
+.dark .unlogged-page {
+  background-color: #0f0f1a;
+}
+.dark .unlogged-header__title {
+  color: #fff;
+}
+.dark .unlogged-header__link {
+  color: rgba(255, 255, 255, 0.7);
+}
+.dark .unlogged-header__cta {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.dark .unlogged-header__cta:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.dark .feat-section--light {
+  background: #13132a;
+}
+.dark .feat-section--light .feat-section__headline {
+  color: #e0e0e0;
+}
+.dark .feat-section--light .feat-section__desc {
+  color: #a0a0b0;
+}
+.dark .feat-section--light .feat-section__bullets li {
+  color: #a0a0b0;
+}
+
+/* ────────────────────────────────
    Responsive
    ──────────────────────────────── */
 @media (max-width: 900px) {

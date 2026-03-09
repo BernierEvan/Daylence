@@ -1,25 +1,53 @@
-import { useState } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useRef } from "react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  CheckCircle2,
+  Download,
+  Upload,
+  Settings2,
+} from "lucide-react";
 import BudgetOverview from "../components/BudgetOverview";
 import BudgetChart from "../components/BudgetChart";
 import CategoryBreakdown from "../components/CategoryBreakdown";
 import TransactionList from "../components/TransactionList";
 import ExpenseForm from "../components/ExpenseForm";
+import EnvelopeManager from "../components/EnvelopeManager";
 import { useBudgetStore } from "../store/budgetStore";
 import "../css/BudgetPage.css";
 
 const MONTH_LABELS = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
 ];
 
 export default function BudgetPage() {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
-  const recentTxs = useBudgetStore((s) => s.getRecentTransactions(6));
+  const getRecentTransactions = useBudgetStore((s) => s.getRecentTransactions);
+  const recentTxs = getRecentTransactions(6);
+  const runAllocation = useBudgetStore((s) => s.runAllocation);
+  const validateMonth = useBudgetStore((s) => s.validateMonth);
+  const allocationRun = useBudgetStore((s) => s.allocationRun);
+  const exportData = useBudgetStore((s) => s.exportData);
+  const importData = useBudgetStore((s) => s.importData);
+  const getSnapshot = useBudgetStore((s) => s.getSnapshot);
 
   const [year, month] = selectedMonth.split("-").map(Number);
   const monthLabel = `${MONTH_LABELS[month - 1]} ${year}`;
+  const snapshot = getSnapshot(selectedMonth);
 
   const shiftMonth = (delta: number) => {
     const d = new Date(year, month - 1 + delta, 1);
@@ -27,35 +55,112 @@ export default function BudgetPage() {
     setSelectedMonth(`${d.getFullYear()}-${m}`);
   };
 
-  const [tab, setTab] = useState<"overview" | "transactions">("overview");
+  const [tab, setTab] = useState<"overview" | "transactions" | "envelopes">(
+    "overview",
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const json = exportData();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `daylence-budget-${selectedMonth}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        importData(reader.result);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
 
   return (
     <div className="bp-page">
       {/* ── Header ── */}
       <header className="bp-header">
         <a href="/" className="bp-header__brand">
-          <img src="/daylence_logo_without_title.png" alt="Daylence" className="bp-header__logo" />
-          <span className="bp-header__title">Daylence</span>
+          <img
+            src="/daylence_logo_without_title.png"
+            alt="Daylence"
+            className="bp-header__logo"
+          />
+          <span className="bp-header__title">Budget</span>
         </a>
-        <nav className="bp-header__nav">
-          <a href="/" className="bp-header__link">Accueil</a>
-          <a href="/discover" className="bp-header__link">Découvrir</a>
-          <a href="/support" className="bp-header__link">Support</a>
-        </nav>
+        <div className="bp-header__actions">
+          <button
+            className="bp-header__action"
+            onClick={handleExport}
+            title="Exporter JSON"
+          >
+            <Download size={16} /> Exporter
+          </button>
+          <button
+            className="bp-header__action"
+            onClick={() => fileInputRef.current?.click()}
+            title="Importer JSON"
+          >
+            <Upload size={16} /> Importer
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            style={{ display: "none" }}
+          />
+        </div>
       </header>
 
-      {/* ── Sub‑header ── */}
+      {/* ── Sub-header ── */}
       <div className="bp-subheader">
         <a href="/" className="bp-back">
           <ArrowLeft size={18} /> Retour
         </a>
         <div className="bp-month-picker">
-          <button onClick={() => shiftMonth(-1)} className="bp-month-picker__btn">
+          <button
+            onClick={() => shiftMonth(-1)}
+            className="bp-month-picker__btn"
+          >
             <ChevronLeft size={18} />
           </button>
           <span className="bp-month-picker__label">{monthLabel}</span>
-          <button onClick={() => shiftMonth(1)} className="bp-month-picker__btn">
+          <button
+            onClick={() => shiftMonth(1)}
+            className="bp-month-picker__btn"
+          >
             <ChevronRight size={18} />
+          </button>
+        </div>
+        <div className="bp-subheader__right">
+          {snapshot && (
+            <span className="bp-validated-badge">
+              <CheckCircle2 size={14} /> Validé
+            </span>
+          )}
+          <button
+            className="bp-alloc-btn"
+            onClick={() => runAllocation()}
+            title="Lancer l'allocation"
+          >
+            <Play size={14} /> Allouer
+          </button>
+          <button
+            className="bp-validate-btn"
+            onClick={() => validateMonth()}
+            title="Valider le mois"
+            disabled={!allocationRun}
+          >
+            <CheckCircle2 size={14} /> Valider
           </button>
         </div>
       </div>
@@ -74,11 +179,17 @@ export default function BudgetPage() {
         >
           Transactions
         </button>
+        <button
+          className={`bp-tabs__btn ${tab === "envelopes" ? "bp-tabs__btn--active" : ""}`}
+          onClick={() => setTab("envelopes")}
+        >
+          <Settings2 size={14} /> Enveloppes
+        </button>
       </div>
 
       {/* ── Content ── */}
       <main className="bp-content">
-        {tab === "overview" ? (
+        {tab === "overview" && (
           <>
             <BudgetOverview />
             <div className="bp-columns">
@@ -90,9 +201,9 @@ export default function BudgetPage() {
               <TransactionList transactions={recentTxs} />
             </section>
           </>
-        ) : (
-          <TransactionsView />
         )}
+        {tab === "transactions" && <TransactionsView />}
+        {tab === "envelopes" && <EnvelopeManager />}
       </main>
 
       {/* ── FAB ── */}
@@ -101,7 +212,9 @@ export default function BudgetPage() {
       {/* ── Footer ── */}
       <footer className="bp-footer">
         <div className="bp-footer__inner">
-          <span className="bp-footer__copy">&copy; {new Date().getFullYear()} Daylence</span>
+          <span className="bp-footer__copy">
+            &copy; {new Date().getFullYear()} Daylence
+          </span>
           <div className="bp-footer__links">
             <a href="/privacy-policy">Confidentialité</a>
             <a href="/support">Aide</a>
@@ -112,9 +225,10 @@ export default function BudgetPage() {
   );
 }
 
-/* ── Inline Transactions sub‑view ── */
+/* ── Inline Transactions sub-view ── */
 function TransactionsView() {
-  const allTxs = useBudgetStore((s) => s.getMonthTransactions());
+  const getMonthTransactions = useBudgetStore((s) => s.getMonthTransactions);
+  const allTxs = getMonthTransactions();
   const [filter, setFilter] = useState<"all" | "expense" | "income">("all");
 
   const filtered =

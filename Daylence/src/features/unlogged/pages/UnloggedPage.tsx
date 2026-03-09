@@ -10,6 +10,7 @@ const features = [
     image: "/daylence_recipe_logo.png",
     accent: "#f97316",
     bg: "#fff7ed",
+    darkBg: "#1a150f",
     colored: false,
     title: "Recettes & Cuisine",
     headline: "Planifiez vos repas,\ndécouvrez des recettes",
@@ -42,6 +43,7 @@ const features = [
     image: "/daylence_transport_logo.png",
     accent: "#0ea5e9",
     bg: "#f0f9ff",
+    darkBg: "#0f1520",
     colored: false,
     title: "Transports",
     headline: "Ne ratez plus\nvotre bus",
@@ -74,6 +76,7 @@ const features = [
     image: "/daylence_work_logo.png",
     accent: "#a78bfa",
     bg: "#faf5ff",
+    darkBg: "#15101f",
     colored: false,
     title: "Travail & Tâches",
     headline: "Organisez votre travail,\natteignez vos objectifs",
@@ -169,9 +172,11 @@ export default function UnloggedPage() {
         {/* ── Feature sections ── */}
         {features.map((feat, i) => {
           const isReversed = i % 2 !== 0;
-          const bgStyle = feat.bg.startsWith("linear")
-            ? { background: feat.bg }
-            : { backgroundColor: feat.bg };
+          const isDark = document.documentElement.classList.contains("dark");
+          const bg = isDark && feat.darkBg ? feat.darkBg : feat.bg;
+          const bgStyle = bg.startsWith("linear")
+            ? { background: bg }
+            : { backgroundColor: bg };
 
           return (
             <section

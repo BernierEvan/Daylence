@@ -131,6 +131,37 @@
   color: #fff;
 }
 
+/* Sidebar link (used with <button> in the new settings) */
+.sp-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.sp-sidebar__link:hover {
+  background: #ede9fe;
+  color: #6c5ce7;
+}
+.sp-sidebar__link--active {
+  background: #6c5ce7;
+  color: #fff;
+}
+.sp-sidebar__link--active:hover {
+  background: #5a4bd1;
+  color: #fff;
+}
+
 /* ── Main content ── */
 .sp-main {
   flex: 1;
@@ -321,7 +352,10 @@
   border: none;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
 }
 
 .sp-btn:hover {
@@ -464,7 +498,11 @@
   position: absolute;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
   top: -200px;
   right: -100px;
   border-radius: 50%;
@@ -583,7 +621,9 @@
   border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .pf-stat:hover {
@@ -622,7 +662,9 @@
   background: #fff;
   border: 1.5px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .pf-badge:hover {
@@ -727,7 +769,9 @@
   color: #23272a;
   background: #fafafa;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   resize: vertical;
 }
 
@@ -776,6 +820,1112 @@
 
 .sp-footer__links a:hover {
   color: #23272a;
+}
+
+/* ──────────────────────────────── 
+   NEW: Section header sub text
+   ──────────────────────────────── */
+.sp-section__header {
+  margin-bottom: 16px;
+}
+.sp-section__sub {
+  font-size: 0.84rem;
+  color: #9ca3af;
+  margin: 4px 0 0;
+}
+
+/* ──────────────────────────────── 
+   NEW: Mode buttons (light/dark/system)
+   ──────────────────────────────── */
+.sp-mode-btns {
+  display: flex;
+  gap: 6px;
+}
+.sp-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sp-mode-btn:hover {
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+.sp-mode-btn--active {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}
+.sp-mode-btn--active:hover {
+  background: #5b4bd5;
+}
+
+/* ──────────────────────────────── 
+   NEW: Accent color picker
+   ──────────────────────────────── */
+.sp-row--col {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.sp-colors {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.sp-color {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.15s,
+    border-color 0.2s;
+}
+.sp-color:hover {
+  transform: scale(1.15);
+}
+.sp-color--active {
+  border-color: rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.8),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ──────────────────────────────── 
+   NEW: Theme gallery
+   ──────────────────────────────── */
+.sp-themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  padding: 16px 22px;
+}
+.sp-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 10px 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  position: relative;
+}
+.sp-theme:hover {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+.sp-theme--active {
+  border-color: #6c5ce7;
+  background: rgba(108, 92, 231, 0.05);
+}
+.sp-theme__preview {
+  width: 64px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.sp-theme__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+.sp-theme__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.sp-theme__label {
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: #555;
+}
+.sp-theme__check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: #6c5ce7;
+}
+
+/* ──────────────────────────────── 
+   NEW: Background row
+   ──────────────────────────────── */
+.sp-bg-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  width: 100%;
+}
+
+/* ──────────────────────────────── 
+   NEW: Input field
+   ──────────────────────────────── */
+.sp-input {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #23272a;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+.sp-input:focus {
+  border-color: #6c5ce7;
+}
+.sp-input--time {
+  min-width: 100px;
+  width: auto;
+}
+.sp-input--pin {
+  text-align: center;
+  font-size: 1.4rem;
+  letter-spacing: 12px;
+  width: 160px;
+}
+
+/* ──────────────────────────────── 
+   NEW: Module drag row
+   ──────────────────────────────── */
+.sp-row--drag {
+  cursor: grab;
+  user-select: none;
+}
+.sp-row--drag:active {
+  cursor: grabbing;
+  background: rgba(108, 92, 231, 0.05);
+}
+.sp-row__grip {
+  color: #bbb;
+  flex-shrink: 0;
+}
+.sp-row__emoji {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+/* ──────────────────────────────── 
+   NEW: Icon buttons (star, eye-off)
+   ──────────────────────────────── */
+.sp-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #bbb;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.sp-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #6b7280;
+}
+.sp-icon-btn--active {
+  color: #6c5ce7;
+}
+.sp-icon-btn--active:hover {
+  color: #5b4bd5;
+}
+
+/* ──────────────────────────────── 
+   NEW: Emoji grid (custom module icons)
+   ──────────────────────────────── */
+.sp-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+.sp-emoji-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sp-emoji-item__name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 70px;
+}
+.sp-emoji-input {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem;
+  text-align: center;
+  background: #fff;
+  cursor: text;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.sp-emoji-input:focus {
+  border-color: #6c5ce7;
+}
+
+/* ──────────────────────────────── 
+   NEW: Chips (hidden modules)
+   ──────────────────────────────── */
+.sp-hidden-mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sp-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sp-chip:hover {
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+.sp-chip--active {
+  background: rgba(108, 92, 231, 0.1);
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+
+/* ──────────────────────────────── 
+   NEW: PIN setup
+   ──────────────────────────────── */
+.sp-pin-setup {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+.sp-pin-setup__label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #23272a;
+  margin: 0;
+}
+.sp-pin-setup__err {
+  font-size: 0.82rem;
+  color: #ef4444;
+  margin: 0;
+}
+.sp-pin-setup__actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ──────────────────────────────── 
+   NEW: Highlighted row
+   ──────────────────────────────── */
+.sp-row--highlight {
+  background: rgba(108, 92, 231, 0.04);
+}
+
+/* ──────────────────────────────── 
+   NEW: New profile row
+   ──────────────────────────────── */
+.sp-new-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ──────────────────────────────── 
+   NEW: Lock screen
+   ──────────────────────────────── */
+.lock {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f5f7;
+  font-family: "Josefin Sans", system-ui, sans-serif;
+}
+.lock__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 48px 40px 40px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+  min-width: 320px;
+}
+.lock__logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.lock__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #23272a;
+  margin: 0;
+}
+.lock__dots {
+  display: flex;
+  gap: 16px;
+}
+.lock__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ddd;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+.lock__dot--filled {
+  background: #6c5ce7;
+  transform: scale(1.1);
+}
+.lock__pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+.lock__key {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  background: #fafafa;
+  font-family: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #23272a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.lock__key:hover {
+  background: #ede9fe;
+  border-color: #6c5ce7;
+}
+.lock__key:active {
+  transform: scale(0.95);
+  background: #ddd6fe;
+}
+.lock__key--delete {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.15);
+}
+.lock__key--delete:hover {
+  background: #fef2f2;
+}
+.lock__err {
+  font-size: 0.82rem;
+  color: #ef4444;
+  margin: 0;
+  min-height: 1.2em;
+}
+
+/* Lock error shake */
+@keyframes lock-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}
+.lock--error .lock__dots {
+  animation: lock-shake 0.4s ease;
+}
+.lock--error .lock__dot--filled {
+  background: #ef4444;
+}
+
+/* ──────────────────────────────── 
+   Compact mode
+   ──────────────────────────────── */
+.compact .sp-header {
+  padding: 8px 28px;
+}
+
+.compact .sp-header__logo {
+  width: 30px;
+  height: 30px;
+}
+
+.compact .sp-header__title {
+  font-size: 1.2rem;
+}
+
+.compact .sp-header__nav {
+  gap: 16px;
+}
+
+.compact .sp-header__link {
+  font-size: 0.85rem;
+}
+
+.compact .sp-main {
+  padding: 20px 20px 32px;
+  gap: 20px;
+}
+
+.compact .sp-sidebar {
+  width: 190px;
+}
+
+.compact .sp-sidebar__title {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.compact .sp-sidebar__btn,
+.compact .sp-sidebar__link {
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  border-radius: 8px;
+  gap: 0.5rem;
+}
+
+.compact .sp-section__title {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.compact .sp-section__sub {
+  font-size: 0.78rem;
+}
+
+.compact .sp-section__header {
+  margin-bottom: 12px;
+}
+
+.compact .sp-card {
+  border-radius: 14px;
+}
+
+.compact .sp-row {
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.compact .sp-row--compact {
+  padding: 10px 16px;
+}
+
+.compact .sp-row__label {
+  font-size: 0.88rem;
+  gap: 6px;
+}
+
+.compact .sp-row__desc {
+  font-size: 0.78rem;
+}
+
+.compact .sp-row__actions {
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+.compact .sp-toggle {
+  width: 42px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+.compact .sp-toggle__thumb {
+  width: 18px;
+  height: 18px;
+}
+
+.compact .sp-toggle--on .sp-toggle__thumb {
+  transform: translateX(18px);
+}
+
+.compact .sp-select {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  border-radius: 8px;
+  min-width: 120px;
+}
+
+.compact .sp-input {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  border-radius: 8px;
+}
+
+.compact .sp-input--pin {
+  font-size: 1.2rem;
+  letter-spacing: 10px;
+  width: 140px;
+}
+
+.compact .sp-btn {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+.compact .sp-btn--sm {
+  padding: 5px 12px;
+  font-size: 0.76rem;
+  border-radius: 7px;
+}
+
+.compact .sp-mode-btns {
+  gap: 4px;
+}
+
+.compact .sp-mode-btn {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  border-radius: 8px;
+  gap: 4px;
+}
+
+.compact .sp-colors {
+  gap: 8px;
+}
+
+.compact .sp-color {
+  width: 30px;
+  height: 30px;
+}
+
+.compact .sp-themes {
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.compact .sp-theme {
+  padding: 8px 6px;
+  border-radius: 10px;
+}
+
+.compact .sp-theme__preview {
+  width: 56px;
+  height: 38px;
+  border-radius: 8px;
+}
+
+.compact .sp-theme__label {
+  font-size: 0.72rem;
+}
+
+.compact .sp-emoji-grid {
+  gap: 6px;
+}
+
+.compact .sp-emoji-input {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.compact .sp-chip {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+}
+
+.compact .sp-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.compact .sp-pin-setup {
+  padding: 14px 16px;
+  gap: 10px;
+}
+
+.compact .sp-pin-setup__label {
+  font-size: 0.82rem;
+}
+
+.compact .sp-about__row {
+  padding: 10px 16px;
+}
+
+.compact .sp-about__label {
+  font-size: 0.82rem;
+}
+
+.compact .sp-about__value {
+  font-size: 0.84rem;
+}
+
+.compact .sp-storage-bar {
+  margin: 14px 16px 6px;
+}
+
+.compact .sp-storage-total {
+  margin: 0 16px 10px;
+  font-size: 0.78rem;
+}
+
+/* Compact — Profile */
+.compact .pf-hero {
+  min-height: 160px;
+  margin-bottom: 20px;
+}
+
+.compact .pf-hero__content {
+  gap: 18px;
+  padding: 28px 32px 24px;
+}
+
+.compact .pf-avatar {
+  width: 72px;
+  height: 72px;
+}
+
+.compact .pf-avatar__letter {
+  font-size: 2rem;
+}
+
+.compact .pf-avatar__edit {
+  width: 26px;
+  height: 26px;
+}
+
+.compact .pf-hero__name {
+  font-size: 1.5rem;
+}
+
+.compact .pf-hero__email {
+  font-size: 0.88rem;
+}
+
+.compact .pf-hero__location {
+  font-size: 0.8rem;
+}
+
+.compact .pf-body {
+  gap: 20px;
+  padding: 0 8px;
+}
+
+.compact .pf-col {
+  gap: 16px;
+}
+
+.compact .pf-stats {
+  gap: 10px;
+}
+
+.compact .pf-stat {
+  padding: 16px 12px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.compact .pf-stat__value {
+  font-size: 1.5rem;
+}
+
+.compact .pf-stat__label {
+  font-size: 0.72rem;
+}
+
+.compact .pf-badges {
+  gap: 8px;
+}
+
+.compact .pf-badge {
+  padding: 8px 14px;
+  gap: 6px;
+}
+
+.compact .pf-badge__label {
+  font-size: 0.78rem;
+}
+
+.compact .pf-activity {
+  padding: 10px 16px;
+  gap: 10px;
+}
+
+.compact .pf-activity__icon {
+  width: 34px;
+  height: 34px;
+  font-size: 1.2rem;
+  border-radius: 10px;
+}
+
+.compact .pf-activity__label {
+  font-size: 0.84rem;
+}
+
+.compact .pf-activity__detail {
+  font-size: 0.76rem;
+}
+
+.compact .pf-form {
+  padding: 16px;
+  gap: 12px;
+}
+
+.compact .pf-form__label {
+  font-size: 0.82rem;
+  gap: 4px;
+}
+
+.compact .pf-form__input,
+.compact .pf-form__textarea {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+/* Compact — Lock screen */
+.compact .lock__card {
+  padding: 36px 32px 32px;
+  border-radius: 20px;
+  gap: 18px;
+  min-width: 280px;
+}
+
+.compact .lock__logo {
+  width: 46px;
+  height: 46px;
+}
+
+.compact .lock__title {
+  font-size: 1.05rem;
+}
+
+.compact .lock__dots {
+  gap: 12px;
+}
+
+.compact .lock__dot {
+  width: 14px;
+  height: 14px;
+}
+
+.compact .lock__pad {
+  gap: 8px;
+}
+
+.compact .lock__key {
+  width: 54px;
+  height: 54px;
+  font-size: 1.2rem;
+}
+
+/* Compact — Footer */
+.compact .sp-footer {
+  padding: 10px 28px;
+}
+
+.compact .sp-footer__copy {
+  font-size: 0.78rem;
+}
+
+.compact .sp-footer__links {
+  gap: 14px;
+}
+
+.compact .sp-footer__links a {
+  font-size: 0.78rem;
+}
+
+/* ──────────────────────────────── 
+   Dark mode
+   ──────────────────────────────── */
+.dark .sp-page {
+  background: var(--d-bg, #0f0f1a);
+}
+.dark .sp-header {
+  background: var(--d-surface, #1a1a2e);
+  border-bottom-color: var(--d-border, #2a2d38);
+}
+.dark .sp-header__title {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .sp-header__link {
+  color: rgba(255, 255, 255, 0.5);
+}
+.dark .sp-header__link:hover {
+  color: #fff;
+}
+.dark .sp-sidebar__btn,
+.dark .sp-sidebar__link {
+  color: var(--d-text-secondary, #a0a0b0);
+}
+.dark .sp-sidebar__btn:hover,
+.dark .sp-sidebar__link:hover {
+  background: rgba(108, 92, 231, 0.12);
+  color: #a5b4fc;
+}
+.dark .sp-section__title {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .sp-section__sub {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-card {
+  background: var(--d-surface, #1a1a2e);
+  border-color: var(--d-border, #2a2d38);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+}
+.dark .sp-row {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+.dark .sp-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.dark .sp-row__label {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .sp-row__desc {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-toggle {
+  background: #3a3d48;
+}
+.dark .sp-select {
+  color: var(--d-text, #e0e0e0);
+  background: var(--d-surface-alt, #1e1e34);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .sp-input {
+  color: var(--d-text, #e0e0e0);
+  background: var(--d-surface-alt, #1e1e34);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .sp-mode-btn {
+  border-color: var(--d-border, #2a2d38);
+  color: var(--d-text-secondary, #a0a0b0);
+}
+.dark .sp-mode-btn:hover {
+  border-color: #6c5ce7;
+  color: #a5b4fc;
+}
+.dark .sp-color--active {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.dark .sp-theme:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .sp-theme__label {
+  color: var(--d-text-secondary, #a0a0b0);
+}
+.dark .sp-theme__preview {
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .sp-chip {
+  border-color: var(--d-border, #2a2d38);
+  color: var(--d-text-secondary, #a0a0b0);
+}
+.dark .sp-chip:hover {
+  border-color: #6c5ce7;
+  color: #a5b4fc;
+}
+.dark .sp-emoji-item__name {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-emoji-input {
+  background: var(--d-surface-alt, #1e1e34);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .sp-icon-btn {
+  color: #4a4a6a;
+}
+.dark .sp-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--d-text-muted);
+}
+.dark .sp-row__grip {
+  color: #4a4a6a;
+}
+.dark .sp-btn--outline {
+  color: var(--d-text-secondary, #a0a0b0);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .sp-btn--outline:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--d-text);
+}
+.dark .sp-btn--danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+.dark .sp-storage-bar {
+  background: #22223a;
+}
+.dark .sp-storage-total {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-about__row {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+.dark .sp-about__label {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-about__value {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .sp-footer {
+  background: var(--d-surface, #1a1a2e);
+  border-top-color: var(--d-border, #2a2d38);
+}
+.dark .sp-footer__copy {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-footer__links a {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-footer__links a:hover {
+  color: var(--d-text);
+}
+.dark .sp-pin-setup {
+  border-top-color: rgba(255, 255, 255, 0.04);
+}
+.dark .sp-pin-setup__label {
+  color: var(--d-text, #e0e0e0);
+}
+/* Profile */
+.dark .pf-stat {
+  background: var(--d-surface, #1a1a2e);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .pf-stat:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+.dark .pf-stat__label {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .pf-badge {
+  background: var(--d-surface, #1a1a2e);
+  border-color: var(--d-border, #2a2d38);
+}
+.dark .pf-badge__label {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .pf-activity {
+  border-bottom-color: rgba(255, 255, 255, 0.04);
+}
+.dark .pf-activity:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.dark .pf-activity__icon {
+  background: var(--d-surface-alt, #1e1e34);
+}
+.dark .pf-activity__label {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .pf-activity__detail {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .pf-activity__date {
+  color: #4a4a6a;
+}
+.dark .pf-form__label {
+  color: var(--d-text-muted, #6b7280);
+}
+.dark .pf-form__input,
+.dark .pf-form__textarea {
+  background: var(--d-surface-alt, #1e1e34);
+  border-color: var(--d-border, #2a2d38);
+  color: var(--d-text, #e0e0e0);
+}
+.dark .pf-form__input:focus,
+.dark .pf-form__textarea:focus {
+  background: var(--d-surface, #1a1a2e);
+}
+/* Lock screen */
+.dark .lock {
+  background: var(--d-bg, #0f0f1a);
+}
+.dark .lock__card {
+  background: var(--d-surface, #1a1a2e);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+.dark .lock__title {
+  color: var(--d-text, #e0e0e0);
+}
+.dark .lock__dot {
+  background: #3a3d48;
+}
+.dark .lock__key {
+  background: var(--d-surface-alt, #1e1e34);
+  border-color: var(--d-border, #2a2d38);
+  color: var(--d-text, #e0e0e0);
+}
+.dark .lock__key:hover {
+  background: rgba(108, 92, 231, 0.15);
+  border-color: #6c5ce7;
+}
+.dark .lock__key:active {
+  background: rgba(108, 92, 231, 0.25);
+}
+.dark .lock__key--delete {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+.dark .lock__key--delete:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* ──────────────────────────────── 

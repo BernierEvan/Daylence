@@ -1,260 +1,1235 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Bell,
+  Palette,
+  Shield,
+  Accessibility,
+  Database,
+  Info,
+  Sun,
+  Moon,
+  Monitor,
+  Check,
+  Download,
+  Trash2,
+  Lock,
+  User,
+  GripVertical,
+  Star,
+  EyeOff,
+  Plus,
+  X,
+  Image,
+  Home,
+  Globe,
+  Clock,
+  Calendar,
+  Coins,
+  Zap,
+  Volume2,
+  Mail,
+  Train,
+  ListTodo,
+  BedDouble,
+  Sunrise,
+  RotateCcw,
+} from "lucide-react";
+import {
+  usePreferences,
+  ACCENT_PRESETS,
+  THEME_PRESETS,
+  type ThemeMode,
+  type FontSize,
+  type Language,
+  type TimeFormat,
+  type FirstDay,
+  type Currency,
+  type DefaultPage,
+} from "../store/preferencesStore";
 import "../css/SettingsProfile.css";
 
-interface ToggleOption {
-  id: string;
-  label: string;
-  description: string;
-  defaultValue: boolean;
+/* ── Small reusable pieces ── */
+
+function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
+  return (
+    <button
+      className={`sp-toggle ${on ? "sp-toggle--on" : ""}`}
+      onClick={onChange}
+    >
+      <span className="sp-toggle__thumb" />
+    </button>
+  );
 }
 
-interface SelectOption {
-  id: string;
-  label: string;
-  description: string;
-  options: string[];
-  defaultValue: string;
+function Select<T extends string>({
+  value,
+  options,
+  labels,
+  onChange,
+}: {
+  value: T;
+  options: T[];
+  labels: Record<T, string>;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <select
+      className="sp-select"
+      value={value}
+      onChange={(e) => onChange(e.target.value as T)}
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {labels[o]}
+        </option>
+      ))}
+    </select>
+  );
 }
 
-const notificationToggles: ToggleOption[] = [
-  { id: "notif-push", label: "Notifications push", description: "Recevoir des notifications sur votre appareil", defaultValue: true },
-  { id: "notif-email", label: "Notifications par e-mail", description: "Recevoir un résumé quotidien par e-mail", defaultValue: false },
-  { id: "notif-sound", label: "Sons de notification", description: "Jouer un son lors de la réception d'une notification", defaultValue: true },
-  { id: "notif-transport", label: "Alertes transport", description: "Notifications de retards et perturbations", defaultValue: true },
+/* ── Sidebar sections ── */
+
+const NAV = [
+  { id: "appearance", icon: Palette, label: "Apparence" },
+  { id: "themes", icon: Sun, label: "Thèmes" },
+  { id: "home", icon: Home, label: "Page d'accueil" },
+  { id: "modules", icon: GripVertical, label: "Modules" },
+  { id: "notifications", icon: Bell, label: "Notifications" },
+  { id: "behavior", icon: Globe, label: "Comportement" },
+  { id: "privacy", icon: Shield, label: "Données" },
+  { id: "accessibility", icon: Accessibility, label: "Accessibilité" },
+  { id: "security", icon: Lock, label: "Sécurité" },
+  { id: "profiles", icon: User, label: "Profils" },
+  { id: "storage", icon: Database, label: "Stockage" },
+  { id: "about", icon: Info, label: "À propos" },
 ];
 
-const privacyToggles: ToggleOption[] = [
-  { id: "priv-analytics", label: "Données analytiques", description: "Partager des données anonymes pour améliorer l'app", defaultValue: true },
-  { id: "priv-location", label: "Localisation", description: "Autoriser l'accès à votre position GPS", defaultValue: false },
-  { id: "priv-history", label: "Historique de navigation", description: "Sauvegarder l'historique de vos recherches", defaultValue: true },
-];
-
-const displaySelects: SelectOption[] = [
-  { id: "disp-theme", label: "Thème", description: "Apparence de l'application", options: ["Clair", "Sombre", "Système"], defaultValue: "Clair" },
-  { id: "disp-lang", label: "Langue", description: "Langue de l'interface", options: ["Français", "English", "Español", "Deutsch"], defaultValue: "Français" },
-  { id: "disp-font", label: "Taille du texte", description: "Taille de police de l'interface", options: ["Petit", "Normal", "Grand", "Très grand"], defaultValue: "Normal" },
-];
-
-const accessibilityToggles: ToggleOption[] = [
-  { id: "a11y-reduce-motion", label: "Réduire les animations", description: "Désactiver les animations de l'interface", defaultValue: false },
-  { id: "a11y-high-contrast", label: "Contraste élevé", description: "Augmenter le contraste des couleurs", defaultValue: false },
-  { id: "a11y-screen-reader", label: "Lecteur d'écran", description: "Optimiser pour les technologies d'assistance", defaultValue: false },
-];
-
-const storageItems = [
-  { label: "Cache de l'application", size: "24.3 Mo", color: "#3b82f6" },
-  { label: "Images téléchargées", size: "12.1 Mo", color: "#22c55e" },
-  { label: "Données hors-ligne", size: "8.7 Mo", color: "#f59e0b" },
-  { label: "Historique", size: "2.4 Mo", color: "#ef4444" },
-];
+/* ── Main ── */
 
 export default function SettingsPage() {
-  const [toggles, setToggles] = useState<Record<string, boolean>>(() => {
-    const init: Record<string, boolean> = {};
-    [...notificationToggles, ...privacyToggles, ...accessibilityToggles].forEach((t) => {
-      init[t.id] = t.defaultValue;
-    });
-    return init;
-  });
+  const navigate = useNavigate();
+  const [section, setSection] = useState("appearance");
+  const prefs = usePreferences();
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const [selects, setSelects] = useState<Record<string, string>>(() => {
-    const init: Record<string, string> = {};
-    displaySelects.forEach((s) => {
-      init[s.id] = s.defaultValue;
-    });
-    return init;
-  });
+  /* ── PIN setup state ── */
+  const [pinSetup, setPinSetup] = useState<{
+    step: "new" | "confirm";
+    code: string;
+  } | null>(null);
+  const [pinDraft, setPinDraft] = useState("");
+  const [pinError, setPinError] = useState("");
 
-  const handleToggle = (id: string) => {
-    setToggles((prev) => ({ ...prev, [id]: !prev[id] }));
+  /* ── New profile state ── */
+  const [newProfileName, setNewProfileName] = useState("");
+  const [newProfileEmoji, setNewProfileEmoji] = useState("🏢");
+
+  const scrollTo = (id: string) => {
+    setSection(id);
+    document
+      .getElementById(`sec-${id}`)
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSelect = (id: string, value: string) => {
-    setSelects((prev) => ({ ...prev, [id]: value }));
+  /* ── Drag & Drop modules ── */
+  const dragIdx = useRef<number | null>(null);
+  const handleDragStart = (idx: number) => {
+    dragIdx.current = idx;
+  };
+  const handleDrop = (idx: number) => {
+    if (dragIdx.current !== null && dragIdx.current !== idx) {
+      prefs.reorderModules(dragIdx.current, idx);
+    }
+    dragIdx.current = null;
+  };
+
+  /* ── Export ── */
+  const handleExport = () => {
+    const json = prefs.exportData();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `daylence-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /* ── Custom background ── */
+  const handleBgFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        prefs.set("customBg", reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
     <div className="sp-page">
       {/* Header */}
       <header className="sp-header">
-        <a href="/" className="sp-header__brand">
-          <img src="/daylence_logo_without_title.png" alt="Daylence" className="sp-header__logo" />
+        <a
+          href="/"
+          className="sp-header__brand"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}
+        >
+          <img
+            src="/daylence_logo_without_title.png"
+            alt="Daylence"
+            className="sp-header__logo"
+          />
           <span className="sp-header__title">Daylence</span>
         </a>
         <nav className="sp-header__nav">
-          <a href="/" className="sp-header__link">Accueil</a>
-          <a href="/profile" className="sp-header__link">Mon Profil</a>
+          <a
+            href="/"
+            className="sp-header__link"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}
+          >
+            Accueil
+          </a>
+          <a
+            href="/profile"
+            className="sp-header__link"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/profile");
+            }}
+          >
+            Mon Profil
+          </a>
         </nav>
       </header>
 
-      {/* Content */}
       <main className="sp-main">
+        {/* Sidebar */}
         <div className="sp-sidebar">
           <h2 className="sp-sidebar__title">Paramètres</h2>
           <nav className="sp-sidebar__nav">
-            <a href="#notifications" className="sp-sidebar__link sp-sidebar__link--active">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              Notifications
-            </a>
-            <a href="#display" className="sp-sidebar__link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-              Affichage
-            </a>
-            <a href="#privacy" className="sp-sidebar__link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Confidentialité
-            </a>
-            <a href="#accessibility" className="sp-sidebar__link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
-              Accessibilité
-            </a>
-            <a href="#storage" className="sp-sidebar__link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-              Stockage
-            </a>
-            <a href="#about" className="sp-sidebar__link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              À propos
-            </a>
+            {NAV.map((n) => (
+              <button
+                key={n.id}
+                className={`sp-sidebar__link ${section === n.id ? "sp-sidebar__link--active" : ""}`}
+                onClick={() => scrollTo(n.id)}
+              >
+                <n.icon size={18} />
+                {n.label}
+              </button>
+            ))}
           </nav>
         </div>
 
+        {/* Content */}
         <div className="sp-content">
-          {/* Notifications */}
-          <section id="notifications" className="sp-section">
+          {/* ═══════ 1. APPEARANCE ═══════ */}
+          <section id="sec-appearance" className="sp-section">
             <div className="sp-section__header">
-              <h3 className="sp-section__title">Notifications</h3>
-              <p className="sp-section__sub">Gérez comment et quand vous recevez des alertes.</p>
+              <h3 className="sp-section__title">Apparence</h3>
+              <p className="sp-section__sub">
+                Personnalisez l'apparence de Daylence.
+              </p>
             </div>
             <div className="sp-card">
-              {notificationToggles.map((t) => (
-                <div key={t.id} className="sp-row">
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">{t.label}</span>
-                    <span className="sp-row__desc">{t.description}</span>
-                  </div>
+              {/* Theme mode */}
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Mode</span>
+                  <span className="sp-row__desc">
+                    Clair, sombre ou automatique
+                  </span>
+                </div>
+                <div className="sp-mode-btns">
+                  {[
+                    { mode: "light" as ThemeMode, icon: Sun, label: "Clair" },
+                    { mode: "dark" as ThemeMode, icon: Moon, label: "Sombre" },
+                    {
+                      mode: "system" as ThemeMode,
+                      icon: Monitor,
+                      label: "Auto",
+                    },
+                  ].map((m) => (
+                    <button
+                      key={m.mode}
+                      className={`sp-mode-btn ${prefs.themeMode === m.mode ? "sp-mode-btn--active" : ""}`}
+                      onClick={() => prefs.set("themeMode", m.mode)}
+                    >
+                      <m.icon size={16} />
+                      <span>{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Compact */}
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Mode compact</span>
+                  <span className="sp-row__desc">
+                    Réduire les espacements et les bordures arrondies
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.compact}
+                  onChange={() => prefs.set("compact", !prefs.compact)}
+                />
+              </div>
+
+              {/* Accent color */}
+              <div className="sp-row sp-row--col">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Couleur d'accent</span>
+                  <span className="sp-row__desc">
+                    Couleur principale de l'interface
+                  </span>
+                </div>
+                <div className="sp-colors">
+                  {ACCENT_PRESETS.map((c) => (
+                    <button
+                      key={c.value}
+                      className={`sp-color ${prefs.accentColor === c.value ? "sp-color--active" : ""}`}
+                      style={{ background: c.value }}
+                      title={c.name}
+                      onClick={() => prefs.set("accentColor", c.value)}
+                    >
+                      {prefs.accentColor === c.value && (
+                        <Check size={14} color="#fff" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font size */}
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Taille de police</span>
+                  <span className="sp-row__desc">
+                    Ajuster la taille du texte
+                  </span>
+                </div>
+                <Select
+                  value={prefs.fontSize}
+                  options={["small", "normal", "large", "xlarge"] as FontSize[]}
+                  labels={{
+                    small: "Petit",
+                    normal: "Normal",
+                    large: "Grand",
+                    xlarge: "Très grand",
+                  }}
+                  onChange={(v) => prefs.set("fontSize", v)}
+                />
+              </div>
+
+              {/* Custom background */}
+              <div className="sp-row sp-row--col">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    Fond d'écran personnalisé
+                  </span>
+                  <span className="sp-row__desc">
+                    Image ou gradient CSS en arrière-plan
+                  </span>
+                </div>
+                <div className="sp-bg-row">
+                  <input
+                    className="sp-input"
+                    placeholder="ex: linear-gradient(135deg, #667eea, #764ba2)"
+                    value={
+                      prefs.customBg.startsWith("data:")
+                        ? "(image)"
+                        : prefs.customBg
+                    }
+                    onChange={(e) => prefs.set("customBg", e.target.value)}
+                    readOnly={prefs.customBg.startsWith("data:")}
+                  />
                   <button
-                    className={`sp-toggle ${toggles[t.id] ? "sp-toggle--on" : ""}`}
-                    onClick={() => handleToggle(t.id)}
-                    aria-label={t.label}
+                    className="sp-btn sp-btn--outline sp-btn--sm"
+                    onClick={() => fileRef.current?.click()}
                   >
-                    <span className="sp-toggle__thumb" />
+                    <Image size={14} /> Image
                   </button>
+                  {prefs.customBg && (
+                    <button
+                      className="sp-btn sp-btn--outline sp-btn--sm"
+                      onClick={() => prefs.set("customBg", "")}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleBgFile}
+                  />
                 </div>
-              ))}
+              </div>
             </div>
           </section>
 
-          {/* Display */}
-          <section id="display" className="sp-section">
+          {/* ═══════ 2. THEMES ═══════ */}
+          <section id="sec-themes" className="sp-section">
             <div className="sp-section__header">
-              <h3 className="sp-section__title">Affichage</h3>
-              <p className="sp-section__sub">Personnalisez l'apparence de votre application.</p>
+              <h3 className="sp-section__title">Thèmes</h3>
+              <p className="sp-section__sub">
+                Appliquez un thème prédéfini en un clic.
+              </p>
             </div>
             <div className="sp-card">
-              {displaySelects.map((s) => (
-                <div key={s.id} className="sp-row">
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">{s.label}</span>
-                    <span className="sp-row__desc">{s.description}</span>
-                  </div>
-                  <select
-                    className="sp-select"
-                    value={selects[s.id]}
-                    onChange={(e) => handleSelect(s.id, e.target.value)}
-                  >
-                    {s.options.map((o) => (
-                      <option key={o} value={o}>{o}</option>
-                    ))}
-                  </select>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Privacy */}
-          <section id="privacy" className="sp-section">
-            <div className="sp-section__header">
-              <h3 className="sp-section__title">Confidentialité</h3>
-              <p className="sp-section__sub">Contrôlez vos données et votre vie privée.</p>
-            </div>
-            <div className="sp-card">
-              {privacyToggles.map((t) => (
-                <div key={t.id} className="sp-row">
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">{t.label}</span>
-                    <span className="sp-row__desc">{t.description}</span>
-                  </div>
+              <div className="sp-themes">
+                {THEME_PRESETS.map((t) => (
                   <button
-                    className={`sp-toggle ${toggles[t.id] ? "sp-toggle--on" : ""}`}
-                    onClick={() => handleToggle(t.id)}
-                    aria-label={t.label}
+                    key={t.id}
+                    className={`sp-theme ${prefs.customThemeId === t.id ? "sp-theme--active" : ""}`}
+                    onClick={() => prefs.applyThemePreset(t.id)}
                   >
-                    <span className="sp-toggle__thumb" />
+                    <div
+                      className="sp-theme__preview"
+                      style={{ background: t.bg }}
+                    >
+                      <span
+                        className="sp-theme__dot"
+                        style={{ background: t.accent }}
+                      />
+                      <span
+                        className="sp-theme__swatch"
+                        style={{ background: t.surface }}
+                      />
+                    </div>
+                    <span className="sp-theme__label">
+                      {t.emoji} {t.name}
+                    </span>
+                    {prefs.customThemeId === t.id && (
+                      <Check size={14} className="sp-theme__check" />
+                    )}
                   </button>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Accessibility */}
-          <section id="accessibility" className="sp-section">
-            <div className="sp-section__header">
-              <h3 className="sp-section__title">Accessibilité</h3>
-              <p className="sp-section__sub">Adaptez l'interface à vos besoins.</p>
-            </div>
-            <div className="sp-card">
-              {accessibilityToggles.map((t) => (
-                <div key={t.id} className="sp-row">
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">{t.label}</span>
-                    <span className="sp-row__desc">{t.description}</span>
-                  </div>
-                  <button
-                    className={`sp-toggle ${toggles[t.id] ? "sp-toggle--on" : ""}`}
-                    onClick={() => handleToggle(t.id)}
-                    aria-label={t.label}
-                  >
-                    <span className="sp-toggle__thumb" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Storage */}
-          <section id="storage" className="sp-section">
-            <div className="sp-section__header">
-              <h3 className="sp-section__title">Stockage</h3>
-              <p className="sp-section__sub">Gérez l'espace utilisé par l'application.</p>
-            </div>
-            <div className="sp-card">
-              <div className="sp-storage-bar">
-                {storageItems.map((s) => (
-                  <div key={s.label} className="sp-storage-bar__segment" style={{ background: s.color, flex: parseFloat(s.size) }} />
                 ))}
               </div>
-              <p className="sp-storage-total">47.5 Mo utilisés sur 500 Mo</p>
-              {storageItems.map((s) => (
-                <div key={s.label} className="sp-row sp-row--compact">
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">
-                      <span className="sp-storage-dot" style={{ background: s.color }} />
-                      {s.label}
-                    </span>
-                    <span className="sp-row__desc">{s.size}</span>
-                  </div>
-                  <button className="sp-btn sp-btn--outline sp-btn--sm">Vider</button>
+              {prefs.customThemeId && (
+                <div className="sp-row__actions" style={{ marginTop: 12 }}>
+                  <button
+                    className="sp-btn sp-btn--outline"
+                    onClick={() => prefs.set("customThemeId", null)}
+                  >
+                    <RotateCcw size={14} /> Réinitialiser le thème
+                  </button>
                 </div>
-              ))}
-              <div className="sp-row__actions">
-                <button className="sp-btn sp-btn--danger">Vider tout le cache</button>
+              )}
+            </div>
+          </section>
+
+          {/* ═══════ 3. HOME PAGE ═══════ */}
+          <section id="sec-home" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Page d'accueil</h3>
+              <p className="sp-section__sub">
+                Configurez la disposition de votre écran principal.
+              </p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    Afficher la colonne abonnement
+                  </span>
+                  <span className="sp-row__desc">
+                    Panneau de gauche avec l'offre Pro
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.showSubscription}
+                  onChange={() =>
+                    prefs.set("showSubscription", !prefs.showSubscription)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    Afficher la colonne modules
+                  </span>
+                  <span className="sp-row__desc">
+                    Panneau de droite avec les raccourcis modules
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.showModules}
+                  onChange={() => prefs.set("showModules", !prefs.showModules)}
+                />
               </div>
             </div>
           </section>
 
-          {/* About */}
-          <section id="about" className="sp-section">
+          {/* ═══════ 4. MODULES ═══════ */}
+          <section id="sec-modules" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Modules</h3>
+              <p className="sp-section__sub">
+                Réorganisez, mettez en favoris ou masquez des modules. Glissez
+                pour réordonner.
+              </p>
+            </div>
+            <div className="sp-card">
+              {prefs.modules.map((mod, idx) => (
+                <div
+                  key={mod.id}
+                  className="sp-row sp-row--drag"
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(idx)}
+                >
+                  <GripVertical size={16} className="sp-row__grip" />
+                  <span className="sp-row__emoji">
+                    {prefs.moduleIcons[mod.id] || getModuleEmoji(mod.id)}
+                  </span>
+                  <div className="sp-row__text" style={{ flex: 1 }}>
+                    <span className="sp-row__label">
+                      {getModuleLabel(mod.id)}
+                    </span>
+                  </div>
+                  <button
+                    className={`sp-icon-btn ${mod.favorited ? "sp-icon-btn--active" : ""}`}
+                    title="Favori"
+                    onClick={() => prefs.toggleModule(mod.id, "favorited")}
+                  >
+                    <Star
+                      size={15}
+                      fill={mod.favorited ? "currentColor" : "none"}
+                    />
+                  </button>
+                  <button
+                    className={`sp-icon-btn ${!mod.visible ? "sp-icon-btn--active" : ""}`}
+                    title="Masquer"
+                    onClick={() => prefs.toggleModule(mod.id, "visible")}
+                  >
+                    <EyeOff size={15} />
+                  </button>
+                </div>
+              ))}
+
+              {/* Module icon override */}
+              <div className="sp-row sp-row--col" style={{ marginTop: 12 }}>
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Icônes personnalisées</span>
+                  <span className="sp-row__desc">
+                    Remplacez les icônes par des emojis
+                  </span>
+                </div>
+                <div className="sp-emoji-grid">
+                  {prefs.modules.map((mod) => (
+                    <div key={mod.id} className="sp-emoji-item">
+                      <span className="sp-emoji-item__name">
+                        {getModuleLabel(mod.id)}
+                      </span>
+                      <input
+                        className="sp-emoji-input"
+                        maxLength={2}
+                        value={prefs.moduleIcons[mod.id] ?? ""}
+                        placeholder={getModuleEmoji(mod.id)}
+                        onChange={(e) =>
+                          prefs.setModuleIcon(mod.id, e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 5. NOTIFICATIONS ═══════ */}
+          <section id="sec-notifications" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Notifications</h3>
+              <p className="sp-section__sub">Gérez vos alertes et rappels.</p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Zap size={15} /> Notifications push
+                  </span>
+                  <span className="sp-row__desc">
+                    Recevoir des notifications sur votre appareil
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.notifications.pushEnabled}
+                  onChange={() =>
+                    prefs.setNotification(
+                      "pushEnabled",
+                      !prefs.notifications.pushEnabled,
+                    )
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Mail size={15} /> Notifications par e-mail
+                  </span>
+                  <span className="sp-row__desc">
+                    Recevoir un résumé quotidien par e-mail
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.notifications.emailEnabled}
+                  onChange={() =>
+                    prefs.setNotification(
+                      "emailEnabled",
+                      !prefs.notifications.emailEnabled,
+                    )
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Volume2 size={15} /> Sons de notification
+                  </span>
+                  <span className="sp-row__desc">
+                    Jouer un son lors de la réception
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.notifications.soundEnabled}
+                  onChange={() =>
+                    prefs.setNotification(
+                      "soundEnabled",
+                      !prefs.notifications.soundEnabled,
+                    )
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Train size={15} /> Alerte trajet
+                  </span>
+                  <span className="sp-row__desc">
+                    Notification X min avant un départ suivi
+                  </span>
+                </div>
+                <select
+                  className="sp-select"
+                  value={prefs.notifications.trajetAlertMinutes}
+                  onChange={(e) =>
+                    prefs.setNotification("trajetAlertMinutes", +e.target.value)
+                  }
+                >
+                  <option value={0}>Désactivé</option>
+                  <option value={5}>5 min</option>
+                  <option value={10}>10 min</option>
+                  <option value={15}>15 min</option>
+                  <option value={30}>30 min</option>
+                  <option value={60}>1 heure</option>
+                </select>
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <ListTodo size={15} /> Rappels tâches
+                  </span>
+                  <span className="sp-row__desc">
+                    Notification pour les todos à échéance
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.notifications.todoReminders}
+                  onChange={() =>
+                    prefs.setNotification(
+                      "todoReminders",
+                      !prefs.notifications.todoReminders,
+                    )
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <BedDouble size={15} /> Rappel sommeil
+                  </span>
+                  <span className="sp-row__desc">
+                    Heure du rappel "Il est l'heure de dormir"
+                  </span>
+                </div>
+                <input
+                  type="time"
+                  className="sp-input sp-input--time"
+                  value={prefs.notifications.sleepReminderTime}
+                  onChange={(e) =>
+                    prefs.setNotification("sleepReminderTime", e.target.value)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Sunrise size={15} /> Résumé matinal
+                  </span>
+                  <span className="sp-row__desc">
+                    Récap chaque matin : tâches, météo, trajet
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.notifications.morningSummary}
+                  onChange={() =>
+                    prefs.setNotification(
+                      "morningSummary",
+                      !prefs.notifications.morningSummary,
+                    )
+                  }
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 6. BEHAVIOR ═══════ */}
+          <section id="sec-behavior" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Comportement</h3>
+              <p className="sp-section__sub">
+                Configurez le comportement général de l'app.
+              </p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Page par défaut</span>
+                  <span className="sp-row__desc">
+                    Page affichée au lancement
+                  </span>
+                </div>
+                <Select
+                  value={prefs.defaultPage}
+                  options={
+                    [
+                      "/",
+                      "/todos",
+                      "/budget",
+                      "/transport",
+                      "/recipes",
+                      "/sleep",
+                      "/work",
+                    ] as DefaultPage[]
+                  }
+                  labels={{
+                    "/": "Accueil",
+                    "/todos": "To-do",
+                    "/budget": "Budget",
+                    "/transport": "Transport",
+                    "/recipes": "Recettes",
+                    "/sleep": "Sommeil",
+                    "/work": "Travail",
+                  }}
+                  onChange={(v) => prefs.set("defaultPage", v)}
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Globe size={15} /> Langue
+                  </span>
+                  <span className="sp-row__desc">Langue de l'interface</span>
+                </div>
+                <Select
+                  value={prefs.language}
+                  options={["fr", "en"] as Language[]}
+                  labels={{ fr: "Français", en: "English" }}
+                  onChange={(v) => prefs.set("language", v)}
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Clock size={15} /> Format horaire
+                  </span>
+                  <span className="sp-row__desc">Affichage des heures</span>
+                </div>
+                <Select
+                  value={prefs.timeFormat}
+                  options={["24h", "12h"] as TimeFormat[]}
+                  labels={{ "24h": "24 heures", "12h": "12h AM/PM" }}
+                  onChange={(v) => prefs.set("timeFormat", v)}
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Calendar size={15} /> Premier jour de la semaine
+                  </span>
+                  <span className="sp-row__desc">Lundi ou dimanche</span>
+                </div>
+                <Select
+                  value={prefs.firstDay}
+                  options={["monday", "sunday"] as FirstDay[]}
+                  labels={{ monday: "Lundi", sunday: "Dimanche" }}
+                  onChange={(v) => prefs.set("firstDay", v)}
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Coins size={15} /> Devise
+                  </span>
+                  <span className="sp-row__desc">
+                    Symbole monétaire pour le budget
+                  </span>
+                </div>
+                <Select
+                  value={prefs.currency}
+                  options={["EUR", "USD", "GBP"] as Currency[]}
+                  labels={{ EUR: "€ Euro", USD: "$ Dollar", GBP: "£ Livre" }}
+                  onChange={(v) => prefs.set("currency", v)}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 7. DATA & PRIVACY ═══════ */}
+          <section id="sec-privacy" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Données & confidentialité</h3>
+              <p className="sp-section__sub">
+                Contrôlez vos données et votre vie privée.
+              </p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Données analytiques</span>
+                  <span className="sp-row__desc">
+                    Partager des données anonymes pour améliorer l'app
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.analyticsEnabled}
+                  onChange={() =>
+                    prefs.set("analyticsEnabled", !prefs.analyticsEnabled)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Localisation</span>
+                  <span className="sp-row__desc">
+                    Autoriser l'accès à votre position GPS
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.locationEnabled}
+                  onChange={() =>
+                    prefs.set("locationEnabled", !prefs.locationEnabled)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    Historique de navigation
+                  </span>
+                  <span className="sp-row__desc">
+                    Sauvegarder l'historique de vos recherches
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.historyEnabled}
+                  onChange={() =>
+                    prefs.set("historyEnabled", !prefs.historyEnabled)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Durée de rétention</span>
+                  <span className="sp-row__desc">
+                    Supprimer automatiquement les données anciennes
+                  </span>
+                </div>
+                <select
+                  className="sp-select"
+                  value={prefs.retentionMonths}
+                  onChange={(e) =>
+                    prefs.set("retentionMonths", +e.target.value)
+                  }
+                >
+                  <option value={0}>Illimité</option>
+                  <option value={1}>1 mois</option>
+                  <option value={3}>3 mois</option>
+                  <option value={6}>6 mois</option>
+                  <option value={12}>1 an</option>
+                </select>
+              </div>
+
+              <div className="sp-row__actions">
+                <button
+                  className="sp-btn sp-btn--outline"
+                  onClick={handleExport}
+                >
+                  <Download size={15} /> Exporter mes données (JSON)
+                </button>
+              </div>
+
+              <div className="sp-row__actions">
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("budget")}
+                >
+                  Effacer Budget
+                </button>
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("todos")}
+                >
+                  Effacer To-do
+                </button>
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("sleep")}
+                >
+                  Effacer Sommeil
+                </button>
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("transport")}
+                >
+                  Effacer Transport
+                </button>
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("recipes")}
+                >
+                  Effacer Recettes
+                </button>
+                <button
+                  className="sp-btn sp-btn--outline sp-btn--sm"
+                  onClick={() => prefs.clearModuleData("work")}
+                >
+                  Effacer Travail
+                </button>
+              </div>
+
+              <div className="sp-row__actions">
+                <button
+                  className="sp-btn sp-btn--danger"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Supprimer toutes les données ? Cette action est irréversible.",
+                      )
+                    )
+                      prefs.clearAllData();
+                  }}
+                >
+                  <Trash2 size={15} /> Effacer toutes les données
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 8. ACCESSIBILITY ═══════ */}
+          <section id="sec-accessibility" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Accessibilité</h3>
+              <p className="sp-section__sub">
+                Adaptez l'interface à vos besoins.
+              </p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Réduire les animations</span>
+                  <span className="sp-row__desc">
+                    Désactiver les transitions de l'interface
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.reduceAnimations}
+                  onChange={() =>
+                    prefs.set("reduceAnimations", !prefs.reduceAnimations)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Contraste élevé</span>
+                  <span className="sp-row__desc">
+                    Augmenter le contraste des couleurs
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.highContrast}
+                  onChange={() =>
+                    prefs.set("highContrast", !prefs.highContrast)
+                  }
+                />
+              </div>
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Mode hors-ligne</span>
+                  <span className="sp-row__desc">
+                    Cache agressif des données pour utilisation sans réseau
+                  </span>
+                </div>
+                <Toggle
+                  on={prefs.offlineMode}
+                  onChange={() => prefs.set("offlineMode", !prefs.offlineMode)}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 9. SECURITY ═══════ */}
+          <section id="sec-security" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Sécurité</h3>
+              <p className="sp-section__sub">
+                Protégez l'accès à votre application.
+              </p>
+            </div>
+            <div className="sp-card">
+              <div className="sp-row">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">
+                    <Lock size={15} /> Verrouillage par PIN
+                  </span>
+                  <span className="sp-row__desc">
+                    {prefs.pinEnabled
+                      ? "Activé — code PIN requis au lancement"
+                      : "Désactivé"}
+                  </span>
+                </div>
+                {prefs.pinEnabled ? (
+                  <button
+                    className="sp-btn sp-btn--outline sp-btn--sm"
+                    onClick={() => prefs.clearPin()}
+                  >
+                    Désactiver
+                  </button>
+                ) : (
+                  <button
+                    className="sp-btn sp-btn--outline sp-btn--sm"
+                    onClick={() => {
+                      setPinSetup({ step: "new", code: "" });
+                      setPinDraft("");
+                      setPinError("");
+                    }}
+                  >
+                    Configurer
+                  </button>
+                )}
+              </div>
+
+              {/* PIN setup flow */}
+              {pinSetup && (
+                <div className="sp-pin-setup">
+                  <p className="sp-pin-setup__label">
+                    {pinSetup.step === "new"
+                      ? "Définissez un code à 4 chiffres :"
+                      : "Confirmez votre code :"}
+                  </p>
+                  <input
+                    className="sp-input sp-input--pin"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={pinDraft}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      setPinDraft(val);
+                      setPinError("");
+                    }}
+                    placeholder="• • • •"
+                    autoFocus
+                  />
+                  {pinError && <p className="sp-pin-setup__err">{pinError}</p>}
+                  <div className="sp-pin-setup__actions">
+                    <button
+                      className="sp-btn sp-btn--outline sp-btn--sm"
+                      onClick={() => setPinSetup(null)}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      className="sp-btn sp-btn--primary sp-btn--sm"
+                      disabled={pinDraft.length < 4}
+                      onClick={() => {
+                        if (pinSetup.step === "new") {
+                          setPinSetup({ step: "confirm", code: pinDraft });
+                          setPinDraft("");
+                        } else {
+                          if (pinDraft === pinSetup.code) {
+                            prefs.setPin(pinDraft);
+                            setPinSetup(null);
+                          } else {
+                            setPinError("Les codes ne correspondent pas");
+                            setPinDraft("");
+                          }
+                        }
+                      }}
+                    >
+                      {pinSetup.step === "new" ? "Suivant" : "Activer"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Hidden modules */}
+              {prefs.pinEnabled && (
+                <div className="sp-row sp-row--col" style={{ marginTop: 8 }}>
+                  <div className="sp-row__text">
+                    <span className="sp-row__label">
+                      <EyeOff size={15} /> Modules cachés
+                    </span>
+                    <span className="sp-row__desc">
+                      Ces modules ne seront visibles qu'après saisie du PIN
+                    </span>
+                  </div>
+                  <div className="sp-hidden-mods">
+                    {prefs.modules.map((mod) => (
+                      <button
+                        key={mod.id}
+                        className={`sp-chip ${prefs.hiddenModules.includes(mod.id) ? "sp-chip--active" : ""}`}
+                        onClick={() => prefs.toggleHiddenModule(mod.id)}
+                      >
+                        {getModuleEmoji(mod.id)} {getModuleLabel(mod.id)}
+                        {prefs.hiddenModules.includes(mod.id) && (
+                          <Check size={12} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ═══════ 10. PROFILES ═══════ */}
+          <section id="sec-profiles" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Profils</h3>
+              <p className="sp-section__sub">
+                Basculez entre "Travail" et "Perso" avec des configurations
+                différentes.
+              </p>
+            </div>
+            <div className="sp-card">
+              {prefs.profiles.map((p) => (
+                <div
+                  key={p.id}
+                  className={`sp-row ${prefs.activeProfileId === p.id ? "sp-row--highlight" : ""}`}
+                >
+                  <span className="sp-row__emoji">{p.emoji}</span>
+                  <div className="sp-row__text" style={{ flex: 1 }}>
+                    <span className="sp-row__label">{p.name}</span>
+                    {prefs.activeProfileId === p.id && (
+                      <span className="sp-row__desc">Actif</span>
+                    )}
+                  </div>
+                  {prefs.activeProfileId !== p.id && (
+                    <>
+                      <button
+                        className="sp-btn sp-btn--outline sp-btn--sm"
+                        onClick={() => prefs.switchProfile(p.id)}
+                      >
+                        Activer
+                      </button>
+                      {p.id !== "default" && (
+                        <button
+                          className="sp-icon-btn"
+                          onClick={() => prefs.removeProfile(p.id)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {prefs.activeProfileId === p.id && (
+                    <Check
+                      size={16}
+                      style={{ color: "var(--d-accent, #6366f1)" }}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {/* New profile */}
+              <div className="sp-row sp-row--col" style={{ marginTop: 12 }}>
+                <div className="sp-new-profile">
+                  <input
+                    className="sp-emoji-input"
+                    maxLength={2}
+                    value={newProfileEmoji}
+                    onChange={(e) => setNewProfileEmoji(e.target.value)}
+                    style={{ width: 40, textAlign: "center" }}
+                  />
+                  <input
+                    className="sp-input"
+                    placeholder="Nom du profil…"
+                    value={newProfileName}
+                    onChange={(e) => setNewProfileName(e.target.value)}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="sp-btn sp-btn--primary sp-btn--sm"
+                    disabled={!newProfileName.trim()}
+                    onClick={() => {
+                      prefs.addProfile(
+                        newProfileName.trim(),
+                        newProfileEmoji || "📌",
+                      );
+                      setNewProfileName("");
+                      setNewProfileEmoji("🏢");
+                    }}
+                  >
+                    <Plus size={14} /> Ajouter
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 11. STORAGE ═══════ */}
+          <section id="sec-storage" className="sp-section">
+            <div className="sp-section__header">
+              <h3 className="sp-section__title">Stockage</h3>
+              <p className="sp-section__sub">
+                Espace utilisé par l'application dans le navigateur.
+              </p>
+            </div>
+            <div className="sp-card">
+              <p className="sp-storage-total">
+                Données localStorage : ~
+                {(JSON.stringify(localStorage).length / 1024).toFixed(1)} Ko
+              </p>
+              <div className="sp-row__actions">
+                <button
+                  className="sp-btn sp-btn--danger"
+                  onClick={() => {
+                    if (confirm("Vider tout le cache ?")) prefs.clearAllData();
+                  }}
+                >
+                  <Trash2 size={15} /> Vider tout le cache
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* ═══════ 12. ABOUT ═══════ */}
+          <section id="sec-about" className="sp-section">
             <div className="sp-section__header">
               <h3 className="sp-section__title">À propos</h3>
               <p className="sp-section__sub">Informations sur l'application.</p>
@@ -263,7 +1238,9 @@ export default function SettingsPage() {
               <div className="sp-about">
                 <div className="sp-about__row">
                   <span className="sp-about__label">Version</span>
-                  <span className="sp-about__value">1.0.0 (build 2026.03.03)</span>
+                  <span className="sp-about__value">
+                    1.0.0 (build 2026.03.09)
+                  </span>
                 </div>
                 <div className="sp-about__row">
                   <span className="sp-about__label">Plateforme</span>
@@ -271,7 +1248,9 @@ export default function SettingsPage() {
                 </div>
                 <div className="sp-about__row">
                   <span className="sp-about__label">Licence</span>
-                  <span className="sp-about__value">Propriétaire — Daylence SAS</span>
+                  <span className="sp-about__value">
+                    Propriétaire — Daylence SAS
+                  </span>
                 </div>
                 <div className="sp-about__row">
                   <span className="sp-about__label">Contact</span>
@@ -279,17 +1258,32 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="sp-row__actions" style={{ marginTop: 16 }}>
-                <a href="/privacy-policy" className="sp-btn sp-btn--outline">Politique de confidentialité</a>
-                <a href="/confidentiality" className="sp-btn sp-btn--outline">Conditions d'utilisation</a>
+                <a href="/privacy-policy" className="sp-btn sp-btn--outline">
+                  Politique de confidentialité
+                </a>
+                <a href="/confidentiality" className="sp-btn sp-btn--outline">
+                  Conditions d'utilisation
+                </a>
+              </div>
+              <div className="sp-row__actions" style={{ marginTop: 8 }}>
+                <button
+                  className="sp-btn sp-btn--outline"
+                  onClick={() => {
+                    prefs.resetToDefaults();
+                  }}
+                >
+                  <RotateCcw size={14} /> Réinitialiser tous les paramètres
+                </button>
               </div>
             </div>
           </section>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="sp-footer">
-        <span className="sp-footer__copy">&copy; {new Date().getFullYear()} Daylence</span>
+        <span className="sp-footer__copy">
+          &copy; {new Date().getFullYear()} Daylence
+        </span>
         <div className="sp-footer__links">
           <a href="/privacy-policy">Confidentialité</a>
           <a href="/support">Aide</a>
@@ -297,4 +1291,32 @@ export default function SettingsPage() {
       </footer>
     </div>
   );
+}
+
+/* ── Helpers ── */
+
+function getModuleEmoji(id: string) {
+  const m: Record<string, string> = {
+    recipes: "🍳",
+    sleep: "😴",
+    transport: "🚆",
+    budget: "💰",
+    work: "💼",
+    todos: "✅",
+    appblock: "🔒",
+  };
+  return m[id] ?? "📦";
+}
+
+function getModuleLabel(id: string) {
+  const m: Record<string, string> = {
+    recipes: "Recettes",
+    sleep: "Sommeil",
+    transport: "Transport",
+    budget: "Budget",
+    work: "Travail",
+    todos: "To-do",
+    appblock: "Bloqueur",
+  };
+  return m[id] ?? id;
 }

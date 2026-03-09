@@ -1,3 +1,7 @@
+// ══════════════════════════════════════════════
+// Daylence Budget — Type definitions
+// ══════════════════════════════════════════════
+
 export type TransactionType = "expense" | "income";
 
 export type Category =
@@ -20,13 +24,17 @@ export interface Transaction {
   amount: number;
   category: Category;
   label: string;
-  date: string; // ISO string
+  date: string; // ISO "2026-03-01"
   note?: string;
 }
 
-export interface BudgetGoal {
+/** Budget envelope with priority ranking */
+export interface BudgetEnvelope {
   category: Category;
-  limit: number; // monthly limit
+  priority: number; // 1 = highest (funded first)
+  target: number; // monthly target amount
+  allocated: number; // auto-calculated by algorithm
+  isEssential: boolean; // essential = rent, food, etc.
 }
 
 export interface MonthSummary {
@@ -34,7 +42,28 @@ export interface MonthSummary {
   totalIncome: number;
   totalExpenses: number;
   balance: number;
-  byCategory: Record<Category, number>;
+  distributed: number; // total allocated across envelopes
+  remaining: number; // income - distributed
+  byCategory: Partial<Record<Category, number>>;
+}
+
+/** Result of the priority allocation algorithm */
+export interface AllocationResult {
+  envelopes: BudgetEnvelope[];
+  totalDistributed: number;
+  remaining: number;
+  deficit: number; // if income < sum of all targets
+  unfundedCategories: Category[];
+}
+
+/** Monthly snapshot for historisation */
+export interface MonthSnapshot {
+  month: string;
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+  envelopes: BudgetEnvelope[];
+  validatedAt?: string;
 }
 
 export const CATEGORY_META: Record<
@@ -56,10 +85,159 @@ export const CATEGORY_META: Record<
 };
 
 export const EXPENSE_CATEGORIES: Category[] = [
-  "alimentation", "transport", "logement", "loisirs", "sante",
-  "shopping", "education", "abonnements", "epargne", "autre",
+  "alimentation",
+  "transport",
+  "logement",
+  "loisirs",
+  "sante",
+  "shopping",
+  "education",
+  "abonnements",
+  "epargne",
+  "autre",
 ];
 
-export const INCOME_CATEGORIES: Category[] = [
-  "salaire", "freelance", "autre",
+export const INCOME_CATEGORIES: Category[] = ["salaire", "freelance", "autre"];
+
+/** Smart categorization keywords → category mapping */
+export const SMART_CATEGORY_MAP: Array<{
+  keywords: string[];
+  category: Category;
+}> = [
+  {
+    keywords: [
+      "loyer",
+      "appartement",
+      "charges",
+      "edf",
+      "engie",
+      "eau",
+      "electricité",
+    ],
+    category: "logement",
+  },
+  {
+    keywords: [
+      "courses",
+      "carrefour",
+      "lidl",
+      "auchan",
+      "franprix",
+      "intermarché",
+      "boulangerie",
+      "restaurant",
+      "uber eats",
+      "deliveroo",
+      "mcdo",
+    ],
+    category: "alimentation",
+  },
+  {
+    keywords: [
+      "navigo",
+      "essence",
+      "péage",
+      "ratp",
+      "sncf",
+      "parking",
+      "vélib",
+      "taxi",
+      "bolt",
+    ],
+    category: "transport",
+  },
+  {
+    keywords: [
+      "spotify",
+      "netflix",
+      "disney",
+      "amazon prime",
+      "youtube",
+      "abonnement",
+      "forfait",
+      "mobile",
+      "internet",
+      "fibre",
+    ],
+    category: "abonnements",
+  },
+  {
+    keywords: [
+      "médecin",
+      "pharmacie",
+      "mutuelle",
+      "dentiste",
+      "ophtalmo",
+      "kiné",
+      "docteur",
+    ],
+    category: "sante",
+  },
+  {
+    keywords: [
+      "cinéma",
+      "resto",
+      "bar",
+      "concert",
+      "spectacle",
+      "sortie",
+      "bowling",
+      "parc",
+    ],
+    category: "loisirs",
+  },
+  {
+    keywords: [
+      "zara",
+      "h&m",
+      "nike",
+      "adidas",
+      "amazon",
+      "fnac",
+      "vêtement",
+      "chaussure",
+      "achat",
+    ],
+    category: "shopping",
+  },
+  {
+    keywords: [
+      "livre",
+      "formation",
+      "cours",
+      "udemy",
+      "openclassroom",
+      "école",
+      "université",
+    ],
+    category: "education",
+  },
+  {
+    keywords: [
+      "épargne",
+      "livret",
+      "virement livret",
+      "placement",
+      "investissement",
+    ],
+    category: "epargne",
+  },
+  {
+    keywords: ["salaire", "paye", "virement employeur", "paie"],
+    category: "salaire",
+  },
+  {
+    keywords: ["freelance", "mission", "facture", "client", "prestation"],
+    category: "freelance",
+  },
 ];
+
+export function smartCategorize(label: string): Category | null {
+  const lower = label.toLowerCase();
+  for (const entry of SMART_CATEGORY_MAP) {
+    if (entry.keywords.some((kw) => lower.includes(kw))) {
+      return entry.category;
+    }
+  }
+  return null;
+}

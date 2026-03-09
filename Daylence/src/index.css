@@ -3,9 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  color: var(--d-text, #213547);
+  background-color: var(--d-bg, #ffffff);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

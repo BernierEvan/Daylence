@@ -6,45 +6,57 @@ import "../../../styles/InnerPages.css";
 const features = [
   {
     image: "/daylence_recipe_logo.png",
-    accent: "#f97316",
+    accent: "#E2C336",
     title: "Recettes & Cuisine",
     desc: "Parcourez des centaines de recettes, planifiez vos repas de la semaine et générez des listes de courses automatiques. Cuisiner n'a jamais été aussi simple.",
     badge: "Populaire",
   },
   {
     image: "/daylence_sleep_logo.png",
-    accent: "#6366f1",
+    accent: "#2875A0",
     title: "Suivi du Sommeil",
     desc: "Analysez vos cycles de sommeil, recevez des recommandations personnalisées et améliorez votre repos nuit après nuit.",
     badge: "Nouveau",
   },
   {
     image: "/daylence_transport_logo.png",
-    accent: "#0ea5e9",
+    accent: "#D97D37",
     title: "Transports",
     desc: "Horaires en temps réel, itinéraires optimisés et alertes de retard pour bus, trains et métros. Ne ratez plus jamais votre correspondance.",
     badge: "Temps réel",
   },
   {
     image: "/daylence_budget_logo.png",
-    accent: "#10b981",
+    accent: "#683982",
     title: "Gestion du Budget",
     desc: "Suivez vos dépenses, définissez des objectifs budgétaires et visualisez vos habitudes financières en un coup d'œil.",
     badge: "Essentiel",
   },
   {
     image: "/daylence_work_logo.png",
-    accent: "#8b5cf6",
-    title: "Travail & Tâches",
-    desc: "Tableaux Kanban, listes de tâches, priorités et échéances. Gérez vos projets professionnels et personnels au même endroit.",
+    accent: "#5B994D",
+    title: "Travail",
+    desc: "Tableaux Kanban, priorités et échéances. Gérez vos projets professionnels.",
+    badge: "Productivité",
+  },
+  {
+    image: "/daylence_task_logo.png",
+    accent: "#B02736",
+    title: "Tâches & Organisation",
+    desc: "Listes de tâches, courses, habitudes, repas à consommer, ou de simples notes. Gérez votre organisation personnelle dans un seul et même endroit.",
     badge: "Productivité",
   },
   {
     image: "/daylence_core_logo.png",
-    accent: "#ef4444",
+    accent: "#000000",
     title: "Bloqueur d'Apps",
     desc: "Bloquez les applications distrayantes pendant vos sessions de travail. Reprenez le contrôle de votre temps d'écran.",
     badge: "Focus",
+  },
+  {
+    image: "/daylence_core_logo.png",
+    title: "A suivre",
+    desc: "De nouvelles fonctionnalitées arrivent très bientôt...",
   },
 ];
 
@@ -84,7 +96,7 @@ export default function DiscoverPage() {
                 className="feature-card__badge"
                 style={{ background: f.accent }}
               >
-                {f.badge}
+                {f.badge || " "}
               </span>
             </div>
           ))}
@@ -100,8 +112,7 @@ export default function DiscoverPage() {
           </p>
           <ul className="inner-section__list">
             <li>
-              <strong>Tout-en-un</strong> — 6 outils intégrés qui communiquent
-              entre eux
+              <strong>Tout-en-un</strong> — 7 outils intégrés
             </li>
             <li>
               <strong>Design intuitif</strong> — Interface épurée, prise en main
@@ -112,7 +123,7 @@ export default function DiscoverPage() {
               requise
             </li>
             <li>
-              <strong>Multi-plateforme</strong> — Web, iOS et Android
+              <strong>Multi-plateforme</strong> — Web et Android
             </li>
             <li>
               <strong>Données sécurisées</strong> — Chiffrement de bout en bout

@@ -3,49 +3,76 @@ import { CATEGORY_META } from "../types";
 import type { Category } from "../types";
 
 export default function BudgetChart() {
-  const summary = useBudgetStore((s) => s.getMonthSummary());
+  const envelopes = useBudgetStore((s) => s.envelopes);
+  const getCategorySpent = useBudgetStore((s) => s.getCategorySpent);
 
-  // Only show expense categories that have spending
-  const entries = Object.entries(summary.byCategory)
-    .filter(([cat]) => {
-      const meta = CATEGORY_META[cat as Category];
-      return meta && cat !== "salaire" && cat !== "freelance";
-    })
-    .sort(([, a], [, b]) => b - a);
+  const sorted = [...envelopes].sort((a, b) => a.priority - b.priority);
 
-  const max = entries.length > 0 ? entries[0][1] : 1;
-
-  if (entries.length === 0) {
+  if (sorted.length === 0) {
     return (
       <div className="bc-empty">
-        <p>Aucune dépense ce mois‑ci</p>
+        <p>Aucune enveloppe ce mois-ci</p>
       </div>
     );
   }
 
+  const max = Math.max(
+    ...sorted.map((e) => Math.max(e.target, getCategorySpent(e.category))),
+    1,
+  );
+
+  const fmt = (n: number) =>
+    n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+
   return (
     <div className="bc-chart">
-      <h3 className="bc-chart__title">Répartition des dépenses</h3>
+      <h3 className="bc-chart__title">Enveloppes — Budget vs Dépensé</h3>
+      <div className="bc-legend">
+        <span className="bc-legend__item">
+          <span className="bc-legend__dot bc-legend__dot--target" /> Budget
+        </span>
+        <span className="bc-legend__item">
+          <span className="bc-legend__dot bc-legend__dot--spent" /> Dépensé
+        </span>
+      </div>
       <div className="bc-bars">
-        {entries.map(([cat, amount]) => {
-          const meta = CATEGORY_META[cat as Category];
-          const pct = Math.round((amount / max) * 100);
+        {sorted.map((env) => {
+          const meta = CATEGORY_META[env.category as Category];
+          const spent = getCategorySpent(env.category);
+          const pctTarget = Math.round((env.target / max) * 100);
+          const pctSpent = Math.round((spent / max) * 100);
+          const over = spent > env.target;
+
           return (
-            <div className="bc-bar-row" key={cat}>
+            <div className="bc-bar-row" key={env.category}>
               <span className="bc-bar-row__emoji">{meta.emoji}</span>
               <span className="bc-bar-row__label">{meta.label}</span>
-              <div className="bc-bar-row__track">
-                <div
-                  className="bc-bar-row__fill"
-                  style={{ width: `${pct}%`, backgroundColor: meta.color }}
-                />
+              <div className="bc-bar-row__tracks">
+                {/* Target bar (dimmed) */}
+                <div className="bc-bar-row__track">
+                  <div
+                    className="bc-bar-row__fill bc-bar-row__fill--target"
+                    style={{
+                      width: `${pctTarget}%`,
+                      backgroundColor: meta.color,
+                    }}
+                  />
+                </div>
+                {/* Spent bar */}
+                <div className="bc-bar-row__track">
+                  <div
+                    className={`bc-bar-row__fill bc-bar-row__fill--spent ${over ? "bc-bar-row__fill--over" : ""}`}
+                    style={{
+                      width: `${pctSpent}%`,
+                      backgroundColor: over ? "#ef4444" : meta.color,
+                    }}
+                  />
+                </div>
               </div>
-              <span className="bc-bar-row__amount">
-                {amount.toLocaleString("fr-FR", {
-                  style: "currency",
-                  currency: "EUR",
-                })}
-              </span>
+              <div className="bc-bar-row__amounts">
+                <span className="bc-bar-row__amount">{fmt(spent)}</span>
+                <span className="bc-bar-row__target">/ {fmt(env.target)}</span>
+              </div>
             </div>
           );
         })}
