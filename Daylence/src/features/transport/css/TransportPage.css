@@ -1,0 +1,301 @@
+/* ================================================================
+   Transport Page – Daylence  (100vh, no scroll)
+   ================================================================ */
+
+/* ── Page root ── */
+.transport-page {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: "Josefin Sans", system-ui, sans-serif;
+  background: #f4f5f7;
+  color: #23272a;
+}
+
+/* ── Header ── */
+.transport-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 2.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+.transport-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #23272a;
+}
+.transport-header__logo {
+  height: 30px;
+  width: auto;
+}
+.transport-header__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.transport-header__nav {
+  display: flex;
+  gap: 1.5rem;
+}
+.transport-header__link {
+  text-decoration: none;
+  color: #555;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.transport-header__link:hover {
+  color: #6c5ce7;
+}
+
+/* ── Hero ── */
+.transport-hero {
+  text-align: center;
+  padding: 0.6rem 1rem 0.3rem;
+  flex-shrink: 0;
+}
+.transport-hero__icon {
+  height: 40px;
+  margin-bottom: 0.15rem;
+  filter: drop-shadow(0 2px 6px rgba(108, 92, 231, 0.25));
+  animation: hero-float 3s ease-in-out infinite;
+}
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+.transport-hero__title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.transport-hero__sub {
+  margin: 0.15rem 0 0;
+  color: #777;
+  font-size: 0.78rem;
+}
+
+/* ── Vehicle section ── */
+.sv-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 2rem;
+  min-height: 0;
+}
+.sv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 1100px;
+  height: 100%;
+  max-height: 340px;
+}
+
+/* ── Cards ── */
+.sv-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  color: #fff;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.sv-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+/* Background image */
+.sv-card__img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+.sv-card:hover .sv-card__img {
+  transform: scale(1.08);
+}
+
+/* Gradient overlay */
+.sv-card__overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+}
+
+/* Content */
+.sv-card__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 0.8rem 1rem;
+  box-sizing: border-box;
+}
+.sv-card__badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sv-card__icon {
+  margin-bottom: 0.3rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+.sv-card__title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0 0 0.1rem;
+}
+.sv-card__desc {
+  font-size: 0.72rem;
+  opacity: 0.9;
+  margin: 0 0 0.3rem;
+}
+.sv-card__details {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.sv-card__details li {
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+.sv-card__details li::before {
+  content: "✦ ";
+  opacity: 0.7;
+}
+.sv-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: auto;
+  opacity: 0.95;
+}
+.sv-card__arrow {
+  transition: transform 0.3s ease;
+}
+.sv-card:hover .sv-card__arrow {
+  transform: translateX(4px);
+}
+
+/* Shimmer */
+.sv-card__shimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.sv-card:hover .sv-card__shimmer {
+  opacity: 1;
+  animation: shimmer 1.5s ease infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Footer ── */
+.transport-footer {
+  background: #23272a;
+  color: #aaa;
+  padding: 0.6rem 2.5rem;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+.transport-footer__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.transport-footer__links {
+  display: flex;
+  gap: 1.25rem;
+}
+.transport-footer__links a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.transport-footer__links a:hover {
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sv-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: none;
+  }
+  .transport-page {
+    height: auto;
+    overflow: auto;
+  }
+  .transport-header {
+    padding: 0.5rem 1rem;
+  }
+  .sv-section {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .sv-grid {
+    grid-template-columns: 1fr;
+  }
+  .transport-header__nav {
+    display: none;
+  }
+}
