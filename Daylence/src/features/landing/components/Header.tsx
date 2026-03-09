@@ -1,4 +1,5 @@
 import { Settings, User, Sparkles } from "lucide-react";
+import { fmtDateLong } from "../../../lib/utils";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -9,11 +10,7 @@ function getGreeting() {
 }
 
 export default function Header() {
-  const today = new Date().toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const today = fmtDateLong(new Date());
 
   return (
     <header className="lp-top">

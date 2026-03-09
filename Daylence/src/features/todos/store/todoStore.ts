@@ -2,7 +2,8 @@ import { create } from "zustand";
 import type {
   Todo,
   Priority,
-  GroceryItem,
+  Recurrence,
+  GroceryList as GroceryListType,
   Aisle,
   MealSlot,
   MealType,
@@ -32,6 +33,7 @@ const SEED_TODOS: Todo[] = [
     title: "Répondre aux emails",
     completed: true,
     priority: "medium",
+    dueDate: "2026-03-08",
     createdAt: "2026-03-08T09:00:00Z",
   },
   {
@@ -40,6 +42,7 @@ const SEED_TODOS: Todo[] = [
     completed: false,
     priority: "low",
     dueDate: "2026-03-10",
+    recurrence: { type: "weekly", daysOfWeek: [5] },
     createdAt: "2026-03-08T10:00:00Z",
   },
   {
@@ -58,79 +61,131 @@ const SEED_TODOS: Todo[] = [
     dueDate: "2026-03-09",
     createdAt: "2026-03-09T08:00:00Z",
   },
+  {
+    id: "t6",
+    title: "Méditation",
+    completed: false,
+    priority: "low",
+    dueDate: "2026-03-09",
+    recurrence: { type: "daily" },
+    createdAt: "2026-03-01T06:00:00Z",
+  },
+  {
+    id: "t7",
+    title: "Revue hebdo finances",
+    completed: false,
+    priority: "medium",
+    dueDate: "2026-03-14",
+    recurrence: { type: "weekly", daysOfWeek: [4] },
+    createdAt: "2026-03-01T06:00:00Z",
+  },
 ];
 
-const SEED_GROCERY: GroceryItem[] = [
+const SEED_GROCERY_LISTS: GroceryListType[] = [
   {
-    id: "g1",
-    name: "Tomates",
-    quantity: 6,
-    unit: "pcs",
-    aisle: "Fruits & Légumes",
-    checked: false,
+    id: "gl1",
+    name: "Courses de la semaine",
+    createdAt: "2026-03-07T08:00:00Z",
+    updatedAt: "2026-03-09T10:00:00Z",
+    items: [
+      {
+        id: "g1",
+        name: "Tomates",
+        quantity: 6,
+        unit: "pcs",
+        aisle: "Fruits & Légumes",
+        checked: false,
+      },
+      {
+        id: "g2",
+        name: "Poulet",
+        quantity: 500,
+        unit: "g",
+        price: 6.5,
+        aisle: "Boucherie & Poissonnerie",
+        checked: false,
+      },
+      {
+        id: "g3",
+        name: "Lait demi-écrémé",
+        quantity: 2,
+        unit: "L",
+        price: 1.8,
+        aisle: "Produits laitiers",
+        checked: false,
+      },
+      {
+        id: "g4",
+        name: "Baguette tradition",
+        quantity: 2,
+        unit: "pcs",
+        price: 1.3,
+        aisle: "Boulangerie",
+        checked: true,
+      },
+      {
+        id: "g5",
+        name: "Pâtes penne",
+        quantity: 500,
+        unit: "g",
+        price: 1.2,
+        aisle: "Épicerie",
+        checked: false,
+      },
+      {
+        id: "g6",
+        name: "Eau gazeuse",
+        quantity: 6,
+        unit: "btl",
+        price: 3.5,
+        aisle: "Boissons",
+        checked: false,
+      },
+    ],
   },
   {
-    id: "g2",
-    name: "Poulet",
-    quantity: 500,
-    unit: "g",
-    price: 6.5,
-    aisle: "Boucherie & Poissonnerie",
-    checked: false,
-  },
-  {
-    id: "g3",
-    name: "Lait demi-écrémé",
-    quantity: 2,
-    unit: "L",
-    price: 1.8,
-    aisle: "Produits laitiers",
-    checked: false,
-  },
-  {
-    id: "g4",
-    name: "Baguette tradition",
-    quantity: 2,
-    unit: "pcs",
-    price: 1.3,
-    aisle: "Boulangerie",
-    checked: true,
-  },
-  {
-    id: "g5",
-    name: "Pâtes penne",
-    quantity: 500,
-    unit: "g",
-    price: 1.2,
-    aisle: "Épicerie",
-    checked: false,
-  },
-  {
-    id: "g6",
-    name: "Eau gazeuse",
-    quantity: 6,
-    unit: "btl",
-    price: 3.5,
-    aisle: "Boissons",
-    checked: false,
-  },
-  {
-    id: "g7",
-    name: "Dentifrice",
-    quantity: 1,
-    unit: "tube",
-    price: 2.9,
-    aisle: "Hygiène",
-    checked: false,
-  },
-  {
-    id: "g8",
-    name: "Avocat",
-    quantity: 3,
-    unit: "pcs",
-    price: 2.4,
-    aisle: "Fruits & Légumes",
-    checked: false,
+    id: "gl2",
+    name: "Soirée crêpes",
+    createdAt: "2026-03-05T12:00:00Z",
+    updatedAt: "2026-03-05T12:00:00Z",
+    items: [
+      {
+        id: "g7",
+        name: "Farine",
+        quantity: 500,
+        unit: "g",
+        price: 1.1,
+        aisle: "Épicerie",
+        checked: true,
+      },
+      {
+        id: "g8",
+        name: "Œufs",
+        quantity: 6,
+        unit: "pcs",
+        price: 2.5,
+        aisle: "Produits laitiers",
+        checked: true,
+      },
+      {
+        id: "g9",
+        name: "Lait",
+        quantity: 1,
+        unit: "L",
+        price: 1.2,
+        aisle: "Produits laitiers",
+        checked: true,
+      },
+      {
+        id: "g10",
+        name: "Nutella",
+        quantity: 1,
+        unit: "pot",
+        price: 4.5,
+        aisle: "Épicerie",
+        checked: false,
+      },
+    ],
   },
 ];
 
@@ -256,47 +311,66 @@ interface TodoState {
   activeModule: TodoModule;
   setActiveModule: (m: TodoModule) => void;
 
+  // ── Agenda ──
+  selectedDate: string; // ISO date
+  setSelectedDate: (d: string) => void;
+
   // ── Todos ──
   todos: Todo[];
-  addTodo: (title: string, priority?: Priority, dueDate?: string) => void;
+  addTodo: (
+    title: string,
+    priority?: Priority,
+    dueDate?: string,
+    recurrence?: Recurrence,
+  ) => void;
   toggleTodo: (id: string) => void;
   removeTodo: (id: string) => void;
   updateTodo: (id: string, data: Partial<Todo>) => void;
 
-  // ── Grocery ──
-  groceryItems: GroceryItem[];
+  // ── Grocery Lists ──
+  groceryLists: GroceryListType[];
+  activeGroceryListId: string | null;
+  setActiveGroceryListId: (id: string | null) => void;
+  addGroceryList: (name: string) => void;
+  removeGroceryList: (id: string) => void;
+  renameGroceryList: (id: string, name: string) => void;
   addGroceryItem: (
+    listId: string,
     name: string,
     aisle: Aisle,
     quantity?: number,
     unit?: string,
     price?: number,
   ) => void;
-  toggleGroceryItem: (id: string) => void;
-  removeGroceryItem: (id: string) => void;
-  clearCheckedGrocery: () => void;
+  toggleGroceryItem: (listId: string, itemId: string) => void;
+  removeGroceryItem: (listId: string, itemId: string) => void;
+  clearCheckedGrocery: (listId: string) => void;
 
   // ── Meals ──
   mealSlots: MealSlot[];
   setMealSlot: (dayOfWeek: number, mealType: MealType, title: string) => void;
   removeMealSlot: (id: string) => void;
+  updateMealColor: (id: string, color: string) => void;
 
   // ── Fridge ──
   fridgeItems: FridgeItem[];
   addFridgeItem: (name: string, expiryDate: string, quantity?: string) => void;
   toggleFridgeConsumed: (id: string) => void;
   removeFridgeItem: (id: string) => void;
+  updateFridgeColor: (id: string, color: string) => void;
 
   // ── Habits ──
   habits: Habit[];
   addHabit: (name: string, icon?: string, color?: string) => void;
   removeHabit: (id: string) => void;
   toggleHabitDay: (id: string, day?: number) => void;
+  updateHabitColor: (id: string, color: string) => void;
 
   // ── Brain dump ──
   brainNotes: BrainNote[];
   addBrainNote: (content: string) => void;
   updateBrainNote: (id: string, content: string) => void;
+  updateNoteColor: (id: string, color: string) => void;
   removeBrainNote: (id: string) => void;
   togglePinNote: (id: string) => void;
 }
@@ -305,9 +379,13 @@ export const useTodoStore = create<TodoState>((set) => ({
   activeModule: "dashboard",
   setActiveModule: (m) => set({ activeModule: m }),
 
+  // ── Agenda ──
+  selectedDate: today(),
+  setSelectedDate: (d) => set({ selectedDate: d }),
+
   // ── Todos ──
   todos: SEED_TODOS,
-  addTodo: (title, priority = "medium", dueDate) =>
+  addTodo: (title, priority = "medium", dueDate, recurrence) =>
     set((s) => ({
       todos: [
         {
@@ -315,7 +393,8 @@ export const useTodoStore = create<TodoState>((set) => ({
           title,
           completed: false,
           priority,
-          dueDate,
+          dueDate: dueDate ?? today(),
+          recurrence: recurrence?.type === "none" ? undefined : recurrence,
           createdAt: now(),
         },
         ...s.todos,
@@ -334,25 +413,86 @@ export const useTodoStore = create<TodoState>((set) => ({
       todos: s.todos.map((t) => (t.id === id ? { ...t, ...data } : t)),
     })),
 
-  // ── Grocery ──
-  groceryItems: SEED_GROCERY,
-  addGroceryItem: (name, aisle, quantity = 1, unit = "pcs", price) =>
+  // ── Grocery Lists ──
+  groceryLists: SEED_GROCERY_LISTS,
+  activeGroceryListId: null,
+  setActiveGroceryListId: (id) => set({ activeGroceryListId: id }),
+  addGroceryList: (name) =>
     set((s) => ({
-      groceryItems: [
-        { id: uid(), name, quantity, unit, price, aisle, checked: false },
-        ...s.groceryItems,
+      groceryLists: [
+        { id: uid(), name, items: [], createdAt: now(), updatedAt: now() },
+        ...s.groceryLists,
       ],
     })),
-  toggleGroceryItem: (id) =>
+  removeGroceryList: (id) =>
     set((s) => ({
-      groceryItems: s.groceryItems.map((g) =>
-        g.id === id ? { ...g, checked: !g.checked } : g,
+      groceryLists: s.groceryLists.filter((l) => l.id !== id),
+      activeGroceryListId:
+        s.activeGroceryListId === id ? null : s.activeGroceryListId,
+    })),
+  renameGroceryList: (id, name) =>
+    set((s) => ({
+      groceryLists: s.groceryLists.map((l) =>
+        l.id === id ? { ...l, name, updatedAt: now() } : l,
       ),
     })),
-  removeGroceryItem: (id) =>
-    set((s) => ({ groceryItems: s.groceryItems.filter((g) => g.id !== id) })),
-  clearCheckedGrocery: () =>
-    set((s) => ({ groceryItems: s.groceryItems.filter((g) => !g.checked) })),
+  addGroceryItem: (listId, name, aisle, quantity = 1, unit = "pcs", price) =>
+    set((s) => ({
+      groceryLists: s.groceryLists.map((l) =>
+        l.id === listId
+          ? {
+              ...l,
+              updatedAt: now(),
+              items: [
+                {
+                  id: uid(),
+                  name,
+                  quantity,
+                  unit,
+                  price,
+                  aisle,
+                  checked: false,
+                },
+                ...l.items,
+              ],
+            }
+          : l,
+      ),
+    })),
+  toggleGroceryItem: (listId, itemId) =>
+    set((s) => ({
+      groceryLists: s.groceryLists.map((l) =>
+        l.id === listId
+          ? {
+              ...l,
+              updatedAt: now(),
+              items: l.items.map((i) =>
+                i.id === itemId ? { ...i, checked: !i.checked } : i,
+              ),
+            }
+          : l,
+      ),
+    })),
+  removeGroceryItem: (listId, itemId) =>
+    set((s) => ({
+      groceryLists: s.groceryLists.map((l) =>
+        l.id === listId
+          ? {
+              ...l,
+              updatedAt: now(),
+              items: l.items.filter((i) => i.id !== itemId),
+            }
+          : l,
+      ),
+    })),
+  clearCheckedGrocery: (listId) =>
+    set((s) => ({
+      groceryLists: s.groceryLists.map((l) =>
+        l.id === listId
+          ? { ...l, updatedAt: now(), items: l.items.filter((i) => !i.checked) }
+          : l,
+      ),
+    })),
 
   // ── Meals ──
   mealSlots: SEED_MEALS,
@@ -374,6 +514,10 @@ export const useTodoStore = create<TodoState>((set) => ({
     }),
   removeMealSlot: (id) =>
     set((s) => ({ mealSlots: s.mealSlots.filter((m) => m.id !== id) })),
+  updateMealColor: (id, color) =>
+    set((s) => ({
+      mealSlots: s.mealSlots.map((m) => (m.id === id ? { ...m, color } : m)),
+    })),
 
   // ── Fridge ──
   fridgeItems: SEED_FRIDGE,
@@ -392,6 +536,12 @@ export const useTodoStore = create<TodoState>((set) => ({
     })),
   removeFridgeItem: (id) =>
     set((s) => ({ fridgeItems: s.fridgeItems.filter((f) => f.id !== id) })),
+  updateFridgeColor: (id, color) =>
+    set((s) => ({
+      fridgeItems: s.fridgeItems.map((f) =>
+        f.id === id ? { ...f, color } : f,
+      ),
+    })),
 
   // ── Habits ──
   habits: SEED_HABITS,
@@ -416,6 +566,10 @@ export const useTodoStore = create<TodoState>((set) => ({
       }),
     }));
   },
+  updateHabitColor: (id, color) =>
+    set((s) => ({
+      habits: s.habits.map((h) => (h.id === id ? { ...h, color } : h)),
+    })),
 
   // ── Brain dump ──
   brainNotes: SEED_NOTES,
@@ -437,6 +591,12 @@ export const useTodoStore = create<TodoState>((set) => ({
     set((s) => ({
       brainNotes: s.brainNotes.map((n) =>
         n.id === id ? { ...n, content, updatedAt: now() } : n,
+      ),
+    })),
+  updateNoteColor: (id, color) =>
+    set((s) => ({
+      brainNotes: s.brainNotes.map((n) =>
+        n.id === id ? { ...n, color, updatedAt: now() } : n,
       ),
     })),
   removeBrainNote: (id) =>

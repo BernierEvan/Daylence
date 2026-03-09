@@ -5,14 +5,37 @@
 // ── Core Todo ──
 export type Priority = "low" | "medium" | "high";
 
+export type RecurrenceType =
+  | "none"
+  | "daily"
+  | "weekdays"
+  | "weekly"
+  | "monthly";
+
+export interface Recurrence {
+  type: RecurrenceType;
+  /** For weekly: which days (0=Mon … 6=Sun). For monthly: day of month. */
+  daysOfWeek?: number[];
+  endDate?: string; // ISO date
+}
+
 export interface Todo {
   id: string;
   title: string;
   completed: boolean;
   priority: Priority;
-  dueDate?: string; // ISO date
+  dueDate: string; // ISO date — always set (defaults to today)
+  recurrence?: Recurrence;
   createdAt: string;
 }
+
+export const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
+  none: "Une seule fois",
+  daily: "Tous les jours",
+  weekdays: "Jours ouvrés",
+  weekly: "Chaque semaine",
+  monthly: "Chaque mois",
+};
 
 // ── Grocery ──
 export const AISLES = [
@@ -37,6 +60,14 @@ export interface GroceryItem {
   price?: number;
   aisle: Aisle;
   checked: boolean;
+}
+
+export interface GroceryList {
+  id: string;
+  name: string;
+  items: GroceryItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ── Meal Planner ──
@@ -64,6 +95,7 @@ export interface MealSlot {
   dayOfWeek: number; // 0=Lundi
   mealType: MealType;
   title: string;
+  color?: string;
   recipeId?: string;
 }
 
@@ -73,6 +105,7 @@ export interface FridgeItem {
   name: string;
   expiryDate: string; // ISO date
   quantity: string;
+  color?: string;
   consumed: boolean;
 }
 
@@ -95,6 +128,35 @@ export interface BrainNote {
   updatedAt: string;
 }
 
+// ── Color palette for user-customisable items ──
+export const COLOR_PALETTE = [
+  "#6c5ce7",
+  "#0984e3",
+  "#00b894",
+  "#e17055",
+  "#fdcb6e",
+  "#fd79a8",
+  "#636e72",
+  "#d63031",
+  "#74b9ff",
+  "#a29bfe",
+  "#ffeaa7",
+  "#dfe6e9",
+] as const;
+
+// ── Aisle colors (fixed mapping for grocery categories) ──
+export const AISLE_COLORS: Record<Aisle, string> = {
+  "Fruits & Légumes": "#00b894",
+  "Boucherie & Poissonnerie": "#d63031",
+  "Produits laitiers": "#74b9ff",
+  Boulangerie: "#e17055",
+  Épicerie: "#fdcb6e",
+  Boissons: "#0984e3",
+  Surgelés: "#81ecec",
+  Hygiène: "#a29bfe",
+  Autres: "#636e72",
+};
+
 // ── Module navigation ──
 export type TodoModule =
   | "dashboard"
@@ -106,7 +168,7 @@ export type TodoModule =
 
 export const MODULE_META: Record<TodoModule, { label: string; emoji: string }> =
   {
-    dashboard: { label: "Aujourd'hui", emoji: "📋" },
+    dashboard: { label: "Agenda", emoji: "📋" },
     grocery: { label: "Courses", emoji: "🛒" },
     meals: { label: "Repas", emoji: "🍽️" },
     fridge: { label: "Frigo", emoji: "❄️" },

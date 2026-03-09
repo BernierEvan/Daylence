@@ -11,8 +11,8 @@
   --bp-text: #e8eaed;
   --bp-text-muted: #8b8fa3;
   --bp-text-dim: #5c6078;
-  --bp-accent: #6c5ce7;
-  --bp-accent-light: #a29bfe;
+  --bp-accent: var(--d-accent);
+  --bp-accent-light: var(--d-accent-light);
   --bp-green: #22c55e;
   --bp-green-dim: rgba(34, 197, 94, 0.12);
   --bp-red: #ef4444;
@@ -103,7 +103,7 @@
 .bp-header__action:hover {
   border-color: var(--bp-accent);
   color: var(--bp-accent-light);
-  background: rgba(108, 92, 231, 0.08);
+  background: hsla(var(--d-accent-hsl), 0.08);
 }
 
 /* ── Sub-header ── */
@@ -308,7 +308,7 @@
   color: var(--bp-red);
 }
 .bo-card--positive .bo-card__icon {
-  background: rgba(108, 92, 231, 0.12);
+  background: hsla(var(--d-accent-hsl), 0.12);
   color: var(--bp-accent-light);
 }
 .bo-card--negative .bo-card__icon {
@@ -716,7 +716,7 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 6px 24px rgba(108, 92, 231, 0.35);
+  box-shadow: 0 6px 24px hsla(var(--d-accent-hsl), 0.35);
   z-index: 100;
   transition:
     transform 0.2s,
@@ -724,7 +724,7 @@
 }
 .ef-fab:hover {
   transform: scale(1.08);
-  box-shadow: 0 8px 30px rgba(108, 92, 231, 0.5);
+  box-shadow: 0 8px 30px hsla(var(--d-accent-hsl), 0.5);
 }
 
 .ef-overlay {
@@ -875,7 +875,7 @@
   margin-top: 0.35rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: rgba(108, 92, 231, 0.12);
+  background: hsla(var(--d-accent-hsl), 0.12);
   color: var(--bp-accent-light);
   font-size: 0.72rem;
   font-weight: 600;
@@ -1197,7 +1197,7 @@
 .em-add-btn:hover {
   border-color: var(--bp-accent);
   color: var(--bp-accent-light);
-  background: rgba(108, 92, 231, 0.06);
+  background: hsla(var(--d-accent-hsl), 0.06);
 }
 
 /* ── Footer ── */
@@ -1560,4 +1560,30 @@
   .bp-subheader__right {
     flex-wrap: wrap;
   }
+}
+
+/* ── high-contrast ── */
+.high-contrast .bp-card {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .bp-tab {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .bp-tab--active {
+  border-color: var(--d-accent, #7c3aed);
+  font-weight: 700;
+}
+.high-contrast .bc-bar-row {
+  border-bottom: 1.5px solid var(--hc-border);
+}
+.high-contrast .bo-category {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .ef-modal {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .bp-header {
+  border-bottom: 2px solid var(--hc-border);
 }

@@ -686,3 +686,19 @@
     text-align: center;
   }
 }
+
+/* ── high-contrast ── */
+.high-contrast .sv-card {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .transport-hero {
+  border-bottom: 2px solid var(--hc-border);
+}
+.high-contrast .sv-card__chip {
+  border: 1.5px solid var(--hc-border);
+  font-weight: 600;
+}
+.high-contrast .transport-footer {
+  border-top: 2px solid var(--hc-border);
+}

@@ -1,7 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Pin, PinOff, Trash2 } from "lucide-react";
+import { Plus, Pin, PinOff, Trash2, Palette } from "lucide-react";
 import { useTodoStore } from "../store/todoStore";
+import { COLOR_PALETTE } from "../types";
+import { fmtDateShort } from "../../../lib/utils";
+
+const NOTE_COLORS = ["#ffffff", "#dfe6e9", ...COLOR_PALETTE];
 
 export default function BrainDump() {
   const notes = useTodoStore((s) => s.brainNotes);
@@ -9,8 +13,10 @@ export default function BrainDump() {
   const updateNote = useTodoStore((s) => s.updateBrainNote);
   const removeNote = useTodoStore((s) => s.removeBrainNote);
   const togglePin = useTodoStore((s) => s.togglePinNote);
+  const updateColor = useTodoStore((s) => s.updateNoteColor);
 
   const [draft, setDraft] = useState("");
+  const [pickerOpen, setPickerOpen] = useState<string | null>(null);
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -60,6 +66,14 @@ export default function BrainDump() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={`td-brain__card ${note.pinned ? "td-brain__card--pinned" : ""}`}
+              style={
+                note.color && note.color !== "#fff" && note.color !== "#ffffff"
+                  ? {
+                      borderColor: note.color,
+                      background: `${note.color}18`,
+                    }
+                  : undefined
+              }
             >
               <textarea
                 className="td-brain__content"
@@ -82,18 +96,40 @@ export default function BrainDump() {
                 </button>
                 <button
                   className="td-btn--icon"
+                  onClick={() =>
+                    setPickerOpen(pickerOpen === note.id ? null : note.id)
+                  }
+                  aria-label="Changer la couleur"
+                >
+                  <Palette size={14} />
+                </button>
+                <button
+                  className="td-btn--icon"
                   onClick={() => removeNote(note.id)}
                   aria-label="Supprimer"
                 >
                   <Trash2 size={14} />
                 </button>
                 <span className="td-brain__time">
-                  {new Date(note.updatedAt).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "short",
-                  })}
+                  {fmtDateShort(new Date(note.updatedAt))}
                 </span>
               </div>
+              {pickerOpen === note.id && (
+                <div className="td-color-picker td-color-picker--card">
+                  {NOTE_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      className={`td-color-picker__dot${c === note.color ? " td-color-picker__dot--active" : ""}`}
+                      style={{ background: c }}
+                      onClick={() => {
+                        updateColor(note.id, c);
+                        setPickerOpen(null);
+                      }}
+                      aria-label={c}
+                    />
+                  ))}
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

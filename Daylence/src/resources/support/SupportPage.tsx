@@ -97,7 +97,8 @@ export default function SupportPage() {
               <div
                 className="contact-card__icon"
                 style={{
-                  background: "linear-gradient(135deg, #6c5ce7, #a29bfe)",
+                  background:
+                    "linear-gradient(135deg, var(--d-accent-dark), var(--d-accent))",
                 }}
               >
                 ✉️

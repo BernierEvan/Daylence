@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Crown, Zap, Shield, TrendingUp,
-  Plus, X, Train, ArrowRightLeft, RefreshCw, Trash2, Clock,
+  Crown,
+  Zap,
+  Shield,
+  TrendingUp,
+  Plus,
+  X,
+  Train,
+  ArrowRightLeft,
+  RefreshCw,
+  Trash2,
+  Clock,
 } from "lucide-react";
 import {
   useWidgetStore,
@@ -15,16 +24,66 @@ import {
   searchJourneys,
 } from "../../transport/services/transportApi";
 import { usePreferences } from "../../settings/store/preferencesStore";
+import { fmtTime as fmtTimeUtil } from "../../../lib/utils";
 import type { SncfPlace, SncfJourney } from "../../transport/types";
 
 const MODULES = [
-  { id: "recipes", emoji: "🍳", label: "Recettes", color: "#E2C336", logo: "/daylence_recipe_logo.png", href: "/recipes" },
-  { id: "sleep", emoji: "😴", label: "Sommeil", color: "#2875A0", logo: "/daylence_sleep_logo.png", href: "/sleep" },
-  { id: "transport", emoji: "🚆", label: "Transport", color: "#D97D37", logo: "/daylence_transport_logo.png", href: "/transport" },
-  { id: "budget", emoji: "💰", label: "Budget", color: "#683982", logo: "/daylence_budget_logo.png", href: "/budget" },
-  { id: "work", emoji: "💼", label: "Travail", color: "#5B994D", logo: "/daylence_work_logo.png", href: "/work" },
-  { id: "todos", emoji: "✅", label: "To-do", color: "#B02736", logo: "/daylence_task_logo.png", href: "/todos" },
-  { id: "appblock", emoji: "🔒", label: "Bloqueur", color: "#1a1a2e", logo: "/daylence_core_logo.png", href: "/app-blocker" },
+  {
+    id: "recipes",
+    emoji: "🍳",
+    label: "Recettes",
+    color: "#E2C336",
+    logo: "/daylence_recipe_logo.png",
+    href: "/recipes",
+  },
+  {
+    id: "sleep",
+    emoji: "😴",
+    label: "Sommeil",
+    color: "#2875A0",
+    logo: "/daylence_sleep_logo.png",
+    href: "/sleep",
+  },
+  {
+    id: "transport",
+    emoji: "🚆",
+    label: "Transport",
+    color: "#D97D37",
+    logo: "/daylence_transport_logo.png",
+    href: "/transport",
+  },
+  {
+    id: "budget",
+    emoji: "💰",
+    label: "Budget",
+    color: "#683982",
+    logo: "/daylence_budget_logo.png",
+    href: "/budget",
+  },
+  {
+    id: "work",
+    emoji: "💼",
+    label: "Travail",
+    color: "#5B994D",
+    logo: "/daylence_work_logo.png",
+    href: "/work",
+  },
+  {
+    id: "todos",
+    emoji: "✅",
+    label: "To-do",
+    color: "#B02736",
+    logo: "/daylence_task_logo.png",
+    href: "/todos",
+  },
+  {
+    id: "appblock",
+    emoji: "🔒",
+    label: "Bloqueur",
+    color: "#1a1a2e",
+    logo: "/daylence_core_logo.png",
+    href: "/app-blocker",
+  },
 ];
 
 /* ── Helpers ── */
@@ -40,9 +99,9 @@ function parseSncfDatetime(dt: string): Date {
   return new Date(y, m, d, h, min, s);
 }
 
-function fmtTime(dt: string) {
+function fmtTimeSncf(dt: string, timeFormat: "24h" | "12h") {
   const d = parseSncfDatetime(dt);
-  return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  return fmtTimeUtil(d, timeFormat);
 }
 
 function fmtDuration(seconds: number) {
@@ -52,7 +111,10 @@ function fmtDuration(seconds: number) {
 }
 
 function minutesUntil(dt: string) {
-  return Math.max(0, Math.round((parseSncfDatetime(dt).getTime() - Date.now()) / 60000));
+  return Math.max(
+    0,
+    Math.round((parseSncfDatetime(dt).getTime() - Date.now()) / 60000),
+  );
 }
 
 /* ── Station autocomplete input ── */
@@ -77,7 +139,11 @@ function StationInput({
 
   const handleChange = useCallback(async (q: string) => {
     setQuery(q);
-    if (q.trim().length < 2) { setResults([]); setOpen(false); return; }
+    if (q.trim().length < 2) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
 
     abortRef.current?.abort();
     const ctrl = new AbortController();
@@ -153,23 +219,17 @@ function TrajetWidget({ widget }: { widget: WidgetInstance }) {
   return (
     <div className="lp-w tw tw--setup">
       <div className="tw__header">
-        <h3 className="lp-w__title"><Train size={16} /> Nouveau trajet</h3>
+        <h3 className="lp-w__title">
+          <Train size={16} /> Nouveau trajet
+        </h3>
         <button className="tw__remove" onClick={() => removeWidget(widget.id)}>
           <Trash2 size={15} />
         </button>
       </div>
 
       <div className="tw__fields">
-        <StationInput
-          label="Départ"
-          value=""
-          onSelect={setFromPlace}
-        />
-        <StationInput
-          label="Arrivée"
-          value=""
-          onSelect={setToPlace}
-        />
+        <StationInput label="Départ" value="" onSelect={setFromPlace} />
+        <StationInput label="Arrivée" value="" onSelect={setToPlace} />
       </div>
 
       <button
@@ -210,32 +270,47 @@ function TrajetLive({
   const [error, setError] = useState("");
   const [viewIdx, setViewIdx] = useState(0);
   const [, setTick] = useState(0); // force re-render every minute
+  const timeFormat = usePreferences((s) => s.timeFormat);
 
-  const fetchJourneys = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError("");
-    try {
-      const now = new Date().toISOString().slice(0, 19).replace("T", "T");
-      const res = await searchJourneys(config.fromId, config.toId, now, signal);
-      const upcoming = (res.journeys ?? [])
-        .filter((j) => parseSncfDatetime(j.departure_date_time).getTime() > Date.now())
-        .slice(0, 5);
-      setJourneys(upcoming);
-      setViewIdx(0);
-    } catch (e: unknown) {
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setError("Impossible de charger les trajets");
-    } finally {
-      setLoading(false);
-    }
-  }, [config.fromId, config.toId]);
+  const fetchJourneys = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError("");
+      try {
+        const now = new Date().toISOString().slice(0, 19).replace("T", "T");
+        const res = await searchJourneys(
+          config.fromId,
+          config.toId,
+          now,
+          signal,
+        );
+        const upcoming = (res.journeys ?? [])
+          .filter(
+            (j) =>
+              parseSncfDatetime(j.departure_date_time).getTime() > Date.now(),
+          )
+          .slice(0, 5);
+        setJourneys(upcoming);
+        setViewIdx(0);
+      } catch (e: unknown) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        setError("Impossible de charger les trajets");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [config.fromId, config.toId],
+  );
 
   // Auto-refresh every 60s
   useEffect(() => {
     const ctrl = new AbortController();
     fetchJourneys(ctrl.signal);
     const interval = setInterval(() => fetchJourneys(), 60000);
-    return () => { ctrl.abort(); clearInterval(interval); };
+    return () => {
+      ctrl.abort();
+      clearInterval(interval);
+    };
   }, [fetchJourneys]);
 
   // Countdown tick every 30s
@@ -267,13 +342,25 @@ function TrajetLive({
           <span className="tw__route-station">{config.toLabel}</span>
         </div>
         <div className="tw__actions">
-          <button className="tw__action" onClick={() => fetchJourneys()} title="Rafraîchir">
+          <button
+            className="tw__action"
+            onClick={() => fetchJourneys()}
+            title="Rafraîchir"
+          >
             <RefreshCw size={14} />
           </button>
-          <button className="tw__action" onClick={onReconfigure} title="Reconfigurer">
+          <button
+            className="tw__action"
+            onClick={onReconfigure}
+            title="Reconfigurer"
+          >
             <Train size={14} />
           </button>
-          <button className="tw__action tw__action--danger" onClick={onRemove} title="Supprimer">
+          <button
+            className="tw__action tw__action--danger"
+            onClick={onRemove}
+            title="Supprimer"
+          >
             <Trash2 size={14} />
           </button>
         </div>
@@ -304,7 +391,7 @@ function TrajetLive({
                   onClick={() => setViewIdx(i)}
                 >
                   <Clock size={12} />
-                  {fmtTime(j.departure_date_time)}
+                  {fmtTimeSncf(j.departure_date_time, timeFormat)}
                 </button>
               ))}
             </div>
@@ -323,11 +410,15 @@ function TrajetLive({
             <div className="tw__times">
               <div className="tw__time-row">
                 <span className="tw__time-label">Départ</span>
-                <span className="tw__time-value">{fmtTime(journey.departure_date_time)}</span>
+                <span className="tw__time-value">
+                  {fmtTimeSncf(journey.departure_date_time, timeFormat)}
+                </span>
               </div>
               <div className="tw__time-row">
                 <span className="tw__time-label">Arrivée</span>
-                <span className="tw__time-value">{fmtTime(journey.arrival_date_time)}</span>
+                <span className="tw__time-value">
+                  {fmtTimeSncf(journey.arrival_date_time, timeFormat)}
+                </span>
               </div>
             </div>
 
@@ -339,17 +430,21 @@ function TrajetLive({
                   <div
                     key={i}
                     className="tw__section"
-                    style={{
-                      "--sec-color": s.display_informations?.color
-                        ? `#${s.display_informations.color}`
-                        : "#6366f1",
-                    } as React.CSSProperties}
+                    style={
+                      {
+                        "--sec-color": s.display_informations?.color
+                          ? `#${s.display_informations.color}`
+                          : "var(--d-accent)",
+                      } as React.CSSProperties
+                    }
                   >
                     <span className="tw__section-mode">
                       {s.display_informations?.commercial_mode ?? "Train"}
                     </span>
                     <span className="tw__section-name">
-                      {s.display_informations?.headsign ?? s.display_informations?.label ?? ""}
+                      {s.display_informations?.headsign ??
+                        s.display_informations?.label ??
+                        ""}
                     </span>
                     <span className="tw__section-dir">
                       → {s.display_informations?.direction ?? ""}
@@ -365,7 +460,8 @@ function TrajetLive({
               </span>
               {journey.nb_transfers > 0 && (
                 <span className="tw__transfers">
-                  {journey.nb_transfers} correspondance{journey.nb_transfers > 1 ? "s" : ""}
+                  {journey.nb_transfers} correspondance
+                  {journey.nb_transfers > 1 ? "s" : ""}
                 </span>
               )}
               {journey.nb_transfers === 0 && (
@@ -387,10 +483,7 @@ export default function Hero() {
   const addWidget = useWidgetStore((s) => s.addWidget);
 
   /* ── Preferences ── */
-  const showSubscription = usePreferences((s) => s.showSubscription);
-  const showModules = usePreferences((s) => s.showModules);
   const modules = usePreferences((s) => s.modules);
-  const moduleIcons = usePreferences((s) => s.moduleIcons);
   const hiddenModules = usePreferences((s) => s.hiddenModules);
 
   /* Build sorted, visible module list */
@@ -399,38 +492,46 @@ export default function Hero() {
     .map((m) => {
       const base = MODULES.find((bm) => bm.id === m.id);
       if (!base) return null;
-      return { ...base, emoji: moduleIcons[m.id] || base.emoji, favorited: m.favorited };
+      return { ...base, favorited: m.favorited };
     })
-    .filter(Boolean) as (typeof MODULES[number] & { favorited: boolean })[];
+    .filter(Boolean) as ((typeof MODULES)[number] & { favorited: boolean })[];
 
   /* Favorites first */
-  visibleModules.sort((a, b) => (a.favorited === b.favorited ? 0 : a.favorited ? -1 : 1));
+  visibleModules.sort((a, b) =>
+    a.favorited === b.favorited ? 0 : a.favorited ? -1 : 1,
+  );
 
   return (
     <main className="lp-body">
       {/* ── Left: Subscription ── */}
-      {showSubscription && (
-        <aside className="lp-sub">
-          <div className="lp-sub__glow" />
-          <div className="lp-sub__badge">
-            <Crown size={14} />
-            <span>Free</span>
-          </div>
-          <h2 className="lp-sub__title">Passez à Pro&nbsp;✨</h2>
-          <p className="lp-sub__desc">
-            Débloquez tout et profitez d'une expérience sans limites.
-          </p>
-          <ul className="lp-sub__perks">
-            <li><Zap size={15} /> Modules illimités</li>
-            <li><Shield size={15} /> Sync cloud</li>
-            <li><TrendingUp size={15} /> Stats avancées</li>
-            <li><Crown size={15} /> Support prioritaire</li>
-          </ul>
-          <a href="/pricing" className="lp-sub__cta">
-            Voir les offres&nbsp;&rarr;
-          </a>
-        </aside>
-      )}
+      <aside className="lp-sub">
+        <div className="lp-sub__glow" />
+        <div className="lp-sub__badge">
+          <Crown size={14} />
+          <span>Free</span>
+        </div>
+        <h2 className="lp-sub__title">Passez à Pro&nbsp;✨</h2>
+        <p className="lp-sub__desc">
+          Débloquez tout et profitez d'une expérience sans limites.
+        </p>
+        <ul className="lp-sub__perks">
+          <li>
+            <Zap size={15} /> Modules illimités
+          </li>
+          <li>
+            <Shield size={15} /> Sync cloud
+          </li>
+          <li>
+            <TrendingUp size={15} /> Stats avancées
+          </li>
+          <li>
+            <Crown size={15} /> Support prioritaire
+          </li>
+        </ul>
+        <a href="/pricing" className="lp-sub__cta">
+          Voir les offres&nbsp;&rarr;
+        </a>
+      </aside>
 
       {/* ── Center: Widgets ── */}
       <section className="lp-widgets">
@@ -452,7 +553,10 @@ export default function Hero() {
               <button
                 key={w.type}
                 className="lp-picker__item"
-                onClick={() => { addWidget(w.type); setShowPicker(false); }}
+                onClick={() => {
+                  addWidget(w.type);
+                  setShowPicker(false);
+                }}
               >
                 <span>{w.emoji}</span>
                 <span className="lp-picker__label">{w.label}</span>
@@ -465,39 +569,40 @@ export default function Hero() {
         {/* Active widget instances */}
         <div className="lp-widgets__list">
           {widgets.map((w) => {
-            if (w.type === "trajet") return <TrajetWidget key={w.id} widget={w} />;
+            if (w.type === "trajet")
+              return <TrajetWidget key={w.id} widget={w} />;
             return null;
           })}
           {widgets.length === 0 && !showPicker && (
             <div className="lp-widgets__empty">
               <span>🫥</span>
-              <p>Aucun widget — cliquez sur <strong>+</strong> pour en ajouter !</p>
+              <p>
+                Aucun widget — cliquez sur <strong>+</strong> pour en ajouter !
+              </p>
             </div>
           )}
         </div>
       </section>
 
       {/* ── Right: Modules ── */}
-      {showModules && (
-        <nav className="lp-modules">
-          <h2 className="lp-modules__title">Modules</h2>
-          <div className="lp-modules__list">
-            {visibleModules.map((m) => (
-              <button
-                key={m.id}
-                className="lp-mod"
-                style={{ "--mod-color": m.color } as React.CSSProperties}
-                onClick={() => navigate(m.href)}
-              >
-                <img src={m.logo} alt="" className="lp-mod__logo" />
-                <span className="lp-mod__label">{m.label}</span>
-                {m.favorited && <span className="lp-mod__star">⭐</span>}
-                <span className="lp-mod__arrow">&rarr;</span>
-              </button>
-            ))}
-          </div>
-        </nav>
-      )}
+      <nav className="lp-modules">
+        <h2 className="lp-modules__title">Modules</h2>
+        <div className="lp-modules__list">
+          {visibleModules.map((m) => (
+            <button
+              key={m.id}
+              className="lp-mod"
+              style={{ "--mod-color": m.color } as React.CSSProperties}
+              onClick={() => navigate(m.href)}
+            >
+              <img src={m.logo} alt="" className="lp-mod__logo" />
+              <span className="lp-mod__label">{m.label}</span>
+              {m.favorited && <span className="lp-mod__star">⭐</span>}
+              <span className="lp-mod__arrow">&rarr;</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </main>
   );
 }

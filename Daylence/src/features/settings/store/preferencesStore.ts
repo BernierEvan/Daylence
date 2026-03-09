@@ -9,7 +9,7 @@ import { persist } from "zustand/middleware";
 /* ── Enums / Literal types ── */
 
 export type ThemeMode = "light" | "dark" | "system";
-export type FontSize = "small" | "normal" | "large" | "xlarge";
+export type FontSize = "small" | "normal" | "large";
 export type Language = "fr" | "en";
 export type TimeFormat = "24h" | "12h";
 export type FirstDay = "monday" | "sunday";
@@ -49,9 +49,15 @@ export interface ThemePreset {
   text: string;
   accent: string;
   mode: "light" | "dark";
+  border: string;
+  textSecondary: string;
+  textMuted: string;
+  surfaceAlt: string;
+  shadow: string;
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
+  /* ── Light themes ── */
   {
     id: "default-light",
     name: "Daylence Clair",
@@ -61,56 +67,26 @@ export const THEME_PRESETS: ThemePreset[] = [
     text: "#1a1a2e",
     accent: "#6366f1",
     mode: "light",
-  },
-  {
-    id: "default-dark",
-    name: "Daylence Sombre",
-    emoji: "🌙",
-    bg: "#0f0f1a",
-    surface: "#1a1a2e",
-    text: "#e0e0e0",
-    accent: "#818cf8",
-    mode: "dark",
-  },
-  {
-    id: "ocean",
-    name: "Océan",
-    emoji: "🌊",
-    bg: "#0c1929",
-    surface: "#132f4c",
-    text: "#b2bac2",
-    accent: "#5090d3",
-    mode: "dark",
-  },
-  {
-    id: "forest",
-    name: "Forêt",
-    emoji: "🌲",
-    bg: "#0d1f0d",
-    surface: "#1a3a1a",
-    text: "#c8e6c9",
-    accent: "#4caf50",
-    mode: "dark",
-  },
-  {
-    id: "sunset",
-    name: "Coucher de soleil",
-    emoji: "🌅",
-    bg: "#1a0a0a",
-    surface: "#2d1515",
-    text: "#ffccbc",
-    accent: "#ff7043",
-    mode: "dark",
+    border: "#e5e7eb",
+    textSecondary: "#4f5660",
+    textMuted: "#9ca3af",
+    surfaceAlt: "#f8fafc",
+    shadow: "rgba(0,0,0,0.07)",
   },
   {
     id: "lavender",
     name: "Lavande",
     emoji: "💜",
-    bg: "#f3e8ff",
+    bg: "#f5f0ff",
     surface: "#ffffff",
-    text: "#3b0764",
+    text: "#2e1065",
     accent: "#9333ea",
     mode: "light",
+    border: "#e9d5ff",
+    textSecondary: "#6b21a8",
+    textMuted: "#a78bfa",
+    surfaceAlt: "#faf5ff",
+    shadow: "rgba(107,33,168,0.08)",
   },
   {
     id: "mint",
@@ -121,6 +97,11 @@ export const THEME_PRESETS: ThemePreset[] = [
     text: "#064e3b",
     accent: "#059669",
     mode: "light",
+    border: "#a7f3d0",
+    textSecondary: "#047857",
+    textMuted: "#6ee7b7",
+    surfaceAlt: "#f0fdf4",
+    shadow: "rgba(5,150,105,0.07)",
   },
   {
     id: "rose",
@@ -131,6 +112,117 @@ export const THEME_PRESETS: ThemePreset[] = [
     text: "#4c0519",
     accent: "#e11d48",
     mode: "light",
+    border: "#fecdd3",
+    textSecondary: "#9f1239",
+    textMuted: "#fda4af",
+    surfaceAlt: "#fff5f6",
+    shadow: "rgba(225,29,72,0.07)",
+  },
+  {
+    id: "sand",
+    name: "Sable",
+    emoji: "🏖️",
+    bg: "#fefce8",
+    surface: "#fffef5",
+    text: "#422006",
+    accent: "#ca8a04",
+    mode: "light",
+    border: "#fde68a",
+    textSecondary: "#854d0e",
+    textMuted: "#d97706",
+    surfaceAlt: "#fefdf0",
+    shadow: "rgba(202,138,4,0.08)",
+  },
+  {
+    id: "arctic",
+    name: "Arctique",
+    emoji: "❄️",
+    bg: "#f0f9ff",
+    surface: "#ffffff",
+    text: "#0c4a6e",
+    accent: "#0284c7",
+    mode: "light",
+    border: "#bae6fd",
+    textSecondary: "#0369a1",
+    textMuted: "#7dd3fc",
+    surfaceAlt: "#f0f9ff",
+    shadow: "rgba(2,132,199,0.07)",
+  },
+  {
+    id: "peach",
+    name: "Pêche",
+    emoji: "🍑",
+    bg: "#fff7ed",
+    surface: "#ffffff",
+    text: "#431407",
+    accent: "#ea580c",
+    mode: "light",
+    border: "#fed7aa",
+    textSecondary: "#c2410c",
+    textMuted: "#fb923c",
+    surfaceAlt: "#fffaf5",
+    shadow: "rgba(234,88,12,0.07)",
+  },
+  /* ── Dark themes ── */
+  {
+    id: "default-dark",
+    name: "Daylence Sombre",
+    emoji: "🌙",
+    bg: "#0f0f1a",
+    surface: "#1a1a2e",
+    text: "#e0e0e0",
+    accent: "#818cf8",
+    mode: "dark",
+    border: "#2a2d38",
+    textSecondary: "#a0a0b0",
+    textMuted: "#6b7280",
+    surfaceAlt: "#1e1e34",
+    shadow: "rgba(0,0,0,0.35)",
+  },
+  {
+    id: "ocean",
+    name: "Océan",
+    emoji: "🌊",
+    bg: "#0a1628",
+    surface: "#0f2340",
+    text: "#cbd5e1",
+    accent: "#38bdf8",
+    mode: "dark",
+    border: "#1e3a5f",
+    textSecondary: "#7dd3fc",
+    textMuted: "#475569",
+    surfaceAlt: "#0d1d35",
+    shadow: "rgba(0,0,0,0.45)",
+  },
+  {
+    id: "forest",
+    name: "Forêt",
+    emoji: "🌲",
+    bg: "#071209",
+    surface: "#0f2415",
+    text: "#d1e7dd",
+    accent: "#34d399",
+    mode: "dark",
+    border: "#1a3d24",
+    textSecondary: "#6ee7b7",
+    textMuted: "#4b6a55",
+    surfaceAlt: "#0c1e12",
+    shadow: "rgba(0,0,0,0.45)",
+  },
+  {
+    id: "sunset",
+    name: "Coucher de soleil",
+    emoji: "🌅",
+    bg: "#18080c",
+    surface: "#2a1018",
+    text: "#fbd5c8",
+    accent: "#fb923c",
+    mode: "dark",
+    border: "#3d1a22",
+    textSecondary: "#fdba74",
+    textMuted: "#6b4040",
+    surfaceAlt: "#200e14",
+    shadow: "rgba(0,0,0,0.45)",
   },
   {
     id: "midnight",
@@ -138,19 +230,44 @@ export const THEME_PRESETS: ThemePreset[] = [
     emoji: "🌌",
     bg: "#020617",
     surface: "#0f172a",
-    text: "#94a3b8",
-    accent: "#6366f1",
+    text: "#e2e8f0",
+    accent: "#a78bfa",
     mode: "dark",
+    border: "#1e293b",
+    textSecondary: "#94a3b8",
+    textMuted: "#475569",
+    surfaceAlt: "#0b1120",
+    shadow: "rgba(0,0,0,0.5)",
   },
   {
-    id: "sand",
-    name: "Sable",
-    emoji: "🏖️",
-    bg: "#fefce8",
-    surface: "#ffffff",
-    text: "#422006",
-    accent: "#ca8a04",
-    mode: "light",
+    id: "cherry",
+    name: "Cerise",
+    emoji: "🍒",
+    bg: "#1a0a10",
+    surface: "#2a1520",
+    text: "#f5d0de",
+    accent: "#f43f5e",
+    mode: "dark",
+    border: "#3f1525",
+    textSecondary: "#fda4af",
+    textMuted: "#6b4050",
+    surfaceAlt: "#220e18",
+    shadow: "rgba(0,0,0,0.45)",
+  },
+  {
+    id: "nord",
+    name: "Nord",
+    emoji: "🏔️",
+    bg: "#2e3440",
+    surface: "#3b4252",
+    text: "#eceff4",
+    accent: "#88c0d0",
+    mode: "dark",
+    border: "#434c5e",
+    textSecondary: "#d8dee9",
+    textMuted: "#616e88",
+    surfaceAlt: "#353c4a",
+    shadow: "rgba(0,0,0,0.3)",
   },
 ];
 
@@ -202,11 +319,7 @@ export interface PreferencesState {
   fontSize: FontSize;
   customThemeId: string | null; // reference to THEME_PRESETS[].id
   customBg: string; // custom wallpaper URL or gradient CSS
-  moduleIcons: Record<string, string>; // moduleId → emoji override
-
-  // Home page
-  showSubscription: boolean;
-  showModules: boolean;
+  customBgBlur: number; // 0–100 blur intensity for custom wallpaper
   modules: ModuleConfig[];
 
   // Notifications
@@ -250,7 +363,6 @@ export interface PreferencesState {
   ) => void;
   toggleModule: (id: string, field: "visible" | "favorited") => void;
   reorderModules: (fromIdx: number, toIdx: number) => void;
-  setModuleIcon: (moduleId: string, emoji: string) => void;
   toggleHiddenModule: (moduleId: string) => void;
   addProfile: (name: string, emoji: string) => void;
   removeProfile: (id: string) => void;
@@ -282,9 +394,7 @@ const DEFAULTS: Pick<
   | "fontSize"
   | "customThemeId"
   | "customBg"
-  | "moduleIcons"
-  | "showSubscription"
-  | "showModules"
+  | "customBgBlur"
   | "modules"
   | "notifications"
   | "retentionMonths"
@@ -311,9 +421,7 @@ const DEFAULTS: Pick<
   fontSize: "normal",
   customThemeId: null,
   customBg: "",
-  moduleIcons: {},
-  showSubscription: true,
-  showModules: true,
+  customBgBlur: 0,
   modules: DEFAULT_MODULES,
   notifications: DEFAULT_NOTIFICATIONS,
   retentionMonths: 0,
@@ -359,11 +467,6 @@ export const usePreferences = create<PreferencesState>()(
           mods.splice(toIdx, 0, item);
           return { modules: mods };
         }),
-
-      setModuleIcon: (moduleId, emoji) =>
-        set((s) => ({
-          moduleIcons: { ...s.moduleIcons, [moduleId]: emoji },
-        })),
 
       toggleHiddenModule: (moduleId) =>
         set((s) => ({

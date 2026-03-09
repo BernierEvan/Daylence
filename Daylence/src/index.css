@@ -29,3 +29,54 @@ body {
 *::after {
   box-sizing: border-box;
 }
+
+/* ── reduce-motion (global) ──────────────────────────── */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── high-contrast (global) ──────────────────────────── */
+.high-contrast {
+  --hc-border: rgba(0, 0, 0, 0.25);
+  --hc-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --hc-focus: 0 0 0 2px var(--d-accent, #7c3aed);
+}
+.dark.high-contrast {
+  --hc-border: rgba(255, 255, 255, 0.3);
+  --hc-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  --hc-focus: 0 0 0 2px var(--d-accent, #a78bfa);
+}
+
+.high-contrast button,
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  border-width: 1.5px !important;
+  border-color: var(--hc-border) !important;
+  border-style: solid !important;
+}
+
+.high-contrast button:focus-visible,
+.high-contrast input:focus-visible,
+.high-contrast select:focus-visible,
+.high-contrast textarea:focus-visible,
+.high-contrast a:focus-visible {
+  outline: none !important;
+  box-shadow: var(--hc-focus) !important;
+}
+
+.high-contrast [class*="card"],
+.high-contrast [class*="Card"],
+.high-contrast [class*="__section"],
+.high-contrast [class*="modal"],
+.high-contrast [class*="dialog"] {
+  border: 1.5px solid var(--hc-border) !important;
+  box-shadow: var(--hc-shadow) !important;
+}

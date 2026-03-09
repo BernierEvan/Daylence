@@ -1,11 +1,14 @@
 import { motion } from "framer-motion";
-import { Check, Trash2, Flag } from "lucide-react";
+import { Check, Trash2, Flag, Repeat } from "lucide-react";
 import type { Todo } from "../types";
+import { RECURRENCE_LABELS } from "../types";
+import { fmtDateShort } from "../../../lib/utils";
 
 interface Props {
   todo: Todo;
   onToggle: (id: string) => void;
   onRemove: (id: string) => void;
+  hideDate?: boolean;
 }
 
 const PRIORITY_COLOR: Record<string, string> = {
@@ -14,7 +17,12 @@ const PRIORITY_COLOR: Record<string, string> = {
   low: "#95a5a6",
 };
 
-export default function TodoItem({ todo, onToggle, onRemove }: Props) {
+export default function TodoItem({
+  todo,
+  onToggle,
+  onRemove,
+  hideDate,
+}: Props) {
   return (
     <motion.div
       layout
@@ -37,18 +45,24 @@ export default function TodoItem({ todo, onToggle, onRemove }: Props) {
 
       <span className="td-item__title">{todo.title}</span>
 
+      {todo.recurrence && (
+        <span
+          className="td-item__recurrence"
+          title={RECURRENCE_LABELS[todo.recurrence.type]}
+        >
+          <Repeat size={12} />
+        </span>
+      )}
+
       <Flag
         size={12}
         className="td-item__flag"
         style={{ color: PRIORITY_COLOR[todo.priority] }}
       />
 
-      {todo.dueDate && (
+      {!hideDate && todo.dueDate && (
         <span className="td-item__date">
-          {new Date(todo.dueDate).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "short",
-          })}
+          {fmtDateShort(new Date(todo.dueDate))}
         </span>
       )}
 

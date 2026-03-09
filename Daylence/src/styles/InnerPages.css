@@ -88,11 +88,21 @@
 
 /* ── Gradient variants ── */
 .inner-hero--purple {
-  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #74b9ff 100%);
+  background: linear-gradient(
+    135deg,
+    var(--d-accent-dark) 0%,
+    var(--d-accent) 50%,
+    var(--d-accent-light) 100%
+  );
 }
 
 .inner-hero--indigo {
-  background: linear-gradient(135deg, #4338ca 0%, #6366f1 60%, #818cf8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--d-accent-dark) 0%,
+    var(--d-accent) 60%,
+    var(--d-accent-light) 100%
+  );
 }
 
 .inner-hero--teal {
@@ -134,14 +144,14 @@
 }
 
 .inner-section__text a {
-  color: #6c5ce7;
+  color: var(--d-accent);
   font-weight: 600;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .inner-section__text a:hover {
-  color: #4338ca;
+  color: var(--d-accent-dark);
   text-decoration: underline;
 }
 
@@ -168,7 +178,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #6c5ce7;
+  background: var(--d-accent);
 }
 
 /* ── Feature cards grid (Discover page) ── */
@@ -291,7 +301,7 @@
 }
 
 .faq-item__question:hover {
-  color: #6c5ce7;
+  color: var(--d-accent);
 }
 
 .faq-item__icon {
@@ -306,7 +316,7 @@
 
 .faq-item--open .faq-item__icon {
   transform: rotate(180deg);
-  color: #6c5ce7;
+  color: var(--d-accent);
 }
 
 .faq-item__answer {
@@ -376,7 +386,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #6c5ce7;
+  color: var(--d-accent);
   font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
@@ -384,7 +394,7 @@
 }
 
 .contact-card__link:hover {
-  color: #4338ca;
+  color: var(--d-accent-dark);
   text-decoration: underline;
 }
 
@@ -406,7 +416,7 @@
   border-radius: 40px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #6c5ce7;
+  color: var(--d-accent);
   margin-bottom: 32px;
 }
 
@@ -414,7 +424,12 @@
 .inner-cta {
   text-align: center;
   padding: 72px 48px;
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe 50%, #fd79a8);
+  background: linear-gradient(
+    135deg,
+    var(--d-accent-dark),
+    var(--d-accent) 50%,
+    var(--d-accent-light)
+  );
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -461,7 +476,7 @@
   align-items: center;
   padding: 16px 40px;
   background: #fff;
-  color: #6c5ce7;
+  color: var(--d-accent);
   font-size: 1.05rem;
   font-weight: 700;
   border: none;
@@ -688,12 +703,12 @@
   background: var(--d-border, #2a2d38);
 }
 .dark .legal-updated {
-  background: rgba(108, 92, 231, 0.1);
-  color: #a5b4fc;
+  background: hsla(var(--d-accent-hsl), 0.1);
+  color: var(--d-accent-light);
 }
 .dark .inner-cta__btn {
   background: #fff;
-  color: #6c5ce7;
+  color: var(--d-accent);
 }
 
 /* ────────────────────────────────
@@ -741,4 +756,20 @@
   .feature-card {
     padding: 28px 20px;
   }
+}
+
+/* ── high-contrast ── */
+.high-contrast .inner-section {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .feature-card {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .pricing-card {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .inner-hero {
+  border-bottom: 2px solid var(--hc-border);
 }

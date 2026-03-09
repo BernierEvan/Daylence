@@ -1,7 +1,14 @@
 import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, AlertTriangle, CheckCircle, Trash2 } from "lucide-react";
+import {
+  Plus,
+  AlertTriangle,
+  CheckCircle,
+  Trash2,
+  Palette,
+} from "lucide-react";
 import { useTodoStore } from "../store/todoStore";
+import { COLOR_PALETTE } from "../types";
 
 function daysUntil(dateStr: string) {
   return Math.ceil(
@@ -27,9 +34,13 @@ export default function FridgeAlerts() {
   const addItem = useTodoStore((s) => s.addFridgeItem);
   const toggle = useTodoStore((s) => s.toggleFridgeConsumed);
   const remove = useTodoStore((s) => s.removeFridgeItem);
+  const updateColor = useTodoStore((s) => s.updateFridgeColor);
 
   const [name, setName] = useState("");
   const [expiry, setExpiry] = useState("");
+  const [pickerOpen, setPickerOpen] = useState<string | null>(null);
+
+  const FRIDGE_COLORS = ["#ffffff", "#dfe6e9", ...COLOR_PALETTE];
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -87,6 +98,14 @@ export default function FridgeAlerts() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 className={`td-fridge__row ${urgencyClass(days)}`}
+                style={
+                  item.color && item.color !== "#ffffff"
+                    ? {
+                        borderColor: item.color,
+                        background: `${item.color}18`,
+                      }
+                    : undefined
+                }
               >
                 <div className="td-fridge__info">
                   {days <= 1 && (
@@ -97,6 +116,15 @@ export default function FridgeAlerts() {
                 </div>
                 <span className="td-fridge__badge">{urgencyLabel(days)}</span>
                 <div className="td-fridge__actions">
+                  <button
+                    className="td-btn--icon"
+                    onClick={() =>
+                      setPickerOpen(pickerOpen === item.id ? null : item.id)
+                    }
+                    aria-label="Couleur"
+                  >
+                    <Palette size={14} />
+                  </button>
                   <button
                     className="td-btn--icon"
                     onClick={() => toggle(item.id)}
@@ -112,6 +140,22 @@ export default function FridgeAlerts() {
                     <Trash2 size={16} />
                   </button>
                 </div>
+                {pickerOpen === item.id && (
+                  <div className="td-color-picker td-color-picker--row">
+                    {FRIDGE_COLORS.map((c) => (
+                      <button
+                        key={c}
+                        className={`td-color-picker__dot${c === item.color ? " td-color-picker__dot--active" : ""}`}
+                        style={{ background: c }}
+                        onClick={() => {
+                          updateColor(item.id, c);
+                          setPickerOpen(null);
+                        }}
+                        aria-label={c}
+                      />
+                    ))}
+                  </div>
+                )}
               </motion.div>
             );
           })}

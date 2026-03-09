@@ -1576,3 +1576,25 @@
     font-size: 0.84rem;
   }
 }
+
+/* ── high-contrast ── */
+.high-contrast .pt-search__card {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .pt-field {
+  border-color: var(--hc-border);
+}
+.high-contrast .pt-journey {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .pt-dtp {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .pt-search__btn {
+  font-weight: 700;
+}
+.high-contrast .pt-journey__select-dropdown {
+  border: 1.5px solid var(--hc-border);
+}

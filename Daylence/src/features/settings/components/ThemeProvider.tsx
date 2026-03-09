@@ -8,10 +8,9 @@ import { usePreferences, THEME_PRESETS } from "../store/preferencesStore";
    ═══════════════════════════════════════════════ */
 
 const FONT_MAP: Record<string, string> = {
-  small: "13px",
+  small: "14px",
   normal: "16px",
   large: "18px",
-  xlarge: "21px",
 };
 
 function hexToHSL(hex: string) {
@@ -52,6 +51,7 @@ export default function ThemeProvider({
   const highContrast = usePreferences((s) => s.highContrast);
   const customThemeId = usePreferences((s) => s.customThemeId);
   const customBg = usePreferences((s) => s.customBg);
+  const customBgBlur = usePreferences((s) => s.customBgBlur);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -84,10 +84,12 @@ export default function ThemeProvider({
     // ── Derived semantic tokens ──
     const isDark = effectiveMode === "dark";
     const border = preset?.border ?? (isDark ? "#2a2d38" : "#e5e7eb");
-    const textSecondary = isDark ? "#a0a0b0" : "#4f5660";
-    const textMuted = isDark ? "#6b7280" : "#9ca3af";
-    const surfaceAlt = isDark ? "#1e1e34" : "#f8fafc";
-    const shadow = isDark ? "rgba(0,0,0,0.35)" : "rgba(0,0,0,0.07)";
+    const textSecondary =
+      preset?.textSecondary ?? (isDark ? "#a0a0b0" : "#4f5660");
+    const textMuted = preset?.textMuted ?? (isDark ? "#6b7280" : "#9ca3af");
+    const surfaceAlt = preset?.surfaceAlt ?? (isDark ? "#1e1e34" : "#f8fafc");
+    const shadow =
+      preset?.shadow ?? (isDark ? "rgba(0,0,0,0.35)" : "rgba(0,0,0,0.07)");
 
     // ── CSS custom properties ──
     style.setProperty("--d-bg", bg);
@@ -102,6 +104,7 @@ export default function ThemeProvider({
     style.setProperty("--d-accent-h", `${hsl.h}`);
     style.setProperty("--d-accent-s", `${hsl.s}%`);
     style.setProperty("--d-accent-l", `${hsl.l}%`);
+    style.setProperty("--d-accent-hsl", `${hsl.h}, ${hsl.s}%, ${hsl.l}%`);
     style.setProperty(
       "--d-accent-light",
       `hsl(${hsl.h}, ${hsl.s}%, ${Math.min(hsl.l + 20, 95)}%)`,
@@ -110,6 +113,13 @@ export default function ThemeProvider({
       "--d-accent-dark",
       `hsl(${hsl.h}, ${hsl.s}%, ${Math.max(hsl.l - 15, 10)}%)`,
     );
+    style.setProperty(
+      "--d-accent-soft",
+      isDark
+        ? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.12)`
+        : `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 0.08)`,
+    );
+    style.setProperty("font-size", FONT_MAP[fontSize] ?? "16px");
     style.setProperty("--d-font-base", FONT_MAP[fontSize] ?? "16px");
     style.setProperty("--d-radius", compact ? "8px" : "14px");
     style.setProperty("--d-radius-sm", compact ? "6px" : "10px");
@@ -124,15 +134,28 @@ export default function ThemeProvider({
     style.setProperty("--d-font-scale", compact ? "0.92" : "1");
     style.setProperty("--d-transition", reduceAnimations ? "0s" : "0.2s");
 
-    // Custom background
+    // Custom background – use a real DOM element for reliability
+    let bgEl = document.getElementById("d-bg-layer");
     if (customBg) {
-      if (customBg.startsWith("http") || customBg.startsWith("data:")) {
-        style.setProperty("--d-bg-image", `url(${customBg})`);
-      } else {
-        style.setProperty("--d-bg-image", customBg);
+      if (!bgEl) {
+        bgEl = document.createElement("div");
+        bgEl.id = "d-bg-layer";
+        document.body.insertBefore(bgEl, document.body.firstChild);
       }
+      const bgValue =
+        customBg.startsWith("http") || customBg.startsWith("data:")
+          ? `url(${customBg})`
+          : customBg;
+      bgEl.style.backgroundImage = bgValue;
+      const blurPx = (customBgBlur / 100) * 20;
+      bgEl.style.filter = blurPx > 0 ? `blur(${blurPx}px)` : "none";
+      bgEl.style.scale = `${1 + (customBgBlur / 100) * 0.15}`;
+      html.classList.add("has-bg-image");
+      // Make html bg transparent so the layer shows through
+      style.setProperty("--d-bg", "transparent");
     } else {
-      style.removeProperty("--d-bg-image");
+      if (bgEl) bgEl.remove();
+      html.classList.remove("has-bg-image");
     }
 
     // ── Class-based flags ──
@@ -175,6 +198,7 @@ export default function ThemeProvider({
     highContrast,
     customThemeId,
     customBg,
+    customBgBlur,
   ]);
 
   return <>{children}</>;

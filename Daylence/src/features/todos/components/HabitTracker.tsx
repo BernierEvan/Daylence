@@ -1,19 +1,29 @@
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Palette } from "lucide-react";
 import { useTodoStore } from "../store/todoStore";
+import { COLOR_PALETTE } from "../types";
+import { useFormatPrefs } from "../../../lib/utils";
 
-/** Day-of-week indices 0-6 (Mon-Sun). */
-const WEEK_DAYS = [0, 1, 2, 3, 4, 5, 6] as const;
-const DAY_LABEL = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+/** Internal day-of-week indices: always 0=Mon … 6=Sun (storage convention). */
+const WEEK_DAYS_MON = [0, 1, 2, 3, 4, 5, 6] as const;
+const WEEK_DAYS_SUN = [6, 0, 1, 2, 3, 4, 5] as const;
+
+/** Map from internal Mon=0 index to short label. */
+const INTERNAL_LABEL = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 export default function HabitTracker() {
   const habits = useTodoStore((s) => s.habits);
   const addHabit = useTodoStore((s) => s.addHabit);
   const removeHabit = useTodoStore((s) => s.removeHabit);
   const toggleDay = useTodoStore((s) => s.toggleHabitDay);
+  const updateColor = useTodoStore((s) => s.updateHabitColor);
+
+  const { firstDay } = useFormatPrefs();
+  const WEEK_DAYS = firstDay === "sunday" ? WEEK_DAYS_SUN : WEEK_DAYS_MON;
 
   const [name, setName] = useState("");
+  const [pickerOpen, setPickerOpen] = useState<string | null>(null);
 
   const handleAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -32,7 +42,7 @@ export default function HabitTracker() {
         <div className="td-habits__corner" />
         {WEEK_DAYS.map((d) => (
           <div key={d} className="td-habits__dayhead">
-            <span className="td-habits__dayname">{DAY_LABEL[d]}</span>
+            <span className="td-habits__dayname">{INTERNAL_LABEL[d]}</span>
           </div>
         ))}
         <div className="td-habits__streak-head">Streak</div>
@@ -48,12 +58,38 @@ export default function HabitTracker() {
                 <span>{habit.icon}</span>
                 <span>{habit.name}</span>
                 <button
+                  className="td-btn--icon td-habits__color-btn"
+                  onClick={() =>
+                    setPickerOpen(pickerOpen === habit.id ? null : habit.id)
+                  }
+                  aria-label="Changer la couleur"
+                  style={{ color: habit.color }}
+                >
+                  <Palette size={12} />
+                </button>
+                <button
                   className="td-btn--icon td-habits__delete"
                   onClick={() => removeHabit(habit.id)}
                   aria-label="Supprimer habitude"
                 >
                   <Trash2 size={12} />
                 </button>
+                {pickerOpen === habit.id && (
+                  <div className="td-color-picker">
+                    {COLOR_PALETTE.map((c) => (
+                      <button
+                        key={c}
+                        className={`td-color-picker__dot${c === habit.color ? " td-color-picker__dot--active" : ""}`}
+                        style={{ background: c }}
+                        onClick={() => {
+                          updateColor(habit.id, c);
+                          setPickerOpen(null);
+                        }}
+                        aria-label={c}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
               {WEEK_DAYS.map((d) => {

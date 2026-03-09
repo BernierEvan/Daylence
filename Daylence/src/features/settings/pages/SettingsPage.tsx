@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell,
@@ -21,7 +21,6 @@ import {
   Plus,
   X,
   Image,
-  Home,
   Globe,
   Clock,
   Calendar,
@@ -93,7 +92,6 @@ function Select<T extends string>({
 const NAV = [
   { id: "appearance", icon: Palette, label: "Apparence" },
   { id: "themes", icon: Sun, label: "Thèmes" },
-  { id: "home", icon: Home, label: "Page d'accueil" },
   { id: "modules", icon: GripVertical, label: "Modules" },
   { id: "notifications", icon: Bell, label: "Notifications" },
   { id: "behavior", icon: Globe, label: "Comportement" },
@@ -112,6 +110,32 @@ export default function SettingsPage() {
   const [section, setSection] = useState("appearance");
   const prefs = usePreferences();
   const fileRef = useRef<HTMLInputElement>(null);
+  const isScrollingTo = useRef(false);
+
+  /* ── Scroll-spy: track which section is visible ── */
+  useEffect(() => {
+    const ids = NAV.map((n) => n.id);
+    const els = ids
+      .map((id) => document.getElementById(`sec-${id}`))
+      .filter(Boolean) as HTMLElement[];
+    if (els.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingTo.current) return;
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.id.replace("sec-", "");
+            setSection(id);
+            break;
+          }
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 },
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   /* ── PIN setup state ── */
   const [pinSetup, setPinSetup] = useState<{
@@ -127,9 +151,13 @@ export default function SettingsPage() {
 
   const scrollTo = (id: string) => {
     setSection(id);
+    isScrollingTo.current = true;
     document
       .getElementById(`sec-${id}`)
       ?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      isScrollingTo.current = false;
+    }, 800);
   };
 
   /* ── Drag & Drop modules ── */
@@ -167,6 +195,7 @@ export default function SettingsPage() {
       }
     };
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   return (
@@ -320,12 +349,11 @@ export default function SettingsPage() {
                 </div>
                 <Select
                   value={prefs.fontSize}
-                  options={["small", "normal", "large", "xlarge"] as FontSize[]}
+                  options={["small", "normal", "large"] as FontSize[]}
                   labels={{
                     small: "Petit",
                     normal: "Normal",
                     large: "Grand",
-                    xlarge: "Très grand",
                   }}
                   onChange={(v) => prefs.set("fontSize", v)}
                 />
@@ -362,7 +390,10 @@ export default function SettingsPage() {
                   {prefs.customBg && (
                     <button
                       className="sp-btn sp-btn--outline sp-btn--sm"
-                      onClick={() => prefs.set("customBg", "")}
+                      onClick={() => {
+                        prefs.set("customBg", "");
+                        prefs.set("customBgBlur", 0);
+                      }}
                     >
                       <X size={14} />
                     </button>
@@ -375,6 +406,24 @@ export default function SettingsPage() {
                     onChange={handleBgFile}
                   />
                 </div>
+                {prefs.customBg && (
+                  <div className="sp-blur-row">
+                    <span className="sp-blur-row__label">Flou</span>
+                    <input
+                      type="range"
+                      className="sp-blur-row__slider"
+                      min={0}
+                      max={100}
+                      value={prefs.customBgBlur}
+                      onChange={(e) =>
+                        prefs.set("customBgBlur", Number(e.target.value))
+                      }
+                    />
+                    <span className="sp-blur-row__value">
+                      {prefs.customBgBlur}%
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -397,15 +446,26 @@ export default function SettingsPage() {
                   >
                     <div
                       className="sp-theme__preview"
-                      style={{ background: t.bg }}
+                      style={{
+                        background: t.bg,
+                        borderColor: t.border,
+                      }}
                     >
+                      <span
+                        className="sp-theme__bar"
+                        style={{ background: t.surface }}
+                      />
                       <span
                         className="sp-theme__dot"
                         style={{ background: t.accent }}
                       />
                       <span
-                        className="sp-theme__swatch"
-                        style={{ background: t.surface }}
+                        className="sp-theme__line"
+                        style={{ background: t.text, opacity: 0.5 }}
+                      />
+                      <span
+                        className="sp-theme__line sp-theme__line--short"
+                        style={{ background: t.textSecondary, opacity: 0.35 }}
                       />
                     </div>
                     <span className="sp-theme__label">
@@ -430,49 +490,7 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* ═══════ 3. HOME PAGE ═══════ */}
-          <section id="sec-home" className="sp-section">
-            <div className="sp-section__header">
-              <h3 className="sp-section__title">Page d'accueil</h3>
-              <p className="sp-section__sub">
-                Configurez la disposition de votre écran principal.
-              </p>
-            </div>
-            <div className="sp-card">
-              <div className="sp-row">
-                <div className="sp-row__text">
-                  <span className="sp-row__label">
-                    Afficher la colonne abonnement
-                  </span>
-                  <span className="sp-row__desc">
-                    Panneau de gauche avec l'offre Pro
-                  </span>
-                </div>
-                <Toggle
-                  on={prefs.showSubscription}
-                  onChange={() =>
-                    prefs.set("showSubscription", !prefs.showSubscription)
-                  }
-                />
-              </div>
-              <div className="sp-row">
-                <div className="sp-row__text">
-                  <span className="sp-row__label">
-                    Afficher la colonne modules
-                  </span>
-                  <span className="sp-row__desc">
-                    Panneau de droite avec les raccourcis modules
-                  </span>
-                </div>
-                <Toggle
-                  on={prefs.showModules}
-                  onChange={() => prefs.set("showModules", !prefs.showModules)}
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* ═══════ 4. MODULES ═══════ */}
+          {/* ═══════ 3. MODULES ═══════ */}
           <section id="sec-modules" className="sp-section">
             <div className="sp-section__header">
               <h3 className="sp-section__title">Modules</h3>
@@ -493,7 +511,7 @@ export default function SettingsPage() {
                 >
                   <GripVertical size={16} className="sp-row__grip" />
                   <span className="sp-row__emoji">
-                    {prefs.moduleIcons[mod.id] || getModuleEmoji(mod.id)}
+                    {getModuleEmoji(mod.id)}
                   </span>
                   <div className="sp-row__text" style={{ flex: 1 }}>
                     <span className="sp-row__label">
@@ -519,34 +537,6 @@ export default function SettingsPage() {
                   </button>
                 </div>
               ))}
-
-              {/* Module icon override */}
-              <div className="sp-row sp-row--col" style={{ marginTop: 12 }}>
-                <div className="sp-row__text">
-                  <span className="sp-row__label">Icônes personnalisées</span>
-                  <span className="sp-row__desc">
-                    Remplacez les icônes par des emojis
-                  </span>
-                </div>
-                <div className="sp-emoji-grid">
-                  {prefs.modules.map((mod) => (
-                    <div key={mod.id} className="sp-emoji-item">
-                      <span className="sp-emoji-item__name">
-                        {getModuleLabel(mod.id)}
-                      </span>
-                      <input
-                        className="sp-emoji-input"
-                        maxLength={2}
-                        value={prefs.moduleIcons[mod.id] ?? ""}
-                        placeholder={getModuleEmoji(mod.id)}
-                        onChange={(e) =>
-                          prefs.setModuleIcon(mod.id, e.target.value)
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </section>
 

@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { searchPlaces, searchJourneys } from "../services/transportApi";
 import type { SncfPlace, SncfJourney, SncfSection } from "../types";
+import { usePreferences } from "../../settings/store/preferencesStore";
+import { fmtTime as fmtTimeUtil, getDayLabelsMin } from "../../../lib/utils";
 import "../css/TransportPage.css";
 import "../css/PublicTransport.css";
 
 /* ── helpers ── */
 
-function formatSncfTime(dt: string) {
+function formatSncfTime(dt: string, timeFormat: "24h" | "12h" = "24h") {
   const t = dt.split("T")[1];
-  return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
+  const h = parseInt(t.slice(0, 2), 10);
+  const m = t.slice(2, 4);
+  if (timeFormat === "12h") {
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 || 12;
+    return `${h12}:${m} ${period}`;
+  }
+  return `${t.slice(0, 2)}:${m}`;
 }
 
 function formatDuration(seconds: number) {
@@ -254,9 +263,14 @@ function getModeIcon(physicalMode?: string) {
 
 /* ── Date & Time picker ── */
 
-function generateCalendarDays(year: number, month: number) {
+function generateCalendarDays(
+  year: number,
+  month: number,
+  firstDay: "monday" | "sunday",
+) {
   const first = new Date(year, month, 1);
-  const startDay = (first.getDay() + 6) % 7; // Monday = 0
+  const startDay =
+    firstDay === "sunday" ? first.getDay() : (first.getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const prevDays = new Date(year, month, 0).getDate();
   const cells: { day: number; current: boolean; date: Date }[] = [];
@@ -294,7 +308,7 @@ const MONTH_NAMES = [
   "Novembre",
   "Décembre",
 ];
-const DAY_HEADERS = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+const DAY_HEADERS_MON = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 
 function DateTimePicker({
   value,
@@ -305,6 +319,11 @@ function DateTimePicker({
   onChange: (v: string) => void;
   onEnter?: () => void;
 }) {
+  const firstDay = usePreferences((s) => s.firstDay);
+  const DAY_HEADERS =
+    firstDay === "sunday"
+      ? ["Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa"]
+      : DAY_HEADERS_MON;
   const [calOpen, setCalOpen] = useState(false);
   const calRef = useRef<HTMLDivElement>(null);
   const timeStr = value.split("T")[1] ?? "12:00";
@@ -326,7 +345,7 @@ function DateTimePicker({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const cells = generateCalendarDays(viewYear, viewMonth);
+  const cells = generateCalendarDays(viewYear, viewMonth, firstDay);
 
   const prevMonth = () => {
     if (viewMonth === 0) {
@@ -736,9 +755,10 @@ const JourneyCard = memo(function JourneyCard({
   index: number;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const timeFormat = usePreferences((s) => s.timeFormat);
   const ptSections = getTransportSections(journey);
-  const dep = formatSncfTime(journey.departure_date_time);
-  const arr = formatSncfTime(journey.arrival_date_time);
+  const dep = formatSncfTime(journey.departure_date_time, timeFormat);
+  const arr = formatSncfTime(journey.arrival_date_time, timeFormat);
   const duration = formatDuration(journey.duration);
   const sections = journey.sections;
   const originName = sections[0]?.from?.name ?? "";
@@ -871,10 +891,19 @@ const JourneyCard = memo(function JourneyCard({
                       >
                         <span className="pt-stop__time">
                           {j === 0
-                            ? formatSncfTime(stop.departure_date_time)
+                            ? formatSncfTime(
+                                stop.departure_date_time,
+                                timeFormat,
+                              )
                             : j === stops.length - 1
-                              ? formatSncfTime(stop.arrival_date_time)
-                              : formatSncfTime(stop.departure_date_time)}
+                              ? formatSncfTime(
+                                  stop.arrival_date_time,
+                                  timeFormat,
+                                )
+                              : formatSncfTime(
+                                  stop.departure_date_time,
+                                  timeFormat,
+                                )}
                         </span>
                         <span className="pt-stop__dot-col">
                           {j > 0 && <span className="pt-stop__line-above" />}

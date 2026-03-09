@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { useBudgetStore } from "../store/budgetStore";
 import { CATEGORY_META } from "../types";
 import type { Transaction, Category } from "../types";
+import { fmtDateShort } from "../../../lib/utils";
 
 interface Props {
   transactions: Transaction[];
@@ -19,10 +20,7 @@ export default function TransactionList({ transactions, showAll }: Props) {
     );
   }
 
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-  };
+  const formatDate = (iso: string) => fmtDateShort(new Date(iso));
 
   return (
     <div className="tl-list">
@@ -43,9 +41,14 @@ export default function TransactionList({ transactions, showAll }: Props) {
                 {meta.label} · {formatDate(tx.date)}
               </span>
             </div>
-            <span className={`tl-item__amount ${isIncome ? "tl-item__amount--income" : "tl-item__amount--expense"}`}>
+            <span
+              className={`tl-item__amount ${isIncome ? "tl-item__amount--income" : "tl-item__amount--expense"}`}
+            >
               {isIncome ? "+" : "−"}
-              {tx.amount.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {tx.amount.toLocaleString("fr-FR", {
+                style: "currency",
+                currency: "EUR",
+              })}
             </span>
             {showAll && (
               <button

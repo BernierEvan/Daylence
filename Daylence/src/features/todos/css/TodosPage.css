@@ -13,8 +13,8 @@
   --td-text: #1a1a2e;
   --td-text-secondary: #6b7280;
   --td-text-muted: #9ca3af;
-  --td-accent: #6366f1;
-  --td-accent-soft: #eef2ff;
+  --td-accent: var(--d-accent);
+  --td-accent-soft: hsla(var(--d-accent-hsl), 0.06);
   --td-green: #22c55e;
   --td-red: #ef4444;
   --td-orange: #f59e0b;
@@ -168,7 +168,7 @@
 
 .td-form__input:focus {
   border-color: var(--td-accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px hsla(var(--d-accent-hsl), 0.1);
 }
 
 .td-form__input::placeholder {
@@ -193,7 +193,7 @@
 }
 
 .td-form__btn:hover {
-  background: #4f46e5;
+  background: var(--d-accent-dark);
 }
 
 .td-form__btn:active {
@@ -352,7 +352,7 @@
 }
 
 /* ══════════════════════════════════════════
-   Dashboard
+   Dashboard / Agenda
    ══════════════════════════════════════════ */
 .td-dashboard__cards {
   display: grid;
@@ -408,6 +408,221 @@
 .td-dashboard__list {
   display: flex;
   flex-direction: column;
+}
+
+/* ── Agenda navigation ── */
+.td-agenda__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.td-agenda__today-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--td-border);
+  border-radius: var(--td-radius-sm);
+  background: var(--td-surface);
+  font-family: var(--td-font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--td-accent);
+  cursor: pointer;
+  transition:
+    background var(--td-transition),
+    border-color var(--td-transition);
+}
+.td-agenda__today-btn:hover {
+  background: var(--td-accent-soft);
+  border-color: var(--td-accent);
+}
+
+/* ── Week strip ── */
+.td-agenda__strip {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.td-agenda__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 52px;
+  padding: 8px 4px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--td-radius-sm);
+  background: var(--td-surface);
+  cursor: pointer;
+  transition:
+    background var(--td-transition),
+    border-color var(--td-transition);
+}
+.td-agenda__day:hover {
+  border-color: var(--td-border);
+}
+.td-agenda__day--today {
+  border-color: var(--td-accent);
+}
+.td-agenda__day--selected {
+  background: var(--td-accent-soft);
+  border-color: var(--td-accent);
+}
+.td-agenda__day--selected .td-agenda__day-num {
+  color: var(--td-accent);
+  font-weight: 800;
+}
+
+.td-agenda__day-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--td-text-muted);
+}
+.td-agenda__day-num {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--td-text);
+}
+.td-agenda__day-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--td-accent);
+}
+
+.td-agenda__day-header {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--td-text);
+  margin-bottom: 12px;
+  text-transform: capitalize;
+}
+
+/* ── Completed fold ── */
+.td-agenda__completed {
+  margin-top: 24px;
+  font-size: 0.85rem;
+  color: var(--td-text-muted);
+}
+.td-agenda__completed summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 0;
+  color: var(--td-text-secondary);
+}
+
+/* ── TodoItem: recurrence badge ── */
+.td-item__recurrence {
+  display: flex;
+  align-items: center;
+  color: var(--td-accent);
+  flex-shrink: 0;
+}
+
+/* ── TodoForm: agenda mode ── */
+.td-form--agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.td-form--agenda .td-form__row {
+  display: flex;
+  gap: 8px;
+}
+.td-form__expand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--td-text-muted);
+  font-family: var(--td-font);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color var(--td-transition);
+}
+.td-form__expand:hover {
+  color: var(--td-accent);
+}
+
+.td-form__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px;
+  background: var(--td-surface);
+  border: 1px solid var(--td-border-light);
+  border-radius: var(--td-radius-sm);
+}
+
+.td-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.td-form__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--td-text-muted);
+}
+
+.td-form__input--sm {
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.td-form__select {
+  padding: 6px 10px;
+  border: 1px solid var(--td-border);
+  border-radius: var(--td-radius-sm);
+  background: var(--td-surface);
+  font-family: var(--td-font);
+  font-size: 0.82rem;
+  color: var(--td-text);
+  outline: none;
+  cursor: pointer;
+}
+.td-form__select:focus {
+  border-color: var(--td-accent);
+}
+
+.td-form__priority-group {
+  display: flex;
+  gap: 4px;
+}
+.td-form__priority-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--td-border);
+  border-radius: 20px;
+  background: transparent;
+  font-family: var(--td-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--td-transition),
+    color var(--td-transition);
+}
+.td-form__priority-btn:hover {
+  opacity: 0.85;
+}
+.td-form__priority-btn--active {
+  border-color: transparent;
 }
 
 /* ══════════════════════════════════════════
@@ -506,6 +721,126 @@
   white-space: nowrap;
 }
 
+/* ── Grocery: list-of-lists ── */
+.td-grocery__lists {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.td-grocery__list-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--td-surface);
+  border: 1px solid var(--td-border-light);
+  border-radius: var(--td-radius);
+  box-shadow: var(--td-shadow);
+  cursor: pointer;
+  transition:
+    border-color var(--td-transition),
+    box-shadow var(--td-transition);
+}
+.td-grocery__list-card:hover {
+  border-color: var(--td-border);
+  box-shadow: var(--td-shadow-lg);
+}
+.td-grocery__list-card:hover .td-item__delete {
+  opacity: 1;
+}
+
+.td-grocery__list-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--td-radius-sm);
+  background: var(--td-accent-soft);
+  color: var(--td-accent);
+  flex-shrink: 0;
+}
+
+.td-grocery__list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.td-grocery__list-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--td-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td-grocery__list-meta {
+  font-size: 0.72rem;
+  color: var(--td-text-muted);
+}
+
+.td-grocery__list-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.td-grocery__list-bar {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--td-border-light);
+  overflow: hidden;
+}
+
+.td-grocery__list-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--td-accent);
+  transition: width 0.3s ease;
+}
+
+.td-grocery__list-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--td-text-secondary);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ── Grocery: detail back row ── */
+.td-grocery__back-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.td-grocery__rename {
+  max-width: 220px;
+}
+
+.td-section__title--clickable {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.td-grocery__edit-icon {
+  color: var(--td-text-muted);
+  opacity: 0;
+  transition: opacity var(--td-transition);
+}
+.td-section__title--clickable:hover .td-grocery__edit-icon {
+  opacity: 1;
+}
+
 /* ══════════════════════════════════════════
    Meal planner
    ══════════════════════════════════════════ */
@@ -513,6 +848,7 @@
   display: grid;
   grid-template-columns: 90px repeat(4, 1fr);
   gap: 4px;
+  overflow: visible;
 }
 
 .td-meals__corner {
@@ -546,6 +882,9 @@
   min-height: 44px;
   display: flex;
   align-items: stretch;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
 }
 
 .td-meals__slot {
@@ -613,7 +952,7 @@
   font-size: 0.78rem;
   outline: none;
   background: var(--td-surface);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px hsla(var(--d-accent-hsl), 0.1);
 }
 
 /* ══════════════════════════════════════════
@@ -644,6 +983,8 @@
   border: 1px solid var(--td-border-light);
   border-radius: var(--td-radius-sm);
   transition: border-color var(--td-transition);
+  position: relative;
+  flex-wrap: wrap;
 }
 
 .td-fridge__row:hover {
@@ -859,7 +1200,7 @@
 
 .td-brain__textarea:focus {
   border-color: var(--td-accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px hsla(var(--d-accent-hsl), 0.1);
 }
 
 .td-brain__textarea::placeholder {
@@ -956,6 +1297,33 @@
 
   .td-dashboard__cards {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .td-agenda__strip {
+    gap: 2px;
+  }
+  .td-agenda__day {
+    min-width: 42px;
+    padding: 6px 2px 8px;
+  }
+  .td-agenda__day-num {
+    font-size: 0.85rem;
+  }
+
+  .td-form__options {
+    flex-direction: column;
+  }
+
+  .td-grocery__list-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .td-grocery__list-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .td-grocery__list-bar {
+    width: 40px;
   }
 
   .td-meals__grid {
@@ -1100,10 +1468,64 @@
   font-size: 0.8rem;
 }
 
+/* Compact — Agenda */
+.compact .td-agenda__nav {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.compact .td-agenda__today-btn {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+.compact .td-agenda__strip {
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.compact .td-agenda__day {
+  padding: 5px 3px 7px;
+}
+.compact .td-agenda__day-num {
+  font-size: 0.85rem;
+}
+.compact .td-agenda__day-header {
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+.compact .td-form--agenda {
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.compact .td-form__options {
+  padding: 8px 10px;
+  gap: 8px;
+}
+.compact .td-form__priority-btn {
+  padding: 3px 8px;
+  font-size: 0.7rem;
+}
+
 /* Compact — Grocery */
 .compact .td-grocery__meta {
   margin-bottom: 10px;
   font-size: 0.75rem;
+}
+
+.compact .td-grocery__list-card {
+  padding: 10px 12px;
+  gap: 8px;
+}
+.compact .td-grocery__list-icon {
+  width: 32px;
+  height: 32px;
+}
+.compact .td-grocery__list-name {
+  font-size: 0.82rem;
+}
+.compact .td-grocery__list-meta {
+  font-size: 0.68rem;
+}
+.compact .td-grocery__list-bar {
+  width: 45px;
 }
 
 .compact .td-grocery__form {
@@ -1258,7 +1680,7 @@
   --td-text: #e0e0e0;
   --td-text-secondary: #a0a0b0;
   --td-text-muted: #6b7280;
-  --td-accent-soft: rgba(99, 102, 241, 0.12);
+  --td-accent-soft: hsla(var(--d-accent-hsl), 0.12);
   --td-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
   --td-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
@@ -1268,4 +1690,137 @@
 }
 .dark .td-fridge__row--expired {
   background: rgba(254, 242, 242, 0.1);
+}
+
+/* ── high-contrast ── */
+.high-contrast .td-tab {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .td-tab--active {
+  border-color: var(--d-accent, #7c3aed);
+  font-weight: 700;
+}
+.high-contrast .td-item {
+  border: 1.5px solid var(--hc-border);
+  box-shadow: var(--hc-shadow);
+}
+.high-contrast .td-filters__chip {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .td-filters__chip--active {
+  border-color: var(--d-accent, #7c3aed);
+}
+.high-contrast .td-habit__day,
+.high-contrast .td-meal__day {
+  border: 1.5px solid var(--hc-border);
+}
+.high-contrast .td-fridge__row {
+  border-bottom: 1.5px solid var(--hc-border);
+}
+.high-contrast .td-grocery__item {
+  border: 1.5px solid var(--hc-border);
+}
+
+/* ══════════════════════════════════════════════
+   Color picker (shared by habits, notes, fridge, meals)
+   ══════════════════════════════════════════════ */
+.td-color-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--td-surface, #fff);
+  border: 1px solid var(--td-border, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  max-width: 240px;
+  margin-top: 4px;
+}
+.dark .td-color-picker {
+  background: var(--td-surface, #1e1e2e);
+  border-color: var(--td-border, #2a2d38);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.td-color-picker--card {
+  position: relative;
+  margin-top: 8px;
+  max-width: 100%;
+}
+.td-color-picker--row {
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: 100%;
+}
+.td-color-picker--meal {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 260px;
+  z-index: 50;
+}
+
+.td-color-picker__dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.td-color-picker__dot:hover {
+  transform: scale(1.2);
+}
+.td-color-picker__dot--active {
+  border-color: var(--td-text, #213547);
+  box-shadow: 0 0 0 2px var(--td-surface, #fff);
+}
+
+/* Habit color button */
+.td-habits__color-btn {
+  opacity: 0;
+  transition: opacity var(--td-transition, 180ms ease);
+}
+.td-habits__name:hover .td-habits__color-btn {
+  opacity: 1;
+}
+
+/* Meal color button */
+.td-meals__color-btn {
+  opacity: 0;
+  color: var(--td-text-muted, #9ca3af);
+  transition: opacity var(--td-transition, 180ms ease);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.td-meals__slot--filled {
+  position: relative;
+}
+.td-meals__slot--filled:hover .td-meals__color-btn {
+  opacity: 1;
+}
+
+/* Aisle dot */
+.td-aisle__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.td-aisle__title {
+  display: flex;
+  align-items: center;
 }
