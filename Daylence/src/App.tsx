@@ -1,11 +1,23 @@
 import "./App.css";
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+>>>>>>> Stashed changes
 import LandingPage from "./features/landing/pages/LandingPage";
-import UnloggedPage from "./features/unlogged/pages/UnloggedPage";
+import DiscoverPage from "./resources/discover/pages/DiscoverPage";
+import SupportPage from "./resources/support/SupportPage";
+import CguPage from "./policies/cgu/pages/CguPage";
+import ConfidentialityPage from "./policies/confidentiality/pages/ConfidentialityPage";
+import TransportPage from "./features/transport/pages/TransportPage";
+import SettingsPage from "./features/settings/pages/SettingsPage";
+import ProfilePage from "./features/settings/pages/ProfilePage";
+import BudgetPage from "./features/budget/pages/BudgetPage";
 
 function App() {
   return (
+<<<<<<< Updated upstream
     <>
       <LandingPage />
     </>
@@ -40,6 +52,8 @@ import BudgetPage from "./features/budget/pages/BudgetPage";
 function App() {
   return (
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -54,6 +68,9 @@ function App() {
       </Routes>
     </BrowserRouter>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes

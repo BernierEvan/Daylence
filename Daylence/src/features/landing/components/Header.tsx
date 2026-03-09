@@ -23,8 +23,14 @@ export default function Header() {
         <span className="landing-header__title">Daylence</span>
       </div>
       <div>
+        <button className="setting-btn">
+        <span className="setting-bar setting-bar1"></span>
+        <span className="setting-bar setting-bar2"></span>
+        <span className="setting-bar setting-bar3"></span>
+        </button>
+
         <a href="fonctionnalities" className="landing-header__link">
-          Fonctionnalités
+          Préférences
         </a>
         <br></br>
         <a href="/pricing" className="landing-header__link">

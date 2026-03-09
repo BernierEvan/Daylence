@@ -1,0 +1,529 @@
+/* ══════════════════════════════════════════════
+   Inner Pages — Shared styles for Discover,
+   Support, CGU, Confidentiality, etc.
+   Uses the same Discord-inspired vivid theme.
+   ══════════════════════════════════════════════ */
+
+/* ── Page shell ── */
+.inner-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background: #fff;
+}
+
+/* ── Hero banner (compact, gradient) ── */
+.inner-hero {
+  position: relative;
+  padding: 100px 48px 72px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.inner-hero::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.12) 0%,
+    transparent 70%
+  );
+  top: -250px;
+  right: -120px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.inner-hero::after {
+  content: "";
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
+  );
+  bottom: -180px;
+  left: -80px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.inner-hero__label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.inner-hero__title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.inner-hero__sub {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Gradient variants ── */
+.inner-hero--purple {
+  background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #74b9ff 100%);
+}
+
+.inner-hero--indigo {
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 60%, #818cf8 100%);
+}
+
+.inner-hero--teal {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #5eead4 100%);
+}
+
+.inner-hero--rose {
+  background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%);
+}
+
+/* ── Main content area ── */
+.inner-content {
+  flex: 1;
+  max-width: 1080px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 64px 48px;
+}
+
+/* ── Section block ── */
+.inner-section {
+  margin-bottom: 56px;
+}
+
+.inner-section__title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #23272a;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+  line-height: 1.2;
+}
+
+.inner-section__text {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #4f5660;
+  margin: 0 0 16px;
+}
+
+.inner-section__text a {
+  color: #6c5ce7;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.inner-section__text a:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+.inner-section__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.inner-section__list li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 1.02rem;
+  line-height: 1.8;
+  color: #4f5660;
+  margin-bottom: 6px;
+}
+
+.inner-section__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c5ce7;
+}
+
+/* ── Feature cards grid (Discover page) ── */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.feature-card {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.feature-card__blob {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  opacity: 0.1;
+  filter: blur(60px);
+  pointer-events: none;
+  top: -60px;
+  right: -60px;
+}
+
+.feature-card__img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #23272a;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card__desc {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #5e6773;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── FAQ / Accordion (Support page) ── */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.faq-item {
+  background: #f8f9fa;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.faq-item__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #23272a;
+  transition: color 0.2s;
+}
+
+.faq-item__question:hover {
+  color: #6c5ce7;
+}
+
+.faq-item__icon {
+  width: 24px;
+  height: 24px;
+  color: #aaa;
+  transition:
+    transform 0.3s,
+    color 0.2s;
+  flex-shrink: 0;
+}
+
+.faq-item--open .faq-item__icon {
+  transform: rotate(180deg);
+  color: #6c5ce7;
+}
+
+.faq-item__answer {
+  padding: 0 24px 20px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4f5660;
+  display: none;
+}
+
+.faq-item--open .faq-item__answer {
+  display: block;
+}
+
+/* ── Contact card (Support page) ── */
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.contact-card {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+.contact-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.contact-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #23272a;
+  margin: 0;
+}
+
+.contact-card__text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #5e6773;
+  margin: 0;
+}
+
+.contact-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #6c5ce7;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.contact-card__link:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+/* ── Legal pages divider ── */
+.legal-divider {
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 48px 0;
+}
+
+/* ── Last updated badge ── */
+.legal-updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f0f0ff;
+  border-radius: 40px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c5ce7;
+  margin-bottom: 32px;
+}
+
+/* ── CTA mini-banner ── */
+.inner-cta {
+  text-align: center;
+  padding: 72px 48px;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe 50%, #fd79a8);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.inner-cta::before {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 70%
+  );
+  top: -160px;
+  right: -100px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.inner-cta__title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.inner-cta__sub {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0 0 28px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+.inner-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 16px 40px;
+  background: #fff;
+  color: #6c5ce7;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.inner-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* ────────────────────────────────
+   Responsive
+   ──────────────────────────────── */
+@media (max-width: 900px) {
+  .inner-hero {
+    padding: 80px 24px 56px;
+  }
+
+  .inner-hero__title {
+    font-size: 2.2rem;
+  }
+
+  .inner-content {
+    padding: 40px 24px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .inner-cta {
+    padding: 56px 24px;
+  }
+
+  .inner-cta__title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner-hero__title {
+    font-size: 1.8rem;
+  }
+
+  .inner-section__title {
+    font-size: 1.4rem;
+  }
+
+  .feature-card {
+    padding: 28px 20px;
+  }
+}
