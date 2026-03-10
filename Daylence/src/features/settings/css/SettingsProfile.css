@@ -254,6 +254,16 @@
   line-height: 1.4;
 }
 
+.sp-row__hint {
+  font-size: 0.76rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: hsla(var(--d-accent-hsl), 0.04);
+  border-radius: 10px;
+}
+
 .sp-row__actions {
   display: flex;
   gap: 10px;
@@ -1811,6 +1821,10 @@
 }
 .dark .sp-row__desc {
   color: var(--d-text-muted, #6b7280);
+}
+.dark .sp-row__hint {
+  color: var(--d-text-muted, #6b7280);
+  background: rgba(255, 255, 255, 0.03);
 }
 .dark .sp-toggle {
   background: #3a3d48;

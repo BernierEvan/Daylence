@@ -16,14 +16,25 @@ import {
 import {
   useWidgetStore,
   WIDGET_CATALOGUE,
+  WIDGET_CATEGORIES,
   type WidgetInstance,
   type TrajetConfig,
+  type WidgetCategory,
 } from "../store/widgetStore";
+import {
+  AgendaWidget,
+  GroceryWidget,
+  MealsWidget,
+  FridgeWidget,
+  HabitsWidget,
+  NotesWidget,
+} from "./TodoWidgets";
 import {
   searchPlaces,
   searchJourneys,
 } from "../../transport/services/transportApi";
 import { usePreferences } from "../../settings/store/preferencesStore";
+import { useSessionUnlock } from "../../../contexts/UnlockContext";
 import { fmtTime as fmtTimeUtil } from "../../../lib/utils";
 import type { SncfPlace, SncfJourney } from "../../transport/types";
 
@@ -479,22 +490,36 @@ function TrajetLive({
 export default function Hero() {
   const navigate = useNavigate();
   const [showPicker, setShowPicker] = useState(false);
+  const [pickerCategory, setPickerCategory] = useState<WidgetCategory | null>(
+    null,
+  );
   const widgets = useWidgetStore((s) => s.widgets);
   const addWidget = useWidgetStore((s) => s.addWidget);
 
   /* ── Preferences ── */
   const modules = usePreferences((s) => s.modules);
   const hiddenModules = usePreferences((s) => s.hiddenModules);
+  const pinEnabled = usePreferences((s) => s.pinEnabled);
+  const pinMode = usePreferences((s) => s.pinMode);
+  const { sessionUnlocked } = useSessionUnlock();
 
-  /* Build sorted, visible module list */
+  /* Build sorted, visible module list — in "apps" mode, don't hide locked modules */
+  const isAppsLock = pinEnabled && pinMode === "apps";
   const visibleModules = modules
-    .filter((m) => m.visible && !hiddenModules.includes(m.id))
+    .filter((m) => m.visible && (isAppsLock || !hiddenModules.includes(m.id)))
     .map((m) => {
       const base = MODULES.find((bm) => bm.id === m.id);
       if (!base) return null;
-      return { ...base, favorited: m.favorited };
+      return {
+        ...base,
+        favorited: m.favorited,
+        locked: isAppsLock && !sessionUnlocked && hiddenModules.includes(m.id),
+      };
     })
-    .filter(Boolean) as ((typeof MODULES)[number] & { favorited: boolean })[];
+    .filter(Boolean) as ((typeof MODULES)[number] & {
+    favorited: boolean;
+    locked: boolean;
+  })[];
 
   /* Favorites first */
   visibleModules.sort((a, b) =>
@@ -539,30 +564,58 @@ export default function Hero() {
           <h2 className="lp-widgets__title">Mes widgets</h2>
           <button
             className="lp-widgets__add"
-            onClick={() => setShowPicker(!showPicker)}
+            onClick={() => {
+              setShowPicker(!showPicker);
+              setPickerCategory(null);
+            }}
             aria-label="Ajouter un widget"
           >
             {showPicker ? <X size={18} /> : <Plus size={18} />}
           </button>
         </div>
 
-        {/* Widget catalogue picker */}
-        {showPicker && (
-          <div className="lp-picker">
-            {WIDGET_CATALOGUE.map((w) => (
+        {/* Two-step widget picker */}
+        {showPicker && !pickerCategory && (
+          <div className="lp-picker lp-picker--categories">
+            {WIDGET_CATEGORIES.map((cat) => (
               <button
-                key={w.type}
-                className="lp-picker__item"
-                onClick={() => {
-                  addWidget(w.type);
-                  setShowPicker(false);
-                }}
+                key={cat.id}
+                className="lp-picker__cat"
+                style={{ "--cat-color": cat.color } as React.CSSProperties}
+                onClick={() => setPickerCategory(cat.id)}
               >
-                <span>{w.emoji}</span>
-                <span className="lp-picker__label">{w.label}</span>
-                <span className="lp-picker__desc">{w.description}</span>
+                <span className="lp-picker__cat-emoji">{cat.emoji}</span>
+                <span className="lp-picker__cat-label">{cat.label}</span>
               </button>
             ))}
+          </div>
+        )}
+
+        {showPicker && pickerCategory && (
+          <div className="lp-picker">
+            <button
+              className="lp-picker__back"
+              onClick={() => setPickerCategory(null)}
+            >
+              ← Catégories
+            </button>
+            {WIDGET_CATALOGUE.filter((w) => w.category === pickerCategory).map(
+              (w) => (
+                <button
+                  key={w.type}
+                  className="lp-picker__item"
+                  onClick={() => {
+                    addWidget(w.type);
+                    setShowPicker(false);
+                    setPickerCategory(null);
+                  }}
+                >
+                  <span>{w.emoji}</span>
+                  <span className="lp-picker__label">{w.label}</span>
+                  <span className="lp-picker__desc">{w.description}</span>
+                </button>
+              ),
+            )}
           </div>
         )}
 
@@ -571,6 +624,18 @@ export default function Hero() {
           {widgets.map((w) => {
             if (w.type === "trajet")
               return <TrajetWidget key={w.id} widget={w} />;
+            if (w.type === "todo-agenda")
+              return <AgendaWidget key={w.id} widgetId={w.id} />;
+            if (w.type === "todo-grocery")
+              return <GroceryWidget key={w.id} widgetId={w.id} />;
+            if (w.type === "todo-meals")
+              return <MealsWidget key={w.id} widgetId={w.id} />;
+            if (w.type === "todo-fridge")
+              return <FridgeWidget key={w.id} widgetId={w.id} />;
+            if (w.type === "todo-habits")
+              return <HabitsWidget key={w.id} widgetId={w.id} />;
+            if (w.type === "todo-notes")
+              return <NotesWidget key={w.id} widgetId={w.id} />;
             return null;
           })}
           {widgets.length === 0 && !showPicker && (
@@ -591,13 +656,16 @@ export default function Hero() {
           {visibleModules.map((m) => (
             <button
               key={m.id}
-              className="lp-mod"
+              className={`lp-mod ${m.locked ? "lp-mod--locked" : ""}`}
               style={{ "--mod-color": m.color } as React.CSSProperties}
               onClick={() => navigate(m.href)}
             >
               <img src={m.logo} alt="" className="lp-mod__logo" />
               <span className="lp-mod__label">{m.label}</span>
-              {m.favorited && <span className="lp-mod__star">⭐</span>}
+              {m.locked && <span className="lp-mod__lock">🔒</span>}
+              {m.favorited && !m.locked && (
+                <span className="lp-mod__star">⭐</span>
+              )}
               <span className="lp-mod__arrow">&rarr;</span>
             </button>
           ))}

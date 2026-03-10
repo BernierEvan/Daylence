@@ -22,6 +22,7 @@ export type DefaultPage =
   | "/recipes"
   | "/sleep"
   | "/work";
+export type PinMode = "full" | "apps";
 
 export interface AccentColor {
   name: string;
@@ -346,7 +347,8 @@ export interface PreferencesState {
   // Security
   pinCode: string; // "" = disabled
   pinEnabled: boolean;
-  hiddenModules: string[]; // module ids hidden behind PIN
+  pinMode: PinMode; // "full" = lock whole site, "apps" = lock selected modules
+  hiddenModules: string[]; // module ids locked behind PIN (apps mode)
 
   // Profiles
   profiles: Profile[];
@@ -411,6 +413,7 @@ const DEFAULTS: Pick<
   | "offlineMode"
   | "pinCode"
   | "pinEnabled"
+  | "pinMode"
   | "hiddenModules"
   | "profiles"
   | "activeProfileId"
@@ -438,6 +441,7 @@ const DEFAULTS: Pick<
   offlineMode: false,
   pinCode: "",
   pinEnabled: false,
+  pinMode: "full" as PinMode,
   hiddenModules: [],
   profiles: [{ id: "default", name: "Principal", emoji: "🏠" }],
   activeProfileId: "default",
@@ -494,7 +498,12 @@ export const usePreferences = create<PreferencesState>()(
 
       setPin: (code) => set({ pinCode: code, pinEnabled: true }),
       clearPin: () =>
-        set({ pinCode: "", pinEnabled: false, hiddenModules: [] }),
+        set({
+          pinCode: "",
+          pinEnabled: false,
+          pinMode: "full" as PinMode,
+          hiddenModules: [],
+        }),
 
       exportData: () => {
         const keys = [

@@ -844,6 +844,35 @@
 /* ══════════════════════════════════════════
    Meal planner
    ══════════════════════════════════════════ */
+.td-meals__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.td-meals__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.td-meals__reset:hover {
+  background: var(--destructive);
+  color: #fff;
+  border-color: var(--destructive);
+}
+
 .td-meals__grid {
   display: grid;
   grid-template-columns: 90px repeat(4, 1fr);
@@ -928,7 +957,7 @@
 }
 
 .td-meals__remove {
-  opacity: 0;
+  opacity: 0.6;
   color: var(--td-text-muted);
   transition: opacity var(--td-transition);
   flex-shrink: 0;
@@ -1131,7 +1160,7 @@
 }
 
 .td-habits__delete {
-  opacity: 0;
+  opacity: 0.6;
   transition: opacity var(--td-transition);
 }
 
@@ -1728,7 +1757,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 50;
+  z-index: 999;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1764,7 +1793,7 @@
   transform: translateX(-50%);
   white-space: nowrap;
   max-width: 260px;
-  z-index: 50;
+  z-index: 999;
 }
 
 .td-color-picker__dot {
@@ -1789,7 +1818,7 @@
 
 /* Habit color button */
 .td-habits__color-btn {
-  opacity: 0;
+  opacity: 0.6;
   transition: opacity var(--td-transition, 180ms ease);
 }
 .td-habits__name:hover .td-habits__color-btn {
@@ -1798,7 +1827,7 @@
 
 /* Meal color button */
 .td-meals__color-btn {
-  opacity: 0;
+  opacity: 0.6;
   color: var(--td-text-muted, #9ca3af);
   transition: opacity var(--td-transition, 180ms ease);
   flex-shrink: 0;

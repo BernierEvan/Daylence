@@ -47,6 +47,7 @@ import {
   type DefaultPage,
 } from "../store/preferencesStore";
 import "../css/SettingsProfile.css";
+import ConfirmDialog from "../../../components/common/ConfirmDialog";
 
 /* ── Small reusable pieces ── */
 
@@ -111,6 +112,11 @@ export default function SettingsPage() {
   const prefs = usePreferences();
   const fileRef = useRef<HTMLInputElement>(null);
   const isScrollingTo = useRef(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    title: string;
+    description: string;
+    action: () => void;
+  } | null>(null);
 
   /* ── Scroll-spy: track which section is visible ── */
   useEffect(() => {
@@ -915,14 +921,14 @@ export default function SettingsPage() {
               <div className="sp-row__actions">
                 <button
                   className="sp-btn sp-btn--danger"
-                  onClick={() => {
-                    if (
-                      confirm(
-                        "Supprimer toutes les données ? Cette action est irréversible.",
-                      )
-                    )
-                      prefs.clearAllData();
-                  }}
+                  onClick={() =>
+                    setConfirmDialog({
+                      title: "Effacer toutes les données",
+                      description:
+                        "Toutes vos données seront supprimées. Cette action est irréversible.",
+                      action: () => prefs.clearAllData(),
+                    })
+                  }
                 >
                   <Trash2 size={15} /> Effacer toutes les données
                 </button>
@@ -991,6 +997,7 @@ export default function SettingsPage() {
               </p>
             </div>
             <div className="sp-card">
+              {/* PIN toggle */}
               <div className="sp-row">
                 <div className="sp-row__text">
                   <span className="sp-row__label">
@@ -998,7 +1005,9 @@ export default function SettingsPage() {
                   </span>
                   <span className="sp-row__desc">
                     {prefs.pinEnabled
-                      ? "Activé — code PIN requis au lancement"
+                      ? prefs.pinMode === "full"
+                        ? "Activé — code PIN requis au lancement"
+                        : "Activé — modules sélectionnés verrouillés"
                       : "Désactivé"}
                   </span>
                 </div>
@@ -1077,15 +1086,48 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* Hidden modules */}
+              {/* PIN mode selector */}
               {prefs.pinEnabled && (
                 <div className="sp-row sp-row--col" style={{ marginTop: 8 }}>
                   <div className="sp-row__text">
+                    <span className="sp-row__label">Mode de verrouillage</span>
+                    <span className="sp-row__desc">
+                      Choisissez ce que le PIN protège
+                    </span>
+                  </div>
+                  <div className="sp-mode-btns">
+                    <button
+                      className={`sp-mode-btn ${prefs.pinMode === "full" ? "sp-mode-btn--active" : ""}`}
+                      onClick={() => prefs.set("pinMode", "full")}
+                    >
+                      <Shield size={16} />
+                      <span>Complet</span>
+                    </button>
+                    <button
+                      className={`sp-mode-btn ${prefs.pinMode === "apps" ? "sp-mode-btn--active" : ""}`}
+                      onClick={() => prefs.set("pinMode", "apps")}
+                    >
+                      <EyeOff size={16} />
+                      <span>Applications</span>
+                    </button>
+                  </div>
+                  <p className="sp-row__hint">
+                    {prefs.pinMode === "full"
+                      ? "Le code PIN est demandé à chaque ouverture du site ou actualisation."
+                      : "Seuls les modules sélectionnés ci-dessous sont verrouillés. Une fois le PIN saisi, tous sont déverrouillés jusqu'à la prochaine actualisation."}
+                  </p>
+                </div>
+              )}
+
+              {/* Locked modules (only in "apps" mode) */}
+              {prefs.pinEnabled && prefs.pinMode === "apps" && (
+                <div className="sp-row sp-row--col" style={{ marginTop: 8 }}>
+                  <div className="sp-row__text">
                     <span className="sp-row__label">
-                      <EyeOff size={15} /> Modules cachés
+                      <EyeOff size={15} /> Modules verrouillés
                     </span>
                     <span className="sp-row__desc">
-                      Ces modules ne seront visibles qu'après saisie du PIN
+                      Ces modules nécessiteront le code PIN pour y accéder
                     </span>
                   </div>
                   <div className="sp-hidden-mods">
@@ -1208,9 +1250,14 @@ export default function SettingsPage() {
               <div className="sp-row__actions">
                 <button
                   className="sp-btn sp-btn--danger"
-                  onClick={() => {
-                    if (confirm("Vider tout le cache ?")) prefs.clearAllData();
-                  }}
+                  onClick={() =>
+                    setConfirmDialog({
+                      title: "Vider tout le cache",
+                      description:
+                        "Toutes les données en cache seront supprimées.",
+                      action: () => prefs.clearAllData(),
+                    })
+                  }
                 >
                   <Trash2 size={15} /> Vider tout le cache
                 </button>
@@ -1279,6 +1326,16 @@ export default function SettingsPage() {
           <a href="/support">Aide</a>
         </div>
       </footer>
+
+      <ConfirmDialog
+        open={!!confirmDialog}
+        title={confirmDialog?.title ?? ""}
+        description={confirmDialog?.description}
+        confirmLabel="Supprimer"
+        variant="danger"
+        onConfirm={() => confirmDialog?.action()}
+        onCancel={() => setConfirmDialog(null)}
+      />
     </div>
   );
 }

@@ -5,7 +5,13 @@ import { usePreferences } from "../store/preferencesStore";
    LockScreen – PIN gate shown on app launch.
    ═══════════════════════════════════════════════ */
 
-export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
+export default function LockScreen({
+  onUnlock,
+  subtitle,
+}: {
+  onUnlock: () => void;
+  subtitle?: string;
+}) {
   const pinCode = usePreferences((s) => s.pinCode);
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
@@ -42,7 +48,7 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
           className="lock__logo"
         />
         <h1 className="lock__title">Daylence</h1>
-        <p className="lock__sub">Entrez votre code PIN</p>
+        <p className="lock__sub">{subtitle || "Entrez votre code PIN"}</p>
 
         <div className="lock__dots">
           {Array.from({ length: pinCode.length }).map((_, i) => (

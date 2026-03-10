@@ -351,6 +351,7 @@ interface TodoState {
   setMealSlot: (dayOfWeek: number, mealType: MealType, title: string) => void;
   removeMealSlot: (id: string) => void;
   updateMealColor: (id: string, color: string) => void;
+  clearAllMeals: () => void;
 
   // ── Fridge ──
   fridgeItems: FridgeItem[];
@@ -518,6 +519,7 @@ export const useTodoStore = create<TodoState>((set) => ({
     set((s) => ({
       mealSlots: s.mealSlots.map((m) => (m.id === id ? { ...m, color } : m)),
     })),
+  clearAllMeals: () => set({ mealSlots: [] }),
 
   // ── Fridge ──
   fridgeItems: SEED_FRIDGE,
