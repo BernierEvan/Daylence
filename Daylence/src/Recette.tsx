@@ -48,7 +48,7 @@ function Recette() {
         setRecipes(randomRecipes);
       }
     } catch {
-      setError('Erreur pendant le chargement des recettes random.');
+      setError('Plus d\'API bro.');
     } finally {
       setLoading(false);
     }
