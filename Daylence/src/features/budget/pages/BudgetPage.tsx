@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   ChevronLeft,
@@ -8,14 +9,19 @@ import {
   Download,
   Upload,
   Settings2,
+  Loader2,
+  Eye,
+  EyeOff,
+  RefreshCw,
 } from "lucide-react";
+import PageHeader from "../../../components/layout/PageHeader";
 import BudgetOverview from "../components/BudgetOverview";
-import BudgetChart from "../components/BudgetChart";
-import CategoryBreakdown from "../components/CategoryBreakdown";
 import TransactionList from "../components/TransactionList";
 import ExpenseForm from "../components/ExpenseForm";
 import EnvelopeManager from "../components/EnvelopeManager";
 import { useBudgetStore } from "../store/budgetStore";
+import { useAuth } from "../../auth/store/authStore";
+import { usePreferences } from "../../settings/store/preferencesStore";
 import "../css/BudgetPage.css";
 
 const MONTH_LABELS = [
@@ -34,6 +40,9 @@ const MONTH_LABELS = [
 ];
 
 export default function BudgetPage() {
+  const user = useAuth((s) => s.user);
+  const init = useBudgetStore((s) => s.init);
+  const loading = useBudgetStore((s) => s.loading);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
   const getRecentTransactions = useBudgetStore((s) => s.getRecentTransactions);
@@ -44,6 +53,10 @@ export default function BudgetPage() {
   const exportData = useBudgetStore((s) => s.exportData);
   const importData = useBudgetStore((s) => s.importData);
   const getSnapshot = useBudgetStore((s) => s.getSnapshot);
+  const anonymous = usePreferences((s) => s.budgetAnonymousMode);
+  const setPreference = usePreferences((s) => s.set);
+  const onboardingCompleted = useBudgetStore((s) => s.onboardingCompleted);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [year, month] = selectedMonth.split("-").map(Number);
   const monthLabel = `${MONTH_LABELS[month - 1]} ${year}`;
@@ -55,10 +68,33 @@ export default function BudgetPage() {
     setSelectedMonth(`${d.getFullYear()}-${m}`);
   };
 
-  const [tab, setTab] = useState<"overview" | "transactions" | "envelopes">(
-    "overview",
-  );
+  const [tab, setTab] = useState<
+    "overview" | "transactions" | "envelopes" | "recurrences"
+  >("overview");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user?.id_user) init(user.id_user);
+  }, [user?.id_user, init]);
+
+  // Show onboarding wizard on first visit
+  useEffect(() => {
+    if (!loading && !onboardingCompleted) {
+      setShowOnboarding(true);
+    }
+  }, [loading, onboardingCompleted]);
+
+  if (loading) {
+    return (
+      <div className="bp-page">
+        <PageHeader />
+        <div className="bp-loading">
+          <Loader2 size={28} className="bp-loading__spinner" />
+          <span>Chargement du budget…</span>
+        </div>
+      </div>
+    );
+  }
 
   const handleExport = () => {
     const json = exportData();
@@ -87,45 +123,48 @@ export default function BudgetPage() {
   return (
     <div className="bp-page">
       {/* ── Header ── */}
-      <header className="bp-header">
-        <a href="/" className="bp-header__brand">
-          <img
-            src="/daylence_logo_without_title.png"
-            alt="Daylence"
-            className="bp-header__logo"
-          />
-          <span className="bp-header__title">Budget</span>
-        </a>
-        <div className="bp-header__actions">
-          <button
-            className="bp-header__action"
-            onClick={handleExport}
-            title="Exporter JSON"
-          >
-            <Download size={16} /> Exporter
-          </button>
-          <button
-            className="bp-header__action"
-            onClick={() => fileInputRef.current?.click()}
-            title="Importer JSON"
-          >
-            <Upload size={16} /> Importer
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            style={{ display: "none" }}
-          />
-        </div>
-      </header>
+      <PageHeader
+        right={
+          <>
+            <button
+              className={`ph__action ${anonymous ? "ph__action--active" : ""}`}
+              onClick={() => setPreference("budgetAnonymousMode", !anonymous)}
+              title={
+                anonymous ? "Afficher les montants" : "Masquer les montants"
+              }
+            >
+              {anonymous ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+            <button
+              className="ph__action"
+              onClick={handleExport}
+              title="Exporter JSON"
+            >
+              <Download size={16} /> Exporter
+            </button>
+            <button
+              className="ph__action"
+              onClick={() => fileInputRef.current?.click()}
+              title="Importer JSON"
+            >
+              <Upload size={16} /> Importer
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              style={{ display: "none" }}
+            />
+          </>
+        }
+      />
 
       {/* ── Sub-header ── */}
       <div className="bp-subheader">
-        <a href="/" className="bp-back">
+        <Link to="/home" className="bp-back">
           <ArrowLeft size={18} /> Retour
-        </a>
+        </Link>
         <div className="bp-month-picker">
           <button
             onClick={() => shiftMonth(-1)}
@@ -185,6 +224,12 @@ export default function BudgetPage() {
         >
           <Settings2 size={14} /> Enveloppes
         </button>
+        <button
+          className={`bp-tabs__btn ${tab === "recurrences" ? "bp-tabs__btn--active" : ""}`}
+          onClick={() => setTab("recurrences")}
+        >
+          <RefreshCw size={14} /> Récurrences
+        </button>
       </div>
 
       {/* ── Content ── */}
@@ -192,18 +237,19 @@ export default function BudgetPage() {
         {tab === "overview" && (
           <>
             <BudgetOverview />
-            <div className="bp-columns">
-              <BudgetChart />
-              <CategoryBreakdown />
-            </div>
-            <section className="bp-recent">
-              <h3 className="bp-recent__title">Transactions récentes</h3>
-              <TransactionList transactions={recentTxs} />
-            </section>
+            <WidgetGrid />
+            <CrossModuleSuggestion />
           </>
         )}
         {tab === "transactions" && <TransactionsView />}
         {tab === "envelopes" && <EnvelopeManager />}
+        {tab === "recurrences" && (
+          <>
+            <RedPeriodAlert />
+            <RecurrenceManager />
+            <SpendingCalendar month={selectedMonth} />
+          </>
+        )}
       </main>
 
       {/* ── FAB ── */}
@@ -221,6 +267,11 @@ export default function BudgetPage() {
           </div>
         </div>
       </footer>
+
+      {/* ── Onboarding Wizard ── */}
+      {showOnboarding && (
+        <OnboardingWizard onClose={() => setShowOnboarding(false)} />
+      )}
     </div>
   );
 }

@@ -14,6 +14,11 @@ export type Language = "fr" | "en";
 export type TimeFormat = "24h" | "12h";
 export type FirstDay = "monday" | "sunday";
 export type Currency = "EUR" | "USD" | "GBP";
+export type ColorblindMode =
+  | "none"
+  | "protanopia"
+  | "deuteranopia"
+  | "tritanopia";
 export type DefaultPage =
   | "/"
   | "/todos"
@@ -22,7 +27,6 @@ export type DefaultPage =
   | "/recipes"
   | "/sleep"
   | "/work";
-export type PinMode = "full" | "apps";
 
 export interface AccentColor {
   name: string;
@@ -342,35 +346,33 @@ export interface PreferencesState {
   // Accessibility
   reduceAnimations: boolean;
   highContrast: boolean;
+  colorblindMode: ColorblindMode;
   offlineMode: boolean;
-
-  // Security
-  pinCode: string; // "" = disabled
-  pinEnabled: boolean;
-  pinMode: PinMode; // "full" = lock whole site, "apps" = lock selected modules
-  hiddenModules: string[]; // module ids locked behind PIN (apps mode)
 
   // Profiles
   profiles: Profile[];
   activeProfileId: string;
+
+  // Budget
+  budgetAnonymousMode: boolean;
+  budgetWidgets: import("../../budget/types").WidgetConfig[];
 
   // ── Actions ──
   set: <K extends keyof PreferencesState>(
     key: K,
     value: PreferencesState[K],
   ) => void;
+  reorderBudgetWidget: (fromIdx: number, toIdx: number) => void;
+  toggleBudgetWidget: (type: string) => void;
   setNotification: <K extends keyof NotificationSettings>(
     key: K,
     value: NotificationSettings[K],
   ) => void;
   toggleModule: (id: string, field: "visible" | "favorited") => void;
   reorderModules: (fromIdx: number, toIdx: number) => void;
-  toggleHiddenModule: (moduleId: string) => void;
   addProfile: (name: string, emoji: string) => void;
   removeProfile: (id: string) => void;
   switchProfile: (id: string) => void;
-  setPin: (code: string) => void;
-  clearPin: () => void;
   exportData: () => string;
   clearAllData: () => void;
   clearModuleData: (moduleKey: string) => void;
@@ -410,13 +412,12 @@ const DEFAULTS: Pick<
   | "currency"
   | "reduceAnimations"
   | "highContrast"
+  | "colorblindMode"
   | "offlineMode"
-  | "pinCode"
-  | "pinEnabled"
-  | "pinMode"
-  | "hiddenModules"
   | "profiles"
   | "activeProfileId"
+  | "budgetAnonymousMode"
+  | "budgetWidgets"
 > = {
   themeMode: "light",
   compact: false,
@@ -438,13 +439,20 @@ const DEFAULTS: Pick<
   currency: "EUR",
   reduceAnimations: false,
   highContrast: false,
+  colorblindMode: "none" as ColorblindMode,
   offlineMode: false,
-  pinCode: "",
-  pinEnabled: false,
-  pinMode: "full" as PinMode,
-  hiddenModules: [],
   profiles: [{ id: "default", name: "Principal", emoji: "🏠" }],
   activeProfileId: "default",
+  budgetAnonymousMode: false,
+  budgetWidgets: [
+    { id: "w1", type: "essential-gauge", order: 0, visible: true },
+    { id: "w2", type: "end-of-month-prediction", order: 1, visible: true },
+    { id: "w3", type: "spending-radar", order: 2, visible: true },
+    { id: "w4", type: "recent-transactions", order: 3, visible: true },
+    { id: "w5", type: "streak-counter", order: 4, visible: false },
+    { id: "w6", type: "category-breakdown", order: 5, visible: false },
+    { id: "w7", type: "budget-chart", order: 6, visible: false },
+  ],
 };
 
 export const usePreferences = create<PreferencesState>()(
@@ -472,11 +480,23 @@ export const usePreferences = create<PreferencesState>()(
           return { modules: mods };
         }),
 
-      toggleHiddenModule: (moduleId) =>
+      reorderBudgetWidget: (fromIdx, toIdx) =>
+        set((s) => {
+          const visible = [...s.budgetWidgets]
+            .filter((w) => w.visible)
+            .sort((a, b) => a.order - b.order);
+          const [item] = visible.splice(fromIdx, 1);
+          visible.splice(toIdx, 0, item);
+          const reordered = visible.map((w, i) => ({ ...w, order: i }));
+          const hidden = s.budgetWidgets.filter((w) => !w.visible);
+          return { budgetWidgets: [...reordered, ...hidden] };
+        }),
+
+      toggleBudgetWidget: (type) =>
         set((s) => ({
-          hiddenModules: s.hiddenModules.includes(moduleId)
-            ? s.hiddenModules.filter((m) => m !== moduleId)
-            : [...s.hiddenModules, moduleId],
+          budgetWidgets: s.budgetWidgets.map((w) =>
+            w.type === type ? { ...w, visible: !w.visible } : w,
+          ),
         })),
 
       addProfile: (name, emoji) =>
@@ -495,15 +515,6 @@ export const usePreferences = create<PreferencesState>()(
         })),
 
       switchProfile: (id) => set({ activeProfileId: id }),
-
-      setPin: (code) => set({ pinCode: code, pinEnabled: true }),
-      clearPin: () =>
-        set({
-          pinCode: "",
-          pinEnabled: false,
-          pinMode: "full" as PinMode,
-          hiddenModules: [],
-        }),
 
       exportData: () => {
         const keys = [
@@ -546,7 +557,6 @@ export const usePreferences = create<PreferencesState>()(
         set({
           customThemeId: presetId,
           themeMode: preset.mode,
-          accentColor: preset.accent,
         });
       },
 

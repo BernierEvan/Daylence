@@ -9,15 +9,27 @@ import {
 } from "../types";
 import type { TransactionType, Category } from "../types";
 
+const QUICK_SHORTCUTS = [
+  { emoji: "☕", label: "Café", amount: 3.5, category: "alimentation" as Category },
+  { emoji: "🥖", label: "Boulangerie", amount: 5, category: "alimentation" as Category },
+  { emoji: "🚇", label: "Métro", amount: 2.15, category: "transport" as Category },
+  { emoji: "🛒", label: "Courses", amount: 30, category: "alimentation" as Category },
+];
+
 export default function ExpenseForm() {
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+  const streakCurrent = useBudgetStore((s) => s.streakCurrent);
   const [open, setOpen] = useState(false);
+  const [celebration, setCelebration] = useState<string | null>(null);
 
   const [type, setType] = useState<TransactionType>("expense");
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<Category>("alimentation");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
   const [note, setNote] = useState("");
   const [autoDetected, setAutoDetected] = useState(false);
 
@@ -27,7 +39,12 @@ export default function ExpenseForm() {
     setLabel("");
     setAmount("");
     setCategory(type === "expense" ? "alimentation" : "salaire");
-    setDate(new Date().toISOString().slice(0, 10));
+    {
+      const d = new Date();
+      setDate(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+      );
+    }
     setNote("");
     setAutoDetected(false);
   };
@@ -68,12 +85,55 @@ export default function ExpenseForm() {
       date,
       note: note.trim() || undefined,
     });
+    triggerCelebration();
     reset();
     setOpen(false);
   };
 
+  const handleQuickAdd = (shortcut: typeof QUICK_SHORTCUTS[number]) => {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    addTransaction({
+      type: "expense",
+      label: shortcut.label,
+      amount: shortcut.amount,
+      category: shortcut.category,
+      date: dateStr,
+    });
+    triggerCelebration();
+  };
+
+  const triggerCelebration = () => {
+    const newStreak = streakCurrent + 1;
+    if (newStreak === 7) {
+      setCelebration("1 semaine de suivi !");
+    } else if (newStreak === 30) {
+      setCelebration("1 mois de suivi !");
+    } else if (newStreak % 100 === 0) {
+      setCelebration(`${newStreak} jours de suivi !`);
+    }
+    if (celebration) {
+      setTimeout(() => setCelebration(null), 3000);
+    }
+  };
+
   return (
     <>
+      {/* Quick-add shortcuts */}
+      <div className="ef-shortcuts">
+        {QUICK_SHORTCUTS.map((s) => (
+          <button
+            key={s.label}
+            className="ef-shortcut"
+            onClick={() => handleQuickAdd(s)}
+            title={`${s.label} — ${s.amount.toFixed(2)} €`}
+          >
+            <span className="ef-shortcut__emoji">{s.emoji}</span>
+            <span className="ef-shortcut__label">{s.label}</span>
+          </button>
+        ))}
+      </div>
+
       <button
         className="ef-fab"
         onClick={() => setOpen(true)}
@@ -81,6 +141,14 @@ export default function ExpenseForm() {
       >
         <Plus size={22} />
       </button>
+
+      {/* Celebration overlay */}
+      {celebration && (
+        <div className="ef-celebration">
+          <span className="ef-celebration__emoji">🎉</span>
+          <span className="ef-celebration__text">{celebration}</span>
+        </div>
+      )}
 
       {open && (
         <div className="ef-overlay" onClick={() => setOpen(false)}>

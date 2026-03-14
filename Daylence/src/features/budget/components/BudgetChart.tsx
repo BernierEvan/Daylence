@@ -1,10 +1,12 @@
 import { useBudgetStore } from "../store/budgetStore";
 import { CATEGORY_META } from "../types";
 import type { Category } from "../types";
+import { useAnonymousFormat } from "../hooks/useBudget";
 
 export default function BudgetChart() {
   const envelopes = useBudgetStore((s) => s.envelopes);
   const getCategorySpent = useBudgetStore((s) => s.getCategorySpent);
+  const { fmt } = useAnonymousFormat();
 
   const sorted = [...envelopes].sort((a, b) => a.priority - b.priority);
 
@@ -20,9 +22,6 @@ export default function BudgetChart() {
     ...sorted.map((e) => Math.max(e.target, getCategorySpent(e.category))),
     1,
   );
-
-  const fmt = (n: number) =>
-    n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 
   return (
     <div className="bc-chart">
@@ -64,7 +63,7 @@ export default function BudgetChart() {
                     className={`bc-bar-row__fill bc-bar-row__fill--spent ${over ? "bc-bar-row__fill--over" : ""}`}
                     style={{
                       width: `${pctSpent}%`,
-                      backgroundColor: over ? "#ef4444" : meta.color,
+                      backgroundColor: over ? undefined : meta.color,
                     }}
                   />
                 </div>

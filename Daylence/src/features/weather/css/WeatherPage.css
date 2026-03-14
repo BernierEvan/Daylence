@@ -1,0 +1,523 @@
+/* ════════════════════════════════════════════
+   Weather Page — full forecast UI
+   ════════════════════════════════════════════ */
+
+/* ── Layout ── */
+.wp {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--d-bg, #f8f9fb);
+  color: var(--d-text, #1a1a2e);
+  font-family: var(--d-font, "Inter", system-ui, sans-serif);
+}
+
+.wp__body {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Location bar ── */
+.wp__location-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wp__search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.wp__search {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border-radius: 12px;
+  border: 1px solid hsla(var(--d-accent-hsl), 0.15);
+  background: var(--d-surface, #fff);
+  color: var(--d-text);
+  font-family: var(--d-font, inherit);
+  font-size: 0.92rem;
+  transition: all 0.2s;
+}
+
+.wp__search:focus {
+  outline: none;
+  border-color: hsla(var(--d-accent-hsl), 0.4);
+  box-shadow: 0 0 0 3px hsla(var(--d-accent-hsl), 0.1);
+}
+
+.wp__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--d-text-secondary);
+  pointer-events: none;
+}
+
+.wp__geo-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid hsla(var(--d-accent-hsl), 0.15);
+  background: hsla(var(--d-accent-hsl), 0.05);
+  color: var(--d-text-secondary);
+  font-family: var(--d-font, inherit);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.wp__geo-btn:hover {
+  background: hsla(var(--d-accent-hsl), 0.12);
+  color: var(--d-accent);
+  border-color: hsla(var(--d-accent-hsl), 0.3);
+}
+
+/* ── Search results dropdown ── */
+.wp__results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--d-surface, #fff);
+  border: 1px solid hsla(var(--d-accent-hsl), 0.12);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.wp__result-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  color: var(--d-text);
+  font-family: var(--d-font, inherit);
+}
+
+.wp__result-item:hover {
+  background: hsla(var(--d-accent-hsl), 0.06);
+}
+
+.wp__result-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.wp__result-sub {
+  font-size: 0.78rem;
+  color: var(--d-text-secondary);
+}
+
+/* ── Current weather ── */
+.wp__current {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 32px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, hsla(var(--d-accent-hsl), 0.08), hsla(var(--d-accent-hsl), 0.02));
+  border: 1px solid hsla(var(--d-accent-hsl), 0.1);
+}
+
+.wp__current-icon {
+  font-size: 4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.wp__current-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wp__current-temp {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--d-text);
+}
+
+.wp__current-label {
+  font-size: 1.05rem;
+  color: var(--d-text-secondary);
+  font-weight: 500;
+}
+
+.wp__current-feels {
+  font-size: 0.85rem;
+  color: var(--d-text-secondary);
+  opacity: 0.7;
+}
+
+.wp__current-location {
+  font-size: 0.9rem;
+  color: var(--d-text-secondary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ── Detail grid (wind, humidity, etc) ── */
+.wp__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.wp__detail-card {
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--d-surface, #fff);
+  border: 1px solid hsla(var(--d-accent-hsl), 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.wp__detail-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px hsla(var(--d-accent-hsl), 0.08);
+}
+
+.wp__detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--d-text-secondary);
+  opacity: 0.7;
+}
+
+.wp__detail-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--d-text);
+}
+
+.wp__detail-extra {
+  font-size: 0.78rem;
+  color: var(--d-text-secondary);
+}
+
+/* ── Section titles ── */
+.wp__section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--d-text);
+  margin: 0;
+}
+
+/* ── Hourly forecast (scrollable) ── */
+.wp__hourly-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.wp__hourly-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.wp__hourly-scroll::-webkit-scrollbar-thumb {
+  background: hsla(var(--d-accent-hsl), 0.2);
+  border-radius: 4px;
+}
+
+.wp__hour-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--d-surface, #fff);
+  border: 1px solid hsla(var(--d-accent-hsl), 0.08);
+  min-width: 80px;
+  transition: transform 0.2s;
+}
+
+.wp__hour-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Highlighted "now" card */
+.wp__hour-card--now {
+  background: hsla(var(--d-accent-hsl), 0.12);
+  border-color: hsla(var(--d-accent-hsl), 0.35);
+  box-shadow: 0 0 0 2px hsla(var(--d-accent-hsl), 0.15), 0 4px 16px hsla(var(--d-accent-hsl), 0.1);
+}
+
+.wp__hour-card--now .wp__hour-time {
+  color: var(--d-accent);
+  font-weight: 700;
+}
+
+.wp__hour-card--now .wp__hour-temp {
+  color: var(--d-accent);
+}
+
+.wp__hour-time {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--d-text-secondary);
+}
+
+.wp__hour-icon {
+  font-size: 1.4rem;
+}
+
+.wp__hour-temp {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--d-text);
+}
+
+.wp__hour-humidity {
+  font-size: 0.7rem;
+  color: var(--d-text-secondary);
+  font-weight: 600;
+}
+
+.wp__hour-rain {
+  font-size: 0.7rem;
+  color: var(--d-accent);
+  font-weight: 600;
+}
+
+/* ── Daily forecast ── */
+.wp__daily-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wp__day-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--d-surface, #fff);
+  border: 1px solid hsla(var(--d-accent-hsl), 0.08);
+  transition: transform 0.2s;
+}
+
+.wp__day-row:hover {
+  transform: translateY(-1px);
+}
+
+.wp__day-name {
+  width: 90px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--d-text);
+  flex-shrink: 0;
+}
+
+.wp__day-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.wp__day-label {
+  flex: 1;
+  font-size: 0.84rem;
+  color: var(--d-text-secondary);
+}
+
+.wp__day-temps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wp__day-max {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--d-text);
+}
+
+.wp__day-min {
+  font-size: 0.85rem;
+  color: var(--d-text-secondary);
+}
+
+.wp__day-bar {
+  width: 60px;
+  height: 5px;
+  border-radius: 3px;
+  background: hsla(var(--d-accent-hsl), 0.1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.wp__day-bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, hsl(210, 80%, 55%), hsl(30, 90%, 55%));
+}
+
+.wp__day-extra {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--d-text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Loading & error states ── */
+.wp__loading,
+.wp__error,
+.wp__empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--d-text-secondary);
+  font-size: 0.95rem;
+}
+
+.wp__empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+}
+
+.wp__error {
+  color: hsl(0, 65%, 55%);
+}
+
+/* ════════════════ Dark theme ════════════════ */
+.dark .wp {
+  background: var(--d-bg);
+}
+
+.dark .wp__search {
+  background: hsla(var(--d-accent-hsl), 0.04);
+  border-color: var(--d-border);
+  color: var(--d-text);
+}
+
+.dark .wp__results {
+  background: var(--d-surface);
+  border-color: var(--d-border);
+  box-shadow: 0 8px 30px var(--d-shadow, rgba(0, 0, 0, 0.3));
+}
+
+.dark .wp__result-item:hover {
+  background: hsla(var(--d-accent-hsl), 0.06);
+}
+
+.dark .wp__current {
+  background: linear-gradient(135deg, hsla(var(--d-accent-hsl), 0.06), hsla(var(--d-accent-hsl), 0.02));
+  border-color: var(--d-border);
+}
+
+.dark .wp__detail-card,
+.dark .wp__hour-card,
+.dark .wp__day-row {
+  background: color-mix(in srgb, var(--d-surface) 80%, transparent);
+  border-color: var(--d-border);
+}
+
+.dark .wp__hour-card--now {
+  background: hsla(var(--d-accent-hsl), 0.15);
+  border-color: hsla(var(--d-accent-hsl), 0.4);
+  box-shadow: 0 0 0 2px hsla(var(--d-accent-hsl), 0.12), 0 4px 16px hsla(var(--d-accent-hsl), 0.08);
+}
+
+.dark .wp__geo-btn {
+  background: hsla(var(--d-accent-hsl), 0.04);
+  border-color: var(--d-border);
+  color: var(--d-text-muted);
+}
+
+.dark .wp__geo-btn:hover {
+  background: hsla(var(--d-accent-hsl), 0.12);
+  color: var(--d-accent);
+}
+
+/* ════════════════ Compact mode ════════════════ */
+.compact .wp__body {
+  padding: 18px 16px 28px;
+  gap: 16px;
+}
+
+.compact .wp__current {
+  padding: 18px 20px;
+  gap: 16px;
+}
+
+.compact .wp__current-icon { font-size: 2.8rem; }
+.compact .wp__current-temp { font-size: 2.4rem; }
+
+.compact .wp__detail-card { padding: 12px; }
+.compact .wp__hour-card { padding: 8px 10px; min-width: 66px; }
+.compact .wp__day-row { padding: 10px 14px; }
+
+/* ════════════════ Responsive ════════════════ */
+@media (max-width: 768px) {
+  .wp__body {
+    padding: 18px 14px 32px;
+    gap: 18px;
+  }
+
+  .wp__current {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .wp__current-icon { font-size: 3rem; }
+  .wp__current-temp { font-size: 2.6rem; }
+
+  .wp__details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wp__day-extra { display: none; }
+  .wp__day-bar { display: none; }
+
+  .wp__location-bar { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .wp__details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .wp__detail-card { padding: 12px; }
+  .wp__detail-value { font-size: 1.1rem; }
+
+  .wp__day-name { width: 70px; }
+  .wp__day-label { display: none; }
+}

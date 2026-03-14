@@ -16,11 +16,15 @@ import TodosPage from "./features/todos/pages/TodosPage";
 import RecipesPage from "./features/recipes/pages/RecipesPage";
 import SleepPage from "./features/sleep/pages/SleepPage";
 import WorkPage from "./features/work/pages/WorkPage";
+import WeatherPage from "./features/weather/pages/WeatherPage";
 import Preferences from "./components/Preferences/Preferences";
 import ThemeProvider from "./features/settings/components/ThemeProvider";
 import LockScreen from "./features/settings/components/LockScreen";
 import LoginPage from "./features/auth/pages/LoginPage";
+import ResetPinPage from "./features/auth/pages/ResetPinPage";
+import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 import { usePreferences } from "./features/settings/store/preferencesStore";
+import { useAuth } from "./features/auth/store/authStore";
 import { UnlockContext } from "./contexts/UnlockContext";
 
 type AuthToken = {
@@ -41,7 +45,7 @@ function getToken(): AuthToken | null {
   }
 }
 
-/* ── Module gate: locks individual modules in "apps" PIN mode ── */
+/* ── Module gate: locks individual modules when lock_selection contains them ── */
 function ModuleGate({
   moduleId,
   children,
@@ -49,15 +53,14 @@ function ModuleGate({
   moduleId: string;
   children: React.ReactNode;
 }) {
-  const pinEnabled = usePreferences((s) => s.pinEnabled);
-  const pinMode = usePreferences((s) => s.pinMode);
-  const hiddenModules = usePreferences((s) => s.hiddenModules);
+  const user = useAuth((s) => s.user);
   const { sessionUnlocked, unlock } = React.useContext(UnlockContext);
 
   if (
-    pinEnabled &&
-    pinMode === "apps" &&
-    hiddenModules.includes(moduleId) &&
+    user?.pin &&
+    user.pin_code &&
+    user.lock_selection.length > 0 &&
+    user.lock_selection.includes(moduleId) &&
     !sessionUnlocked
   ) {
     return <LockScreen onUnlock={unlock} subtitle="Module verrouillé" />;
@@ -67,15 +70,23 @@ function ModuleGate({
 }
 
 function AppContent() {
-  const pinEnabled = usePreferences((s) => s.pinEnabled);
-  const pinMode = usePreferences((s) => s.pinMode);
+  const user = useAuth((s) => s.user);
   const defaultPage = usePreferences((s) => s.defaultPage);
-  const [sessionUnlocked, setSessionUnlocked] = useState(!pinEnabled);
 
-  const unlock = () => setSessionUnlocked(true);
+  // pin=true + pin_code actually set (not empty) → session needs PIN
+  const needsPin = !!user?.pin && !!user.pin_code && user.pin_code.length > 0;
+  // full lock = entire app; per-module lock = only selected modules
+  const fullLock = needsPin && user!.lock_selection.length === 0;
+
+  // Track explicit unlock (user typed correct PIN)
+  const [hasUnlocked, setHasUnlocked] = useState(false);
+  const unlock = () => setHasUnlocked(true);
+
+  // Derived: unlocked if user typed PIN or no PIN needed
+  const sessionUnlocked = hasUnlocked || !needsPin;
 
   // Full lock mode: gate everything on site entry / refresh
-  if (pinEnabled && pinMode === "full" && !sessionUnlocked) {
+  if (fullLock && !sessionUnlocked) {
     return <LockScreen onUnlock={unlock} />;
   }
 
@@ -156,6 +167,7 @@ function AppContent() {
         <Route path="/parameters" element={<Preferences />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/weather" element={<WeatherPage />} />
       </Routes>
     </UnlockContext.Provider>
   );
@@ -172,8 +184,29 @@ function App() {
     setAuthToken(userToken);
   };
 
+  /* ── Public pages: PIN & password reset (accessible without login) ── */
+  if (
+    window.location.pathname === "/reset-pin" ||
+    window.location.pathname === "/reset-password"
+  ) {
+    return (
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/reset-pin" element={<ResetPinPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    );
+  }
+
   if (!authToken?.token) {
-    return <LoginPage setToken={setToken} />;
+    return (
+      <ThemeProvider>
+        <LoginPage setToken={setToken} />
+      </ThemeProvider>
+    );
   }
 
   return (

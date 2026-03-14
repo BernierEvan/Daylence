@@ -3,7 +3,9 @@ import type {
   Todo,
   Priority,
   Recurrence,
+  TodoCategory,
   GroceryList as GroceryListType,
+  GroceryItem,
   Aisle,
   MealSlot,
   MealType,
@@ -12,308 +14,38 @@ import type {
   BrainNote,
   TodoModule,
 } from "../types";
+import * as db from "../services/todoService";
 
 // ── Helpers ──
-const uid = () => Math.random().toString(36).slice(2, 10);
-const today = () => new Date().toISOString().slice(0, 10);
+const uid = () => crypto.randomUUID();
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 const now = () => new Date().toISOString();
-
-// ── Seed data ──
-const SEED_TODOS: Todo[] = [
-  {
-    id: "t1",
-    title: "Appeler le médecin",
-    completed: false,
-    priority: "high",
-    dueDate: "2026-03-09",
-    createdAt: "2026-03-07T08:00:00Z",
-  },
-  {
-    id: "t2",
-    title: "Répondre aux emails",
-    completed: true,
-    priority: "medium",
-    dueDate: "2026-03-08",
-    createdAt: "2026-03-08T09:00:00Z",
-  },
-  {
-    id: "t3",
-    title: "Faire le ménage",
-    completed: false,
-    priority: "low",
-    dueDate: "2026-03-10",
-    recurrence: { type: "weekly", daysOfWeek: [5] },
-    createdAt: "2026-03-08T10:00:00Z",
-  },
-  {
-    id: "t4",
-    title: "Préparer la réunion lundi",
-    completed: false,
-    priority: "high",
-    dueDate: "2026-03-10",
-    createdAt: "2026-03-09T07:00:00Z",
-  },
-  {
-    id: "t5",
-    title: "Envoyer le devis freelance",
-    completed: false,
-    priority: "medium",
-    dueDate: "2026-03-09",
-    createdAt: "2026-03-09T08:00:00Z",
-  },
-  {
-    id: "t6",
-    title: "Méditation",
-    completed: false,
-    priority: "low",
-    dueDate: "2026-03-09",
-    recurrence: { type: "daily" },
-    createdAt: "2026-03-01T06:00:00Z",
-  },
-  {
-    id: "t7",
-    title: "Revue hebdo finances",
-    completed: false,
-    priority: "medium",
-    dueDate: "2026-03-14",
-    recurrence: { type: "weekly", daysOfWeek: [4] },
-    createdAt: "2026-03-01T06:00:00Z",
-  },
-];
-
-const SEED_GROCERY_LISTS: GroceryListType[] = [
-  {
-    id: "gl1",
-    name: "Courses de la semaine",
-    createdAt: "2026-03-07T08:00:00Z",
-    updatedAt: "2026-03-09T10:00:00Z",
-    items: [
-      {
-        id: "g1",
-        name: "Tomates",
-        quantity: 6,
-        unit: "pcs",
-        aisle: "Fruits & Légumes",
-        checked: false,
-      },
-      {
-        id: "g2",
-        name: "Poulet",
-        quantity: 500,
-        unit: "g",
-        price: 6.5,
-        aisle: "Boucherie & Poissonnerie",
-        checked: false,
-      },
-      {
-        id: "g3",
-        name: "Lait demi-écrémé",
-        quantity: 2,
-        unit: "L",
-        price: 1.8,
-        aisle: "Produits laitiers",
-        checked: false,
-      },
-      {
-        id: "g4",
-        name: "Baguette tradition",
-        quantity: 2,
-        unit: "pcs",
-        price: 1.3,
-        aisle: "Boulangerie",
-        checked: true,
-      },
-      {
-        id: "g5",
-        name: "Pâtes penne",
-        quantity: 500,
-        unit: "g",
-        price: 1.2,
-        aisle: "Épicerie",
-        checked: false,
-      },
-      {
-        id: "g6",
-        name: "Eau gazeuse",
-        quantity: 6,
-        unit: "btl",
-        price: 3.5,
-        aisle: "Boissons",
-        checked: false,
-      },
-    ],
-  },
-  {
-    id: "gl2",
-    name: "Soirée crêpes",
-    createdAt: "2026-03-05T12:00:00Z",
-    updatedAt: "2026-03-05T12:00:00Z",
-    items: [
-      {
-        id: "g7",
-        name: "Farine",
-        quantity: 500,
-        unit: "g",
-        price: 1.1,
-        aisle: "Épicerie",
-        checked: true,
-      },
-      {
-        id: "g8",
-        name: "Œufs",
-        quantity: 6,
-        unit: "pcs",
-        price: 2.5,
-        aisle: "Produits laitiers",
-        checked: true,
-      },
-      {
-        id: "g9",
-        name: "Lait",
-        quantity: 1,
-        unit: "L",
-        price: 1.2,
-        aisle: "Produits laitiers",
-        checked: true,
-      },
-      {
-        id: "g10",
-        name: "Nutella",
-        quantity: 1,
-        unit: "pot",
-        price: 4.5,
-        aisle: "Épicerie",
-        checked: false,
-      },
-    ],
-  },
-];
-
-const SEED_MEALS: MealSlot[] = [
-  { id: "m1", dayOfWeek: 0, mealType: "lunch", title: "Salade César" },
-  {
-    id: "m2",
-    dayOfWeek: 0,
-    mealType: "dinner",
-    title: "Poulet rôti + légumes",
-  },
-  { id: "m3", dayOfWeek: 1, mealType: "lunch", title: "Pâtes carbonara" },
-  { id: "m4", dayOfWeek: 1, mealType: "dinner", title: "Soupe de légumes" },
-  { id: "m5", dayOfWeek: 2, mealType: "lunch", title: "Bowl saumon avocat" },
-  { id: "m6", dayOfWeek: 3, mealType: "dinner", title: "Pizza maison" },
-  { id: "m7", dayOfWeek: 4, mealType: "lunch", title: "Quiche lorraine" },
-  { id: "m8", dayOfWeek: 5, mealType: "breakfast", title: "Pancakes" },
-  { id: "m9", dayOfWeek: 5, mealType: "dinner", title: "Burger maison" },
-  { id: "m10", dayOfWeek: 6, mealType: "lunch", title: "Brunch complet" },
-];
-
-const SEED_FRIDGE: FridgeItem[] = [
-  {
-    id: "f1",
-    name: "Yaourts nature",
-    expiryDate: "2026-03-10",
-    quantity: "4 pots",
-    consumed: false,
-  },
-  {
-    id: "f2",
-    name: "Jambon blanc",
-    expiryDate: "2026-03-09",
-    quantity: "3 tranches",
-    consumed: false,
-  },
-  {
-    id: "f3",
-    name: "Crème fraîche",
-    expiryDate: "2026-03-11",
-    quantity: "1 pot",
-    consumed: false,
-  },
-  {
-    id: "f4",
-    name: "Saumon fumé",
-    expiryDate: "2026-03-09",
-    quantity: "2 tranches",
-    consumed: true,
-  },
-];
-
-const SEED_HABITS: Habit[] = [
-  {
-    id: "h1",
-    name: "Méditation",
-    icon: "🧘",
-    color: "#6c5ce7",
-    completions: [0, 2, 4],
-  },
-  {
-    id: "h2",
-    name: "Sport",
-    icon: "💪",
-    color: "#00b894",
-    completions: [1, 3, 5],
-  },
-  {
-    id: "h3",
-    name: "Lecture",
-    icon: "📖",
-    color: "#e17055",
-    completions: [0, 1, 2, 3, 4, 5, 6],
-  },
-  {
-    id: "h4",
-    name: "Eau 2L",
-    icon: "💧",
-    color: "#0984e3",
-    completions: [0, 1, 2, 3, 4],
-  },
-  {
-    id: "h5",
-    name: "Pas d'écran 22h",
-    icon: "📵",
-    color: "#fdcb6e",
-    completions: [],
-  },
-];
-
-const SEED_NOTES: BrainNote[] = [
-  {
-    id: "n1",
-    content: "Idée : app de suivi de lectures avec notes par chapitre",
-    color: "#fff",
-    pinned: true,
-    createdAt: "2026-03-08T14:00:00Z",
-    updatedAt: "2026-03-08T14:00:00Z",
-  },
-  {
-    id: "n2",
-    content: "Ne pas oublier : anniversaire de Maman le 28 mars",
-    color: "#fff",
-    pinned: false,
-    createdAt: "2026-03-09T08:30:00Z",
-    updatedAt: "2026-03-09T08:30:00Z",
-  },
-  {
-    id: "n3",
-    content: "Recette à tester : risotto aux champignons de Julia",
-    color: "#fff",
-    pinned: false,
-    createdAt: "2026-03-09T09:00:00Z",
-    updatedAt: "2026-03-09T09:00:00Z",
-  },
-];
 
 // ══════════════════════════════════════════════
 // Store
 // ══════════════════════════════════════════════
 
 interface TodoState {
+  // ── Init ──
+  profileId: string | null;
+  loading: boolean;
+  init: (userId: string) => Promise<void>;
+
   activeModule: TodoModule;
   setActiveModule: (m: TodoModule) => void;
 
   // ── Agenda ──
   selectedDate: string; // ISO date
   setSelectedDate: (d: string) => void;
+
+  // ── Categories ──
+  categories: TodoCategory[];
+  addCategory: (emoji: string, name: string, color: string) => void;
+  updateCategory: (id: string, data: Partial<Omit<TodoCategory, "id">>) => void;
+  removeCategory: (id: string) => void;
 
   // ── Todos ──
   todos: Todo[];
@@ -322,6 +54,7 @@ interface TodoState {
     priority?: Priority,
     dueDate?: string,
     recurrence?: Recurrence,
+    categoryId?: string,
   ) => void;
   toggleTodo: (id: string) => void;
   removeTodo: (id: string) => void;
@@ -369,98 +102,190 @@ interface TodoState {
 
   // ── Brain dump ──
   brainNotes: BrainNote[];
-  addBrainNote: (content: string) => void;
-  updateBrainNote: (id: string, content: string) => void;
+  addBrainNote: (title: string, content: string) => void;
+  updateBrainNote: (
+    id: string,
+    data: Partial<{ title: string; content: string }>,
+  ) => void;
   updateNoteColor: (id: string, color: string) => void;
   removeBrainNote: (id: string) => void;
   togglePinNote: (id: string) => void;
 }
 
-export const useTodoStore = create<TodoState>((set) => ({
-  activeModule: "dashboard",
+export const useTodoStore = create<TodoState>((set, get) => ({
+  // ── Init ──
+  profileId: null,
+  loading: true,
+
+  init: async (userId: string) => {
+    if (get().profileId) return;
+    set({ loading: true });
+    const profileId = await db.ensureProfile(userId);
+    if (!profileId) {
+      console.warn(
+        "[todoStore] Impossible de résoudre/créer un profil pour userId:",
+        userId,
+      );
+      set({ loading: false });
+      return;
+    }
+    console.log("[todoStore] profileId résolu:", profileId);
+    const [
+      todos,
+      groceryLists,
+      mealSlots,
+      fridgeItems,
+      habits,
+      brainNotes,
+      categories,
+    ] = await Promise.all([
+      db.fetchTodos(profileId),
+      db.fetchGroceryLists(profileId),
+      db.fetchMealSlots(profileId),
+      db.fetchFridgeItems(profileId),
+      db.fetchHabits(profileId),
+      db.fetchNotes(profileId),
+      db.fetchCategories(profileId),
+    ]);
+    set({
+      profileId,
+      todos,
+      groceryLists,
+      mealSlots,
+      fridgeItems,
+      habits,
+      brainNotes,
+      categories,
+      loading: false,
+    });
+  },
+
+  activeModule: "overview",
   setActiveModule: (m) => set({ activeModule: m }),
 
   // ── Agenda ──
   selectedDate: today(),
   setSelectedDate: (d) => set({ selectedDate: d }),
 
-  // ── Todos ──
-  todos: SEED_TODOS,
-  addTodo: (title, priority = "medium", dueDate, recurrence) =>
+  // ── Categories ──
+  categories: [],
+  addCategory: (emoji, name, color) => {
+    const cat: TodoCategory = { id: uid(), emoji, name, color };
+    set((s) => ({ categories: [...s.categories, cat] }));
+    const pid = get().profileId;
+    if (pid) db.insertCategory(pid, cat);
+  },
+  updateCategory: (id, data) => {
     set((s) => ({
-      todos: [
-        {
-          id: uid(),
-          title,
-          completed: false,
-          priority,
-          dueDate: dueDate ?? today(),
-          recurrence: recurrence?.type === "none" ? undefined : recurrence,
-          createdAt: now(),
-        },
-        ...s.todos,
-      ],
-    })),
-  toggleTodo: (id) =>
-    set((s) => ({
-      todos: s.todos.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t,
+      categories: s.categories.map((c) =>
+        c.id === id ? { ...c, ...data } : c,
       ),
-    })),
-  removeTodo: (id) =>
-    set((s) => ({ todos: s.todos.filter((t) => t.id !== id) })),
-  updateTodo: (id, data) =>
+    }));
+    db.updateCategory(id, data);
+  },
+  removeCategory: (id) => {
+    set((s) => ({
+      categories: s.categories.filter((c) => c.id !== id),
+      todos: s.todos.map((t) =>
+        t.categoryId === id ? { ...t, categoryId: undefined } : t,
+      ),
+    }));
+    db.deleteCategory(id);
+  },
+
+  // ── Todos ──
+  todos: [],
+  addTodo: (title, priority = "medium", dueDate, recurrence, categoryId) => {
+    const todo: Todo = {
+      id: uid(),
+      title,
+      completed: false,
+      priority,
+      dueDate: dueDate ?? today(),
+      categoryId,
+      recurrence: recurrence?.type === "none" ? undefined : recurrence,
+      createdAt: now(),
+    };
+    set((s) => ({ todos: [todo, ...s.todos] }));
+    const pid = get().profileId;
+    if (pid) db.insertTodo(pid, todo);
+  },
+  toggleTodo: (id) => {
+    const todo = get().todos.find((t) => t.id === id);
+    if (!todo) return;
+    const completed = !todo.completed;
+    set((s) => ({
+      todos: s.todos.map((t) => (t.id === id ? { ...t, completed } : t)),
+    }));
+    db.updateTodoRow(id, { completed });
+  },
+  removeTodo: (id) => {
+    set((s) => ({ todos: s.todos.filter((t) => t.id !== id) }));
+    db.deleteTodo(id);
+  },
+  updateTodo: (id, data) => {
     set((s) => ({
       todos: s.todos.map((t) => (t.id === id ? { ...t, ...data } : t)),
-    })),
+    }));
+    db.updateTodoRow(id, data);
+  },
 
   // ── Grocery Lists ──
-  groceryLists: SEED_GROCERY_LISTS,
+  groceryLists: [],
   activeGroceryListId: null,
   setActiveGroceryListId: (id) => set({ activeGroceryListId: id }),
-  addGroceryList: (name) =>
+  addGroceryList: (name) => {
+    const id = uid();
     set((s) => ({
       groceryLists: [
-        { id: uid(), name, items: [], createdAt: now(), updatedAt: now() },
+        { id, name, items: [], createdAt: now(), updatedAt: now() },
         ...s.groceryLists,
       ],
-    })),
-  removeGroceryList: (id) =>
+    }));
+    const pid = get().profileId;
+    if (pid) db.insertGroceryList(pid, id, name);
+  },
+  removeGroceryList: (id) => {
     set((s) => ({
       groceryLists: s.groceryLists.filter((l) => l.id !== id),
       activeGroceryListId:
         s.activeGroceryListId === id ? null : s.activeGroceryListId,
-    })),
-  renameGroceryList: (id, name) =>
+    }));
+    db.deleteGroceryList(id);
+  },
+  renameGroceryList: (id, name) => {
     set((s) => ({
       groceryLists: s.groceryLists.map((l) =>
         l.id === id ? { ...l, name, updatedAt: now() } : l,
       ),
-    })),
-  addGroceryItem: (listId, name, aisle, quantity = 1, unit = "pcs", price) =>
+    }));
+    db.renameGroceryListRow(id, name);
+  },
+  addGroceryItem: (listId, name, aisle, quantity = 1, unit = "pcs", price) => {
+    const item: GroceryItem = {
+      id: uid(),
+      name,
+      quantity,
+      unit,
+      price,
+      aisle,
+      checked: false,
+    };
     set((s) => ({
       groceryLists: s.groceryLists.map((l) =>
         l.id === listId
-          ? {
-              ...l,
-              updatedAt: now(),
-              items: [
-                {
-                  id: uid(),
-                  name,
-                  quantity,
-                  unit,
-                  price,
-                  aisle,
-                  checked: false,
-                },
-                ...l.items,
-              ],
-            }
+          ? { ...l, updatedAt: now(), items: [item, ...l.items] }
           : l,
       ),
-    })),
-  toggleGroceryItem: (listId, itemId) =>
+    }));
+    const pid = get().profileId;
+    if (pid) db.insertGroceryItem(pid, listId, item);
+  },
+  toggleGroceryItem: (listId, itemId) => {
+    const list = get().groceryLists.find((l) => l.id === listId);
+    const item = list?.items.find((i) => i.id === itemId);
+    if (!item) return;
+    const checked = !item.checked;
     set((s) => ({
       groceryLists: s.groceryLists.map((l) =>
         l.id === listId
@@ -468,13 +293,15 @@ export const useTodoStore = create<TodoState>((set) => ({
               ...l,
               updatedAt: now(),
               items: l.items.map((i) =>
-                i.id === itemId ? { ...i, checked: !i.checked } : i,
+                i.id === itemId ? { ...i, checked } : i,
               ),
             }
           : l,
       ),
-    })),
-  removeGroceryItem: (listId, itemId) =>
+    }));
+    db.toggleGroceryItemRow(itemId, checked);
+  },
+  removeGroceryItem: (listId, itemId) => {
     set((s) => ({
       groceryLists: s.groceryLists.map((l) =>
         l.id === listId
@@ -485,80 +312,114 @@ export const useTodoStore = create<TodoState>((set) => ({
             }
           : l,
       ),
-    })),
-  clearCheckedGrocery: (listId) =>
+    }));
+    db.deleteGroceryItem(itemId);
+  },
+  clearCheckedGrocery: (listId) => {
     set((s) => ({
       groceryLists: s.groceryLists.map((l) =>
         l.id === listId
           ? { ...l, updatedAt: now(), items: l.items.filter((i) => !i.checked) }
           : l,
       ),
-    })),
+    }));
+    db.deleteCheckedGroceryItems(listId);
+  },
 
   // ── Meals ──
-  mealSlots: SEED_MEALS,
-  setMealSlot: (dayOfWeek, mealType, title) =>
-    set((s) => {
-      const existing = s.mealSlots.find(
-        (m) => m.dayOfWeek === dayOfWeek && m.mealType === mealType,
-      );
-      if (existing) {
-        return {
-          mealSlots: s.mealSlots.map((m) =>
-            m.id === existing.id ? { ...m, title } : m,
-          ),
-        };
-      }
-      return {
-        mealSlots: [...s.mealSlots, { id: uid(), dayOfWeek, mealType, title }],
-      };
-    }),
-  removeMealSlot: (id) =>
-    set((s) => ({ mealSlots: s.mealSlots.filter((m) => m.id !== id) })),
-  updateMealColor: (id, color) =>
+  mealSlots: [],
+  setMealSlot: (dayOfWeek, mealType, title) => {
+    const existing = get().mealSlots.find(
+      (m) => m.dayOfWeek === dayOfWeek && m.mealType === mealType,
+    );
+    if (existing) {
+      set((s) => ({
+        mealSlots: s.mealSlots.map((m) =>
+          m.id === existing.id ? { ...m, title } : m,
+        ),
+      }));
+      db.updateMealSlotTitle(existing.id, title);
+    } else {
+      const slot: MealSlot = { id: uid(), dayOfWeek, mealType, title };
+      set((s) => ({ mealSlots: [...s.mealSlots, slot] }));
+      const pid = get().profileId;
+      if (pid) db.insertMealSlot(pid, slot);
+    }
+  },
+  removeMealSlot: (id) => {
+    set((s) => ({ mealSlots: s.mealSlots.filter((m) => m.id !== id) }));
+    db.deleteMealSlot(id);
+  },
+  updateMealColor: (id, color) => {
     set((s) => ({
       mealSlots: s.mealSlots.map((m) => (m.id === id ? { ...m, color } : m)),
-    })),
-  clearAllMeals: () => set({ mealSlots: [] }),
+    }));
+    db.updateMealSlotColor(id, color);
+  },
+  clearAllMeals: () => {
+    set({ mealSlots: [] });
+    const pid = get().profileId;
+    if (pid) db.deleteAllMealSlots(pid);
+  },
 
   // ── Fridge ──
-  fridgeItems: SEED_FRIDGE,
-  addFridgeItem: (name, expiryDate, quantity = "1") =>
-    set((s) => ({
-      fridgeItems: [
-        { id: uid(), name, expiryDate, quantity, consumed: false },
-        ...s.fridgeItems,
-      ],
-    })),
-  toggleFridgeConsumed: (id) =>
+  fridgeItems: [],
+  addFridgeItem: (name, expiryDate, quantity = "1") => {
+    const item: FridgeItem = {
+      id: uid(),
+      name,
+      expiryDate,
+      quantity,
+      consumed: false,
+    };
+    set((s) => ({ fridgeItems: [item, ...s.fridgeItems] }));
+    const pid = get().profileId;
+    if (pid) db.insertFridgeItem(pid, item);
+  },
+  toggleFridgeConsumed: (id) => {
+    const item = get().fridgeItems.find((f) => f.id === id);
+    if (!item) return;
+    const consumed = !item.consumed;
     set((s) => ({
       fridgeItems: s.fridgeItems.map((f) =>
-        f.id === id ? { ...f, consumed: !f.consumed } : f,
+        f.id === id ? { ...f, consumed } : f,
       ),
-    })),
-  removeFridgeItem: (id) =>
-    set((s) => ({ fridgeItems: s.fridgeItems.filter((f) => f.id !== id) })),
-  updateFridgeColor: (id, color) =>
+    }));
+    db.toggleFridgeConsumedRow(id, consumed);
+  },
+  removeFridgeItem: (id) => {
+    set((s) => ({ fridgeItems: s.fridgeItems.filter((f) => f.id !== id) }));
+    db.deleteFridgeItemRow(id);
+  },
+  updateFridgeColor: (id, color) => {
     set((s) => ({
       fridgeItems: s.fridgeItems.map((f) =>
         f.id === id ? { ...f, color } : f,
       ),
-    })),
+    }));
+    db.updateFridgeColorRow(id, color);
+  },
 
   // ── Habits ──
-  habits: SEED_HABITS,
-  addHabit: (name, icon = "✦", color = "#6c5ce7") =>
-    set((s) => ({
-      habits: [...s.habits, { id: uid(), name, icon, color, completions: [] }],
-    })),
-  removeHabit: (id) =>
-    set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })),
+  habits: [],
+  addHabit: (name, icon = "✦", color = "#6c5ce7") => {
+    const habit: Habit = { id: uid(), name, icon, color, completions: [] };
+    set((s) => ({ habits: [...s.habits, habit] }));
+    const pid = get().profileId;
+    if (pid) db.insertHabit(pid, habit);
+  },
+  removeHabit: (id) => {
+    set((s) => ({ habits: s.habits.filter((h) => h.id !== id) }));
+    db.deleteHabitRow(id);
+  },
   toggleHabitDay: (id, day) => {
-    const d = day ?? (new Date().getDay() + 6) % 7; // JS Sunday=0 → 0=Mon
+    const d = day ?? (new Date().getDay() + 6) % 7;
+    const habit = get().habits.find((h) => h.id === id);
+    if (!habit) return;
+    const has = habit.completions.includes(d);
     set((s) => ({
       habits: s.habits.map((h) => {
         if (h.id !== id) return h;
-        const has = h.completions.includes(d);
         return {
           ...h,
           completions: has
@@ -567,46 +428,62 @@ export const useTodoStore = create<TodoState>((set) => ({
         };
       }),
     }));
+    if (has) {
+      db.removeHabitCompletion(id, d);
+    } else {
+      db.addHabitCompletion(id, d);
+    }
   },
-  updateHabitColor: (id, color) =>
+  updateHabitColor: (id, color) => {
     set((s) => ({
       habits: s.habits.map((h) => (h.id === id ? { ...h, color } : h)),
-    })),
+    }));
+    db.updateHabitColorRow(id, color);
+  },
 
   // ── Brain dump ──
-  brainNotes: SEED_NOTES,
-  addBrainNote: (content) =>
-    set((s) => ({
-      brainNotes: [
-        {
-          id: uid(),
-          content,
-          color: "#fff",
-          pinned: false,
-          createdAt: now(),
-          updatedAt: now(),
-        },
-        ...s.brainNotes,
-      ],
-    })),
-  updateBrainNote: (id, content) =>
+  brainNotes: [],
+  addBrainNote: (title, content) => {
+    const note: BrainNote = {
+      id: uid(),
+      title,
+      content,
+      color: "#fff",
+      pinned: false,
+      createdAt: now(),
+      updatedAt: now(),
+    };
+    set((s) => ({ brainNotes: [note, ...s.brainNotes] }));
+    const pid = get().profileId;
+    if (pid) db.insertNote(pid, note);
+  },
+  updateBrainNote: (id, data) => {
     set((s) => ({
       brainNotes: s.brainNotes.map((n) =>
-        n.id === id ? { ...n, content, updatedAt: now() } : n,
+        n.id === id ? { ...n, ...data, updatedAt: now() } : n,
       ),
-    })),
-  updateNoteColor: (id, color) =>
+    }));
+    db.updateNoteRow(id, data);
+  },
+  updateNoteColor: (id, color) => {
     set((s) => ({
       brainNotes: s.brainNotes.map((n) =>
         n.id === id ? { ...n, color, updatedAt: now() } : n,
       ),
-    })),
-  removeBrainNote: (id) =>
-    set((s) => ({ brainNotes: s.brainNotes.filter((n) => n.id !== id) })),
-  togglePinNote: (id) =>
+    }));
+    db.updateNoteRow(id, { color });
+  },
+  removeBrainNote: (id) => {
+    set((s) => ({ brainNotes: s.brainNotes.filter((n) => n.id !== id) }));
+    db.deleteNote(id);
+  },
+  togglePinNote: (id) => {
+    const note = get().brainNotes.find((n) => n.id === id);
+    if (!note) return;
+    const pinned = !note.pinned;
     set((s) => ({
-      brainNotes: s.brainNotes.map((n) =>
-        n.id === id ? { ...n, pinned: !n.pinned } : n,
-      ),
-    })),
+      brainNotes: s.brainNotes.map((n) => (n.id === id ? { ...n, pinned } : n)),
+    }));
+    db.updateNoteRow(id, { pinned });
+  },
 }));

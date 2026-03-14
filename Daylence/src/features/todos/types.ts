@@ -25,8 +25,17 @@ export interface Todo {
   completed: boolean;
   priority: Priority;
   dueDate: string; // ISO date — always set (defaults to today)
+  categoryId?: string; // FK to TodoCategory
   recurrence?: Recurrence;
   createdAt: string;
+}
+
+// ── Category ──
+export interface TodoCategory {
+  id: string;
+  emoji: string;
+  name: string;
+  color: string; // hex
 }
 
 export const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
@@ -121,6 +130,7 @@ export interface Habit {
 // ── Brain Dump ──
 export interface BrainNote {
   id: string;
+  title: string;
   content: string;
   color: string;
   pinned: boolean;
@@ -136,12 +146,12 @@ export const COLOR_PALETTE = [
   "#e17055",
   "#fdcb6e",
   "#fd79a8",
-  "#636e72",
   "#d63031",
-  "#74b9ff",
-  "#a29bfe",
-  "#ffeaa7",
-  "#dfe6e9",
+  "#00cec9",
+  "#e84393",
+  "#2d3436",
+  "#0652DD",
+  "#1abc9c",
 ] as const;
 
 // ── Aisle colors (fixed mapping for grocery categories) ──
@@ -159,6 +169,7 @@ export const AISLE_COLORS: Record<Aisle, string> = {
 
 // ── Module navigation ──
 export type TodoModule =
+  | "overview"
   | "dashboard"
   | "grocery"
   | "meals"
@@ -168,6 +179,7 @@ export type TodoModule =
 
 export const MODULE_META: Record<TodoModule, { label: string; emoji: string }> =
   {
+    overview: { label: "Aperçu", emoji: "📊" },
     dashboard: { label: "Agenda", emoji: "📋" },
     grocery: { label: "Courses", emoji: "🛒" },
     meals: { label: "Repas", emoji: "🍽️" },

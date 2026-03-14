@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Bell,
   Palette,
@@ -45,7 +45,10 @@ import {
   type FirstDay,
   type Currency,
   type DefaultPage,
+  type ColorblindMode,
 } from "../store/preferencesStore";
+import { useAuth } from "../../auth/store/authStore";
+import PageHeader from "../../../components/layout/PageHeader";
 import "../css/SettingsProfile.css";
 import ConfirmDialog from "../../../components/common/ConfirmDialog";
 
@@ -107,9 +110,9 @@ const NAV = [
 /* ── Main ── */
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
   const [section, setSection] = useState("appearance");
   const prefs = usePreferences();
+  const auth = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const isScrollingTo = useRef(false);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -150,6 +153,7 @@ export default function SettingsPage() {
   } | null>(null);
   const [pinDraft, setPinDraft] = useState("");
   const [pinError, setPinError] = useState("");
+  const [pinDisableVerify, setPinDisableVerify] = useState(false);
 
   /* ── New profile state ── */
   const [newProfileName, setNewProfileName] = useState("");
@@ -207,45 +211,18 @@ export default function SettingsPage() {
   return (
     <div className="sp-page">
       {/* Header */}
-      <header className="sp-header">
-        <a
-          href="/"
-          className="sp-header__brand"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/");
-          }}
-        >
-          <img
-            src="/daylence_logo_without_title.png"
-            alt="Daylence"
-            className="sp-header__logo"
-          />
-          <span className="sp-header__title">Daylence</span>
-        </a>
-        <nav className="sp-header__nav">
-          <a
-            href="/"
-            className="sp-header__link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/");
-            }}
-          >
-            Accueil
-          </a>
-          <a
-            href="/profile"
-            className="sp-header__link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/profile");
-            }}
-          >
-            Mon Profil
-          </a>
-        </nav>
-      </header>
+      <PageHeader
+        right={
+          <>
+            <Link to="/home" className="ph__nav-link">
+              Accueil
+            </Link>
+            <Link to="/profile" className="ph__nav-link">
+              Mon Profil
+            </Link>
+          </>
+        }
+      />
 
       <main className="sp-main">
         {/* Sidebar */}
@@ -985,6 +962,72 @@ export default function SettingsPage() {
                   onChange={() => prefs.set("offlineMode", !prefs.offlineMode)}
                 />
               </div>
+
+              {/* Colorblind / Daltonisme */}
+              <div className="sp-row sp-row--col">
+                <div className="sp-row__text">
+                  <span className="sp-row__label">Daltonisme</span>
+                  <span className="sp-row__desc">
+                    Adapte les couleurs et ajoute des indicateurs visuels pour
+                    les personnes atteintes de daltonisme.
+                  </span>
+                </div>
+                <div className="sp-cb-modes">
+                  {(
+                    [
+                      {
+                        value: "none",
+                        label: "Désactivé",
+                        desc: "Vision normale",
+                      },
+                      {
+                        value: "protanopia",
+                        label: "Protanopie",
+                        desc: "Insensibilité au rouge",
+                      },
+                      {
+                        value: "deuteranopia",
+                        label: "Deutéranopie",
+                        desc: "Insensibilité au vert",
+                      },
+                      {
+                        value: "tritanopia",
+                        label: "Tritanopie",
+                        desc: "Insensibilité au bleu",
+                      },
+                    ] as {
+                      value: ColorblindMode;
+                      label: string;
+                      desc: string;
+                    }[]
+                  ).map((mode) => (
+                    <button
+                      key={mode.value}
+                      className={`sp-cb-mode ${
+                        prefs.colorblindMode === mode.value
+                          ? "sp-cb-mode--active"
+                          : ""
+                      }`}
+                      onClick={() => prefs.set("colorblindMode", mode.value)}
+                    >
+                      <span className="sp-cb-mode__label">{mode.label}</span>
+                      <span className="sp-cb-mode__desc">{mode.desc}</span>
+                      {mode.value !== "none" && (
+                        <span
+                          className={`sp-cb-mode__preview sp-cb-mode__preview--${mode.value}`}
+                        >
+                          <span className="sp-cb-dot sp-cb-dot--1" />
+                          <span className="sp-cb-dot sp-cb-dot--2" />
+                          <span className="sp-cb-dot sp-cb-dot--3" />
+                        </span>
+                      )}
+                      {prefs.colorblindMode === mode.value && (
+                        <Check size={16} className="sp-cb-mode__check" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 
@@ -1004,17 +1047,26 @@ export default function SettingsPage() {
                     <Lock size={15} /> Verrouillage par PIN
                   </span>
                   <span className="sp-row__desc">
-                    {prefs.pinEnabled
-                      ? prefs.pinMode === "full"
+                    {auth.user?.pin
+                      ? auth.user.lock_selection.length === 0
                         ? "Activé — code PIN requis au lancement"
                         : "Activé — modules sélectionnés verrouillés"
                       : "Désactivé"}
                   </span>
                 </div>
-                {prefs.pinEnabled ? (
+                {auth.user?.pin ? (
                   <button
                     className="sp-btn sp-btn--outline sp-btn--sm"
-                    onClick={() => prefs.clearPin()}
+                    onClick={() => {
+                      // If pin_code is empty (corrupted state), disable directly
+                      if (!auth.user?.pin_code) {
+                        auth.disablePin();
+                        return;
+                      }
+                      setPinDisableVerify(true);
+                      setPinDraft("");
+                      setPinError("");
+                    }}
                   >
                     Désactiver
                   </button>
@@ -1032,26 +1084,78 @@ export default function SettingsPage() {
                 )}
               </div>
 
+              {/* PIN disable verification */}
+              {pinDisableVerify && (
+                <div className="sp-pin-setup">
+                  <p className="sp-pin-setup__label">
+                    Entrez votre code PIN pour désactiver :
+                  </p>
+                  <input
+                    className="sp-input sp-input--pin"
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={pinDraft}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      setPinDraft(val);
+                      setPinError("");
+                    }}
+                    placeholder="• • • • • •"
+                    autoFocus
+                  />
+                  {pinError && <p className="sp-pin-setup__err">{pinError}</p>}
+                  <div className="sp-pin-setup__actions">
+                    <button
+                      className="sp-btn sp-btn--outline sp-btn--sm"
+                      onClick={() => {
+                        setPinDisableVerify(false);
+                        setPinDraft("");
+                        setPinError("");
+                      }}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      className="sp-btn sp-btn--primary sp-btn--sm"
+                      disabled={pinDraft.length < 4}
+                      onClick={() => {
+                        if (pinDraft === auth.user?.pin_code) {
+                          auth.disablePin();
+                          setPinDisableVerify(false);
+                          setPinDraft("");
+                        } else {
+                          setPinError("Code PIN incorrect");
+                          setPinDraft("");
+                        }
+                      }}
+                    >
+                      Confirmer
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* PIN setup flow */}
               {pinSetup && (
                 <div className="sp-pin-setup">
                   <p className="sp-pin-setup__label">
                     {pinSetup.step === "new"
-                      ? "Définissez un code à 4 chiffres :"
+                      ? "Définissez un code à 6 chiffres :"
                       : "Confirmez votre code :"}
                   </p>
                   <input
                     className="sp-input sp-input--pin"
                     type="password"
                     inputMode="numeric"
-                    maxLength={4}
+                    maxLength={6}
                     value={pinDraft}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 6);
                       setPinDraft(val);
                       setPinError("");
                     }}
-                    placeholder="• • • •"
+                    placeholder="• • • • • •"
                     autoFocus
                   />
                   {pinError && <p className="sp-pin-setup__err">{pinError}</p>}
@@ -1064,14 +1168,14 @@ export default function SettingsPage() {
                     </button>
                     <button
                       className="sp-btn sp-btn--primary sp-btn--sm"
-                      disabled={pinDraft.length < 4}
+                      disabled={pinDraft.length < 6}
                       onClick={() => {
                         if (pinSetup.step === "new") {
                           setPinSetup({ step: "confirm", code: pinDraft });
                           setPinDraft("");
                         } else {
                           if (pinDraft === pinSetup.code) {
-                            prefs.setPin(pinDraft);
+                            auth.enablePin(pinDraft);
                             setPinSetup(null);
                           } else {
                             setPinError("Les codes ne correspondent pas");
@@ -1086,64 +1190,43 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* PIN mode selector */}
-              {prefs.pinEnabled && (
-                <div className="sp-row sp-row--col" style={{ marginTop: 8 }}>
-                  <div className="sp-row__text">
-                    <span className="sp-row__label">Mode de verrouillage</span>
-                    <span className="sp-row__desc">
-                      Choisissez ce que le PIN protège
-                    </span>
-                  </div>
-                  <div className="sp-mode-btns">
-                    <button
-                      className={`sp-mode-btn ${prefs.pinMode === "full" ? "sp-mode-btn--active" : ""}`}
-                      onClick={() => prefs.set("pinMode", "full")}
-                    >
-                      <Shield size={16} />
-                      <span>Complet</span>
-                    </button>
-                    <button
-                      className={`sp-mode-btn ${prefs.pinMode === "apps" ? "sp-mode-btn--active" : ""}`}
-                      onClick={() => prefs.set("pinMode", "apps")}
-                    >
-                      <EyeOff size={16} />
-                      <span>Applications</span>
-                    </button>
-                  </div>
-                  <p className="sp-row__hint">
-                    {prefs.pinMode === "full"
-                      ? "Le code PIN est demandé à chaque ouverture du site ou actualisation."
-                      : "Seuls les modules sélectionnés ci-dessous sont verrouillés. Une fois le PIN saisi, tous sont déverrouillés jusqu'à la prochaine actualisation."}
-                  </p>
-                </div>
-              )}
-
-              {/* Locked modules (only in "apps" mode) */}
-              {prefs.pinEnabled && prefs.pinMode === "apps" && (
+              {/* Locked modules selector */}
+              {auth.user?.pin && (
                 <div className="sp-row sp-row--col" style={{ marginTop: 8 }}>
                   <div className="sp-row__text">
                     <span className="sp-row__label">
                       <EyeOff size={15} /> Modules verrouillés
                     </span>
                     <span className="sp-row__desc">
-                      Ces modules nécessiteront le code PIN pour y accéder
+                      Sélectionnez les modules à protéger. Si aucun n'est
+                      sélectionné, l'application entière est verrouillée.
                     </span>
                   </div>
                   <div className="sp-hidden-mods">
                     {prefs.modules.map((mod) => (
                       <button
                         key={mod.id}
-                        className={`sp-chip ${prefs.hiddenModules.includes(mod.id) ? "sp-chip--active" : ""}`}
-                        onClick={() => prefs.toggleHiddenModule(mod.id)}
+                        className={`sp-chip ${auth.user?.lock_selection.includes(mod.id) ? "sp-chip--active" : ""}`}
+                        onClick={() => {
+                          const current = auth.user?.lock_selection ?? [];
+                          const next = current.includes(mod.id)
+                            ? current.filter((m) => m !== mod.id)
+                            : [...current, mod.id];
+                          auth.updateLockSelection(next);
+                        }}
                       >
                         {getModuleEmoji(mod.id)} {getModuleLabel(mod.id)}
-                        {prefs.hiddenModules.includes(mod.id) && (
+                        {auth.user?.lock_selection.includes(mod.id) && (
                           <Check size={12} />
                         )}
                       </button>
                     ))}
                   </div>
+                  <p className="sp-row__hint">
+                    {auth.user.lock_selection.length === 0
+                      ? "Aucun module sélectionné — le code PIN est demandé à chaque ouverture du site."
+                      : "Seuls les modules sélectionnés sont verrouillés. Une fois le PIN saisi, tous sont déverrouillés jusqu'à la prochaine actualisation."}
+                  </p>
                 </div>
               )}
             </div>

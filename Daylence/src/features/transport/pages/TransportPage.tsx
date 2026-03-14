@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import PageHeader from "../../../components/layout/PageHeader";
 import SelectVehicle from "../components/SelectVehicle";
 import "../css/TransportPage.css";
 
@@ -5,28 +7,21 @@ export default function TransportPage() {
   return (
     <div className="transport-page">
       {/* ── Header ── */}
-      <header className="transport-header">
-        <a href="/" className="transport-header__brand">
-          <img
-            src="/daylence_logo_without_title.png"
-            alt="Daylence"
-            className="transport-header__logo"
-          />
-          <span className="transport-header__title">Daylence</span>
-        </a>
-
-        <nav className="transport-header__nav">
-          <a href="/" className="transport-header__link">
-            Accueil
-          </a>
-          <a href="/discover" className="transport-header__link">
-            Découvrir
-          </a>
-          <a href="/support" className="transport-header__link">
-            Support
-          </a>
-        </nav>
-      </header>
+      <PageHeader
+        right={
+          <>
+            <Link to="/home" className="ph__nav-link">
+              Accueil
+            </Link>
+            <Link to="/discover" className="ph__nav-link">
+              Découvrir
+            </Link>
+            <Link to="/support" className="ph__nav-link">
+              Support
+            </Link>
+          </>
+        }
+      />
 
       {/* ── Hero ── */}
       <section className="transport-hero">

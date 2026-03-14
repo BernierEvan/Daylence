@@ -73,12 +73,16 @@ CREATE TABLE IF NOT EXISTS habit_completions (
 CREATE TABLE IF NOT EXISTS brain_dump_notes (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title       TEXT NOT NULL DEFAULT '',
   content     TEXT NOT NULL DEFAULT '',
   color       TEXT DEFAULT '#fff',
   pinned      BOOLEAN DEFAULT FALSE,
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: add title column if table already exists
+ALTER TABLE brain_dump_notes ADD COLUMN IF NOT EXISTS title TEXT NOT NULL DEFAULT '';
 
 -- ── Updated at trigger (reuse from budget schema if exists) ──
 CREATE OR REPLACE FUNCTION trigger_set_updated_at()

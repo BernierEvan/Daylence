@@ -2,10 +2,12 @@ import { Shield, Zap } from "lucide-react";
 import { useBudgetStore } from "../store/budgetStore";
 import { CATEGORY_META } from "../types";
 import type { Category } from "../types";
+import { useAnonymousFormat } from "../hooks/useBudget";
 
 export default function CategoryBreakdown() {
   const envelopes = useBudgetStore((s) => s.envelopes);
   const getCategorySpent = useBudgetStore((s) => s.getCategorySpent);
+  const { fmt } = useAnonymousFormat();
 
   const sorted = [...envelopes].sort((a, b) => a.priority - b.priority);
 
@@ -16,9 +18,6 @@ export default function CategoryBreakdown() {
       </div>
     );
   }
-
-  const fmt = (n: number) =>
-    n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 
   return (
     <div className="cb-section">
@@ -78,10 +77,10 @@ export default function CategoryBreakdown() {
                 <span className="cb-item__sublabel">Dépensé</span>
                 <div className="cb-item__track">
                   <div
-                    className="cb-item__fill"
+                    className={`cb-item__fill ${over ? "cb-item__fill--over" : ""}`}
                     style={{
                       width: `${pctSpent}%`,
-                      backgroundColor: over ? "#ef4444" : meta.color,
+                      backgroundColor: over ? undefined : meta.color,
                     }}
                   />
                 </div>

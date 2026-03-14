@@ -34,6 +34,7 @@ import {
   searchJourneys,
 } from "../../transport/services/transportApi";
 import { usePreferences } from "../../settings/store/preferencesStore";
+import { useAuth } from "../../auth/store/authStore";
 import { useSessionUnlock } from "../../../contexts/UnlockContext";
 import { fmtTime as fmtTimeUtil } from "../../../lib/utils";
 import type { SncfPlace, SncfJourney } from "../../transport/types";
@@ -498,22 +499,25 @@ export default function Hero() {
 
   /* ── Preferences ── */
   const modules = usePreferences((s) => s.modules);
-  const hiddenModules = usePreferences((s) => s.hiddenModules);
-  const pinEnabled = usePreferences((s) => s.pinEnabled);
-  const pinMode = usePreferences((s) => s.pinMode);
   const { sessionUnlocked } = useSessionUnlock();
 
-  /* Build sorted, visible module list — in "apps" mode, don't hide locked modules */
-  const isAppsLock = pinEnabled && pinMode === "apps";
+  /* ── Auth (PIN from DB) ── */
+  const user = useAuth((s) => s.user);
+  const hasLockedModules = !!user?.pin && user.lock_selection.length > 0;
+
+  /* Build sorted, visible module list */
   const visibleModules = modules
-    .filter((m) => m.visible && (isAppsLock || !hiddenModules.includes(m.id)))
+    .filter((m) => m.visible)
     .map((m) => {
       const base = MODULES.find((bm) => bm.id === m.id);
       if (!base) return null;
       return {
         ...base,
         favorited: m.favorited,
-        locked: isAppsLock && !sessionUnlocked && hiddenModules.includes(m.id),
+        locked:
+          hasLockedModules &&
+          !sessionUnlocked &&
+          user!.lock_selection.includes(m.id),
       };
     })
     .filter(Boolean) as ((typeof MODULES)[number] & {

@@ -1,5 +1,9 @@
-import { useState, useCallback } from "react";
-import { usePreferences } from "../store/preferencesStore";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAuth } from "../../auth/store/authStore";
+
+/* ── Webhook URL for forgot-PIN requests ── */
+const FORGOT_PIN_WEBHOOK_URL =
+  "https://n8n.srv1455737.hstgr.cloud/webhook/reset-pin-request";
 
 /* ═══════════════════════════════════════════════
    LockScreen – PIN gate shown on app launch.
@@ -12,9 +16,25 @@ export default function LockScreen({
   onUnlock: () => void;
   subtitle?: string;
 }) {
-  const pinCode = usePreferences((s) => s.pinCode);
+  const pinCode = useAuth((s) => s.user?.pin_code ?? "");
+  const userEmail = useAuth((s) => s.user?.email ?? "");
+  const userId = useAuth((s) => s.user?.id_user ?? "");
+  const refreshUser = useAuth((s) => s.refreshUser);
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
+
+  // Sync PIN from DB on mount (handles reset-pin done externally)
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
+
+  // If PIN is enabled but pin_code is empty/corrupted, auto-unlock
+  useEffect(() => {
+    if (!pinCode) onUnlock();
+  }, [pinCode, onUnlock]);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleKey = useCallback(
     (digit: string) => {
@@ -39,8 +59,45 @@ export default function LockScreen({
     [input, pinCode, onUnlock],
   );
 
+  /* ── Keyboard support ── */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key >= "0" && e.key <= "9") {
+        handleKey(e.key);
+      } else if (e.key === "Backspace") {
+        handleKey("del");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleKey]);
+
+  /* ── Auto-focus container so keyboard works immediately ── */
+  useEffect(() => {
+    containerRef.current?.focus();
+  }, []);
+
+  /* ── Forgot PIN handler ── */
+  const handleForgotPin = async () => {
+    if (forgotSent || forgotLoading || !userEmail || !userId) return;
+    setForgotLoading(true);
+    try {
+      await fetch(FORGOT_PIN_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail, userId }),
+      });
+      setForgotSent(true);
+    } catch {
+      // Silently handle — show sent state anyway to avoid info leak
+      setForgotSent(true);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
-    <div className="lock">
+    <div className="lock" ref={containerRef} tabIndex={-1}>
       <div className="lock__card">
         <img
           src="/daylence_logo_without_title.png"
@@ -69,7 +126,7 @@ export default function LockScreen({
               ) : (
                 <button
                   key={i}
-                  className="lock__key"
+                  className={`lock__key ${d === "del" ? "lock__key--delete" : ""}`}
                   onClick={() => handleKey(d)}
                 >
                   {d === "del" ? "⌫" : d}
@@ -77,6 +134,18 @@ export default function LockScreen({
               ),
           )}
         </div>
+
+        <button
+          className="lock__forgot"
+          onClick={handleForgotPin}
+          disabled={forgotSent || forgotLoading}
+        >
+          {forgotLoading
+            ? "Envoi…"
+            : forgotSent
+              ? "Demande envoyée ✓"
+              : "PIN oublié ?"}
+        </button>
       </div>
     </div>
   );

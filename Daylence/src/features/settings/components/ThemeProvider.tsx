@@ -49,6 +49,7 @@ export default function ThemeProvider({
   const fontSize = usePreferences((s) => s.fontSize);
   const reduceAnimations = usePreferences((s) => s.reduceAnimations);
   const highContrast = usePreferences((s) => s.highContrast);
+  const colorblindMode = usePreferences((s) => s.colorblindMode);
   const customThemeId = usePreferences((s) => s.customThemeId);
   const customBg = usePreferences((s) => s.customBg);
   const customBgBlur = usePreferences((s) => s.customBgBlur);
@@ -164,6 +165,12 @@ export default function ThemeProvider({
     html.classList.toggle("reduce-motion", reduceAnimations);
     html.classList.toggle("high-contrast", highContrast);
 
+    // ── Colorblind mode ──
+    html.classList.remove("cb-protanopia", "cb-deuteranopia", "cb-tritanopia");
+    if (colorblindMode && colorblindMode !== "none") {
+      html.classList.add(`cb-${colorblindMode}`);
+    }
+
     // Also set color-scheme
     style.setProperty("color-scheme", effectiveMode);
 
@@ -196,6 +203,7 @@ export default function ThemeProvider({
     fontSize,
     reduceAnimations,
     highContrast,
+    colorblindMode,
     customThemeId,
     customBg,
     customBgBlur,

@@ -6,6 +6,7 @@ import {
   type Recurrence,
   RECURRENCE_LABELS,
 } from "../types";
+import { useTodoStore } from "../store/todoStore";
 
 interface Props {
   onAdd: (
@@ -13,15 +14,16 @@ interface Props {
     priority?: Priority,
     dueDate?: string,
     recurrence?: Recurrence,
+    categoryId?: string,
   ) => void;
   defaultDate?: string;
   placeholder?: string;
 }
 
-const PRIORITIES: { value: Priority; label: string; color: string }[] = [
-  { value: "low", label: "Basse", color: "#95a5a6" },
-  { value: "medium", label: "Moyenne", color: "#f39c12" },
-  { value: "high", label: "Haute", color: "#e74c3c" },
+const PRIORITIES: { value: Priority; label: string }[] = [
+  { value: "low", label: "Basse" },
+  { value: "medium", label: "Moyenne" },
+  { value: "high", label: "Haute" },
 ];
 
 const RECURRENCE_TYPES: RecurrenceType[] = [
@@ -38,12 +40,17 @@ export default function TodoForm({
   placeholder = "Ajouter une tâche…",
 }: Props) {
   const [title, setTitle] = useState("");
-  const [dueDate, setDueDate] = useState(
-    defaultDate ?? new Date().toISOString().slice(0, 10),
-  );
+  const [dueDate, setDueDate] = useState(() => {
+    if (defaultDate) return defaultDate;
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
   const [priority, setPriority] = useState<Priority>("medium");
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>("none");
+  const [categoryId, setCategoryId] = useState<string>("");
   const [expanded, setExpanded] = useState(false);
+
+  const categories = useTodoStore((s) => s.categories);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -51,9 +58,10 @@ export default function TodoForm({
     if (!trimmed) return;
     const recurrence: Recurrence | undefined =
       recurrenceType === "none" ? undefined : { type: recurrenceType };
-    onAdd(trimmed, priority, dueDate, recurrence);
+    onAdd(trimmed, priority, dueDate, recurrence, categoryId || undefined);
     setTitle("");
     setRecurrenceType("none");
+    setCategoryId("");
   };
 
   return (
@@ -108,12 +116,7 @@ export default function TodoForm({
                 <button
                   key={p.value}
                   type="button"
-                  className={`td-form__priority-btn ${priority === p.value ? "td-form__priority-btn--active" : ""}`}
-                  style={
-                    priority === p.value
-                      ? { background: p.color, color: "#fff" }
-                      : { color: p.color }
-                  }
+                  className={`td-form__priority-btn td-form__priority-btn--${p.value} ${priority === p.value ? "td-form__priority-btn--active" : ""}`}
                   onClick={() => setPriority(p.value)}
                 >
                   {p.label}
@@ -139,6 +142,37 @@ export default function TodoForm({
               ))}
             </select>
           </label>
+
+          {/* category */}
+          {categories.length > 0 && (
+            <label className="td-form__field">
+              <span className="td-form__label">Catégorie</span>
+              <div className="td-form__cat-picker">
+                <button
+                  type="button"
+                  className={`td-form__cat-btn ${!categoryId ? "td-form__cat-btn--active" : ""}`}
+                  onClick={() => setCategoryId("")}
+                >
+                  Aucune
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`td-form__cat-btn ${categoryId === cat.id ? "td-form__cat-btn--active" : ""}`}
+                    style={
+                      categoryId === cat.id
+                        ? { background: cat.color, color: "#fff" }
+                        : { background: cat.color + "22", color: cat.color }
+                    }
+                    onClick={() => setCategoryId(cat.id)}
+                  >
+                    {cat.emoji} {cat.name}
+                  </button>
+                ))}
+              </div>
+            </label>
+          )}
         </div>
       )}
     </form>

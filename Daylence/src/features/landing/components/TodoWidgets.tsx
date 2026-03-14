@@ -17,7 +17,10 @@ import { MEAL_LABELS, type MealType, DAY_LABELS } from "../../todos/types";
 
 /* ── helpers ── */
 
-const isoToday = () => new Date().toISOString().slice(0, 10);
+const isoToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 
 function matchesDate(todo: Todo, iso: string): boolean {
   if (todo.dueDate === iso) return true;
@@ -43,10 +46,10 @@ function matchesDate(todo: Todo, iso: string): boolean {
   }
 }
 
-const PRIORITY_COLOR: Record<string, string> = {
-  high: "#e74c3c",
-  medium: "#f39c12",
-  low: "#95a5a6",
+const PRIORITY_LABEL: Record<string, string> = {
+  high: "!!!",
+  medium: "!!",
+  low: "·",
 };
 
 /** Navigate to /todos and activate the right module tab. */
@@ -108,7 +111,14 @@ export function AgendaWidget({ widgetId }: { widgetId: string }) {
             </button>
             <span className="wt__todo-title">{t.title}</span>
             {t.recurrence && <Repeat size={11} className="wt__recur" />}
-            <Flag size={11} style={{ color: PRIORITY_COLOR[t.priority] }} />
+            <span
+              className={`td-item__priority td-item__priority--${t.priority}`}
+            >
+              <Flag size={11} />
+              <span className="td-item__flag-label">
+                {PRIORITY_LABEL[t.priority]}
+              </span>
+            </span>
           </div>
         ))}
         {todayTodos.length === 0 && (

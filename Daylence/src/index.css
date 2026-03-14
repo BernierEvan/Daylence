@@ -81,6 +81,115 @@ body {
   box-shadow: var(--hc-shadow) !important;
 }
 
+/* ── Colorblind / Daltonisme (global) ────────────────── */
+/*
+   Semantic status colors used across the app.
+   Normal vision: classic green/red/orange/blue.
+   Protanopia/Deuteranopia (red-green blind): Wong palette.
+   Tritanopia (blue-yellow blind): adapted palette.
+   Reference: Bang Wong, Nature Methods 8, 441 (2011).
+*/
+:root {
+  --d-status-success: #22c55e;
+  --d-status-success-dim: rgba(34, 197, 94, 0.1);
+  --d-status-error: #ef4444;
+  --d-status-error-dim: rgba(239, 68, 68, 0.1);
+  --d-status-warning: #f59e0b;
+  --d-status-warning-dim: rgba(245, 158, 11, 0.1);
+  --d-status-info: #3b82f6;
+  --d-status-info-dim: rgba(59, 130, 246, 0.1);
+  --d-priority-high: #e74c3c;
+  --d-priority-medium: #f39c12;
+  --d-priority-low: #95a5a6;
+}
+
+/* Protanopia – red-blind: red ≈ dark, green ≈ brown/beige */
+.cb-protanopia {
+  --d-status-success: #0072b2;
+  --d-status-success-dim: rgba(0, 114, 178, 0.12);
+  --d-status-error: #d55e00;
+  --d-status-error-dim: rgba(213, 94, 0, 0.12);
+  --d-status-warning: #e69f00;
+  --d-status-warning-dim: rgba(230, 159, 0, 0.12);
+  --d-status-info: #56b4e9;
+  --d-status-info-dim: rgba(86, 180, 233, 0.12);
+  --d-priority-high: #d55e00;
+  --d-priority-medium: #e69f00;
+  --d-priority-low: #999999;
+}
+
+/* Deuteranopia – green-blind: green ≈ beige/brown, red ≈ brown */
+.cb-deuteranopia {
+  --d-status-success: #0072b2;
+  --d-status-success-dim: rgba(0, 114, 178, 0.12);
+  --d-status-error: #d55e00;
+  --d-status-error-dim: rgba(213, 94, 0, 0.12);
+  --d-status-warning: #e69f00;
+  --d-status-warning-dim: rgba(230, 159, 0, 0.12);
+  --d-status-info: #56b4e9;
+  --d-status-info-dim: rgba(86, 180, 233, 0.12);
+  --d-priority-high: #d55e00;
+  --d-priority-medium: #e69f00;
+  --d-priority-low: #999999;
+}
+
+/* Tritanopia – blue-yellow blind: blue ≈ green, yellow ≈ pink */
+.cb-tritanopia {
+  --d-status-success: #009e73;
+  --d-status-success-dim: rgba(0, 158, 115, 0.12);
+  --d-status-error: #d55e00;
+  --d-status-error-dim: rgba(213, 94, 0, 0.12);
+  --d-status-warning: #cc79a7;
+  --d-status-warning-dim: rgba(204, 121, 167, 0.12);
+  --d-status-info: #009e73;
+  --d-status-info-dim: rgba(0, 158, 115, 0.12);
+  --d-priority-high: #d55e00;
+  --d-priority-medium: #cc79a7;
+  --d-priority-low: #999999;
+}
+
+/* Colorblind visual indicators: add patterns where color alone conveys meaning.
+   Uses a subtle repeating stripe overlay for error, crosshatch for warning,
+   and solid dot pattern for success to help distinguish statuses. */
+
+/* Error/danger elements: diagonal stripes */
+.cb-protanopia [data-cb-status="error"],
+.cb-deuteranopia [data-cb-status="error"],
+.cb-tritanopia [data-cb-status="error"] {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 3px,
+    currentColor 3px,
+    currentColor 3.5px
+  ) !important;
+  background-size: auto !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* Warning elements: dotted underline */
+.cb-protanopia [data-cb-status="warning"],
+.cb-deuteranopia [data-cb-status="warning"],
+.cb-tritanopia [data-cb-status="warning"] {
+  text-decoration: underline dotted 1.5px !important;
+  text-underline-offset: 2px !important;
+}
+
+/* Priority flag icons: add shape indicators next to the flag */
+.cb-protanopia .td-item__flag-label,
+.cb-deuteranopia .td-item__flag-label,
+.cb-tritanopia .td-item__flag-label {
+  display: inline !important;
+  font-size: 0.65rem;
+  font-weight: 800;
+  margin-left: 2px;
+  letter-spacing: -0.02em;
+}
+.td-item__flag-label {
+  display: none;
+}
+
 /* ══════════════════════════════════════════
    Confirm Dialog (global)
    ══════════════════════════════════════════ */
@@ -147,8 +256,8 @@ body {
   margin-bottom: 4px;
 }
 .cd-icon--danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: var(--d-status-error-dim, rgba(239, 68, 68, 0.12));
+  color: var(--d-status-error, #ef4444);
 }
 
 .cd-title {
@@ -197,11 +306,12 @@ body {
 }
 
 .cd-btn--danger {
-  background: #ef4444;
+  background: var(--d-status-error, #ef4444);
   color: #fff;
 }
 .cd-btn--danger:hover {
-  background: #dc2626;
+  background: var(--d-status-error, #dc2626);
+  filter: brightness(0.9);
 }
 
 .cd-btn--primary {

@@ -1,5 +1,7 @@
-import { Settings, User, Sparkles } from "lucide-react";
+import { Settings, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { fmtDateLong } from "../../../lib/utils";
+import WeatherWidget from "../../weather/components/WeatherWidget";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -16,12 +18,12 @@ export default function Header() {
     <header className="lp-top">
       {/* Left — actions */}
       <div className="lp-top__left">
-        <a href="/settings" className="lp-top__icon" aria-label="Paramètres">
+        <Link to="/settings" className="lp-top__icon" aria-label="Paramètres">
           <Settings size={18} />
-        </a>
-        <a href="/profile" className="lp-top__icon" aria-label="Profil">
+        </Link>
+        <Link to="/profile" className="lp-top__icon" aria-label="Profil">
           <User size={18} />
-        </a>
+        </Link>
       </div>
 
       {/* Center — brand */}
@@ -41,8 +43,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Right — spacer for centering */}
-      <div className="lp-top__right" />
+      {/* Right — weather widget */}
+      <div className="lp-top__right">
+        <WeatherWidget />
+      </div>
     </header>
   );
 }

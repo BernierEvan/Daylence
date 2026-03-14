@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import PageHeader from "../../../components/layout/PageHeader";
 import "../css/SettingsProfile.css";
 
 interface Activity {
@@ -90,24 +92,18 @@ export default function ProfilePage() {
   return (
     <div className="sp-page">
       {/* Header */}
-      <header className="sp-header">
-        <a href="/" className="sp-header__brand">
-          <img
-            src="/daylence_logo_without_title.png"
-            alt="Daylence"
-            className="sp-header__logo"
-          />
-          <span className="sp-header__title">Daylence</span>
-        </a>
-        <nav className="sp-header__nav">
-          <a href="/" className="sp-header__link">
-            Accueil
-          </a>
-          <a href="/parameters" className="sp-header__link">
-            Paramètres
-          </a>
-        </nav>
-      </header>
+      <PageHeader
+        right={
+          <>
+            <Link to="/home" className="ph__nav-link">
+              Accueil
+            </Link>
+            <Link to="/settings" className="ph__nav-link">
+              Paramètres
+            </Link>
+          </>
+        }
+      />
 
       {/* Content */}
       <main className="sp-main sp-main--profile">

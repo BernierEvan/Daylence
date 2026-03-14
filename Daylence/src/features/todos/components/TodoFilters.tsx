@@ -7,6 +7,7 @@ interface Props {
 }
 
 const MODULES: TodoModule[] = [
+  "overview",
   "dashboard",
   "grocery",
   "meals",
