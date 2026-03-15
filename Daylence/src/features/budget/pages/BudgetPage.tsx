@@ -237,8 +237,6 @@ export default function BudgetPage() {
         {tab === "overview" && (
           <>
             <BudgetOverview />
-            <WidgetGrid />
-            <CrossModuleSuggestion />
           </>
         )}
         {tab === "transactions" && <TransactionsView />}
